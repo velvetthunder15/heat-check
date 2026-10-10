@@ -22,7 +22,7 @@ const App = {
   /* ---------- gates ---------- */
   ageGate() {
     this.set('home', `<div class="gate">
-      <div class="flame">🔥</div><div class="logo">Heat<br>Check</div>
+      <div class="logo logo-img gate-logo"><img src="/logo-wordmark.webp" width="694" height="289" alt="Heat Check" draggable="false" fetchpriority="high" /></div>
       <p>Flirty party games for couples and groups of couples.<br><b>Adults only.</b></p>
       <button class="btn block" id="y18">I'm 18 or older</button>
       <button class="btn block ghost" id="n18">I'm under 18</button>
