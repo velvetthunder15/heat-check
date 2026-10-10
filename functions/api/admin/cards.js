@@ -4,9 +4,13 @@ import { json, handle, readJson, HttpError } from '../../../lib/http.js';
 import { requireAdmin } from '../../../lib/admin.js';
 import { rest } from '../../../lib/supabase.js';
 
-const GAMES = ['redflag', 'rate', 'nhie', 'bodypart', 'charades', 'wyr', 'mostlikely', 'hotseat', 'twotruths', 'swap'];
-const ZONES = ['forehead', 'eyelids', 'ear', 'cheek', 'lips', 'jaw', 'neck', 'nape', 'collarbone', 'shoulder', 'upperarm', 'elbow', 'wrist', 'palm', 'fingers', 'upperback', 'lowerback', 'waist', 'hip', 'thigh', 'knee', 'calf', 'ankle', 'foot'];
-const CATEGORIES = ['Bedroom Charade', 'Celebrity', 'Dance Move', 'Movie', 'Scenario', 'Song'];
+import { GAMES as GAME_LIST } from '../../../lib/games.js';
+
+const GAMES = GAME_LIST.map((g) => g.id);
+const MODE = Object.fromEntries(GAME_LIST.map((g) => [g.id, g.mode]));
+const CATEGORIES = ['Movie', 'TV Show', 'Song'];
+const ORIGINS = ['Hollywood', 'Bollywood', 'Global'];
+const GROUP_BANNED = [/\bpartner/i, /\bboyfriend/i, /\bgirlfriend/i, /\bhusband/i, /\bwife\b/i, /\bbabe\b/i, /each other/i, /your other half/i, /you two/i];
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const str = (v, max, field, required) => {
@@ -19,13 +23,10 @@ const str = (v, max, field, required) => {
 function cleanExtra(game, extra) {
   const e = extra && typeof extra === 'object' && !Array.isArray(extra) ? extra : {};
   if (game === 'wyr') return { a: str(e.a, 200, 'Option A', true), b: str(e.b, 200, 'Option B', true) };
-  if (game === 'bodypart') {
-    if (!ZONES.includes(e.zone)) throw new HttpError(400, 'bad_card', 'Pick a body zone.');
-    return { zone: e.zone };
-  }
   if (game === 'charades') {
-    if (!CATEGORIES.includes(e.category)) throw new HttpError(400, 'bad_card', 'Pick a category.');
-    return { category: e.category };
+    if (!CATEGORIES.includes(e.category)) throw new HttpError(400, 'bad_card', 'Pick Movie, TV Show or Song.');
+    if (!ORIGINS.includes(e.origin)) throw new HttpError(400, 'bad_card', 'Pick Hollywood, Bollywood or Global.');
+    return { category: e.category, origin: e.origin };
   }
   return {};
 }
@@ -34,7 +35,7 @@ export const onRequestGet = handle(async ({ request, env }) => {
   await requireAdmin(request, env);
   const u = new URL(request.url);
   const game = u.searchParams.get('game');
-  let q = 'premium_cards?select=id,game,heat,text,optional_dare,extra,active,updated_at&order=game.asc,created_at.asc';
+  let q = 'premium_cards?select=id,game,heat,text,optional_dare,extra,active,is_taste,updated_at&order=game.asc,created_at.asc';
   if (game) {
     if (!GAMES.includes(game)) throw new HttpError(400, 'bad_game', 'Unknown game.');
     q += `&game=eq.${game}`;
@@ -51,10 +52,13 @@ export const onRequestPost = handle(async ({ request, env }) => {
     game: b.game,
     heat: 3,
     text: str(b.text, 400, 'Card text', true),
-    optional_dare: str(b.optional_dare, 400, 'Dare', false) || null,
+    // Group games and charades never carry dares
+    optional_dare: MODE[b.game] === 'couples' && b.game !== 'charades' ? (str(b.optional_dare, 400, 'Dare', false) || null) : null,
     extra: cleanExtra(b.game, b.extra),
     active: b.active !== false,
+    is_taste: b.is_taste === true,
   };
+  if (MODE[b.game] === 'group') for (const re of GROUP_BANNED) if (re.test(row.text)) throw new HttpError(400, 'bad_card', 'Group cards can’t mention partners or couples.');
   let saved;
   if (b.id) {
     if (!UUID_RE.test(String(b.id))) throw new HttpError(400, 'bad_id', 'Invalid card.');
