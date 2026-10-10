@@ -1,30 +1,43 @@
 /* Heat Check — the games. Each one owns its theme, flow and sounds. */
 const N = (i) => esc(Core.name(i));
 
-function mount(theme, title, body, passInfo = '') {
+function mount(theme, title, body) {
   const app = document.getElementById('app');
   app.dataset.theme = theme;
-  app.innerHTML = Core.hud(title) + `<main class="screen" id="stage">${body}</main>` + Core.controls(passInfo);
+  Core.cardHeat = 0;
+  app.innerHTML = Core.hud(title) + `<main class="screen" id="stage">${body}</main>` + Core.controls();
   Core.updateHud();
   return $('#stage');
 }
-function stageHTML(html) { const s = $('#stage'); if (!s) throw new Error('left-game'); s.innerHTML = html; s.style.animation = 'none'; void s.offsetWidth; s.style.animation = ''; return s; }
+// Every card shows its heat and penalty points ("Spicy · 2 pts penalty")
+const CARD_HOSTS = '.lower-third, .neon-sign, .stage .inner, .arena, .bulb-frame, .mirror, .panel, .playing';
+function stageHTML(html) {
+  const s = $('#stage'); if (!s) throw new Error('left-game');
+  s.innerHTML = html;
+  const host = s.querySelector(CARD_HOSTS);
+  if (host && !host.querySelector('.pts-tag')) host.insertAdjacentHTML('afterbegin', Core.ptsTag());
+  s.style.animation = 'none'; void s.offsetWidth; s.style.animation = '';
+  return s;
+}
 function ctl() { const c = $('#ctl'); if (!c) throw new Error('left-game'); return c; }
-function passCost(card) { return Core.isFreePass(card) ? 'free' : '+1'; }
+// Asks the deck for the next card. null: this tier's limit is reached and the lock sheet is up.
+async function deal(game, again) { const c = await Core.next(game, again); if (!$('#stage')) throw new Error('left-game'); return c; }
 
 const Games = {};
 
 /* =========================================================
    1. RED FLAG / GREEN FLAG  — talk-show couples reveal
-   One scenario stays on screen until Next (or Pass). The Flags / Rate toggle
+   One scenario stays on screen until Next (or Chicken Out). The Flags / Rate toggle
    only changes how answers are collected: it never re-deals or re-renders the card.
    ========================================================= */
 Games.redflag = {
   title: 'Red Flag / Green Flag', tag: 'Lock in. 3-2-1. Reveal.', mode: 'flags', card: null, token: 0,
   start() { mount('redflag', '🚩 Red Flag / Green Flag 🟢', ''); this.deal(); },
-  deal() {
-    Core.stopTimers();
-    const card = (this.card = Core.draw('redflag'));
+  async deal() {
+    Core.stopTimers(); Core.setPrimary(null);
+    const card = await deal('redflag', () => this.deal());
+    if (!card) return;
+    this.card = card;
     const s = stageHTML(`<div class="seg rf-mode" style="margin-bottom:14px">
         <button class="${this.mode === 'flags' ? 'on' : ''}" data-m="flags">🚩 Flags</button>
         <button class="${this.mode === 'rate' ? 'on' : ''}" data-m="rate">⭐ Rate your partner</button></div>
@@ -54,8 +67,8 @@ Games.redflag = {
     const [A, B] = Core.currentCouple();
     const card = this.card;
     const picks = {};
-    Core.setTurn(A); Core.setPassInfo(passCost(card));
-    Core.onPass(() => { Core.doPass(card, A); this.next(); });
+    Core.setTurn(A);
+    Core.onSkip(() => this.next());
     const s = this.answer(`
       <div class="frames">
         <div class="frame active" data-p="${A}"><span class="rec">● REC</span><div class="big">🤔</div><div class="nm">${N(A)}</div></div>
@@ -86,9 +99,10 @@ Games.redflag = {
         Core.setPrimary('Next scenario →', () => this.next());
       } else {
         SFX.play('buzzer'); vibrate([60, 40, 60]);
+        const secs = Core.timerSecs();
         $('#instr').outerHTML = `<div class="verdict" style="color:#ffcf33">DEBATE! 🎤</div>
-          <p class="center muted">30 seconds. Make your case. The couch decides.</p>
-          <div class="timer"><span>30</span></div>`;
+          <p class="center muted">${secs} seconds. Make your case. The couch decides.</p>
+          ${Core.timerRing(secs)}`;
         let ended = false;
         const finish = async () => {
           if (ended) return; ended = true;
@@ -98,7 +112,7 @@ Games.redflag = {
           await Core.penalty({ who: loser, card, reason: 'Lost the debate' });
           this.next();
         };
-        const t = Core.timer(s, 30, () => { SFX.play('buzzer'); finish(); });
+        const t = Core.timer(s, secs, () => { SFX.play('buzzer'); finish(); });
         Core.setPrimary('Debate over', finish);
       }
     }));
@@ -108,8 +122,8 @@ Games.redflag = {
   rate(tok) {
     const rater = Core.current(), target = Core.partnerOf(rater);
     const card = this.card;
-    Core.setTurn(rater); Core.setPassInfo(passCost(card));
-    Core.onPass(() => { Core.doPass(card, rater); this.next(); });
+    Core.setTurn(rater);
+    Core.onSkip(() => this.next());
     const pad = () => `<div class="ratepad">${Array.from({ length: 10 }, (_, i) => `<button data-n="${i + 1}">${i + 1}</button>`).join('')}</div>`;
     const s = this.answer(`
       <div class="frames">
@@ -155,10 +169,12 @@ Games.redflag = {
 Games.nhie = {
   title: 'Never Have I Ever', tag: 'Tilt the cup if you have.', tally: {},
   start() { mount('nhie', 'Never Have I Ever', ''); SFX.play('bass'); this.round(); },
-  round() {
-    const card = Core.draw('nhie');
+  async round() {
+    Core.setPrimary(null);
+    const card = await deal('nhie', () => this.round());
+    if (!card) return;
     const tilted = new Set();
-    Core.setTurn(-1); Core.setPassInfo('free');
+    Core.setTurn(-1);
     const ps = Core.players();
     const text = card.text.replace(/^never have i ever\s*/i, '');
     const s = stageHTML(`
@@ -174,7 +190,7 @@ Games.nhie = {
       if (tilted.has(i)) { tilted.delete(i); c.classList.remove('tilted'); this.tally[i]--; SFX.play('tap'); }
       else {
         tilted.add(i); c.classList.add('tilted'); this.tally[i] = (this.tally[i] || 0) + 1; SFX.play('sip'); vibrate(25);
-        const f = document.createElement('div'); f.className = 'sips'; f.textContent = `+${card.heat}`; c.appendChild(f); setTimeout(() => f.remove(), 1100);
+        const f = document.createElement('div'); f.className = 'sips'; f.textContent = `+${pts(card.heat)}`; c.appendChild(f); setTimeout(() => f.remove(), 1100);
       }
       $('.tally', c).textContent = this.tally[i];
     }));
@@ -184,26 +200,27 @@ Games.nhie = {
       Core.nextRound(); this.round();
     };
     Core.setPrimary('Next →', next);
-    Core.onPass(() => { Core.doPass(card, -1); Core.nextRound(); this.round(); });
+    Core.onSkip(() => { Core.nextRound(); this.round(); });
   },
 };
 
 /* =========================================================
    4. STRIP CHARADES  — velvet curtain cabaret
-   Only real movies, TV shows and songs. A flop means one item of clothing comes off.
-   No dares, no sips, no swaps.
+   Only real movies, TV shows and songs. A flop means one item of clothing comes off
+   (and the card's penalty points). No dares, no sips, no alternative penalty.
    ========================================================= */
 const wordCount = (t) => String(t).split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
 Games.charades = {
-  title: 'Strip Charades', tag: 'Curtain up. 60 seconds.',
-  start() { mount('charades', 'Strip Charades', '', 'free'); this.round(); },
-  round() {
-    Core.stopTimers();
+  title: 'Strip Charades', tag: 'Curtain up. Beat the clock.',
+  start() { mount('charades', 'Strip Charades', ''); this.round(); },
+  async round() {
+    Core.stopTimers(); Core.setPrimary(null);
     const actor = Core.current();
-    const card = Core.draw('charades');
-    const n = wordCount(card.text);
-    Core.setTurn(actor); Core.setPassInfo('free'); Core.setPrimary(null);
-    Core.onPass(() => { Core.stopTimers(); Core.toast('Passed, no questions asked'); Core.nextRound(); Core.nextTurn(); this.round(); });
+    const card = await deal('charades', () => this.round());
+    if (!card) return;
+    const n = wordCount(card.text), secs = Core.timerSecs();
+    Core.setTurn(actor);
+    Core.onSkip(() => { Core.nextRound(); Core.nextTurn(); this.round(); });
     const s = stageHTML(`
       <div class="stage" id="st">
         <div class="valance"></div><div class="curtain l"></div><div class="curtain r"></div>
@@ -212,7 +229,7 @@ Games.charades = {
           <div class="muted" style="letter-spacing:.3em;font-size:12px;margin-top:8px">NOW PERFORMING</div>
           <h1 class="gold" style="font-size:44px;margin:6px 0 10px">${N(actor)}</h1>
           <div class="ch-chips"><span class="ch-chip">${esc(card.category || 'Title')}</span><span class="ch-chip alt">${esc(card.origin || 'Global')}</span><span class="ch-chip">${n} word${n === 1 ? '' : 's'}</span></div>
-          <div class="timer" id="tm" style="--p:1"><span>60</span></div>
+          ${Core.timerRing(secs, 'id="tm"')}
           <div class="muted" style="font-size:13px">No words, no sounds. Flop and lose a layer.</div>
         </div>
       </div>
@@ -230,17 +247,19 @@ Games.charades = {
       SFX.play('drumroll');
       $('#st').classList.add('open');
       ctl().innerHTML = `<div class="col"><button class="btn block" id="got">They got it! 🎉</button><button class="btn block ghost" id="fail">Flop 💀</button></div>`;
-      const t = Core.timer($('#tm'), 60, () => { SFX.play('buzzer'); fail(); });
+      const t = Core.timer($('#tm'), secs, () => { SFX.play('buzzer'); fail(); });
       let ended = false;
       const fail = async () => {
         if (ended) return; ended = true;
         t.stop();
         const left = Core.layersLeft(actor);
         SFX.play('penalty'); vibrate(120);
-        const res = await Core.ask(`${esc(Core.name(actor))} flopped`,
-          left > 0 ? `One item of clothing comes off. ${left} layer${left === 1 ? '' : 's'} left.` : 'Out of layers. This one’s on the house.',
-          left > 0 ? [{ label: 'Done: one item off', value: 'off' }, { label: 'Pass, free', value: 'pass', cls: 'ghost' }] : [{ label: 'Next act', value: 'pass' }]);
-        if (res === 'off') Core.removeLayer(actor);
+        const p = pts(card.heat);
+        await Core.ask(`${esc(Core.name(actor))} flopped`,
+          left > 0 ? `One item of clothing comes off. ${left} layer${left === 1 ? '' : 's'} left. ${esc(ptsLabel(card.heat))}.` : `Out of layers. ${esc(ptsLabel(card.heat))} still counts.`,
+          [{ label: left > 0 ? `Done: one item off (+${ptsWord(p)})` : `Next act (+${ptsWord(p)})`, value: 'off' }]);
+        if (left > 0) Core.removeLayer(actor);
+        Core.addPts(actor, p);
         Core.nextRound(); Core.nextTurn(); this.round();
       };
       $('#got').onclick = () => { if (ended) return; ended = true; t.stop(); SFX.play('cymbal'); SFX.play('applause'); Core.toast(`Standing ovation for ${Core.name(actor)} 👏`); Core.setPrimary('Next act →', () => { Core.nextRound(); Core.nextTurn(); this.round(); }); ctl().innerHTML = `<div class="gold center" style="font-size:38px">BRAVO!</div>`; };
@@ -270,16 +289,28 @@ Games.wyr = {
       </div>
       <div id="ctl"></div>`;
   },
-  round() {
-    Core.stopTimers();
-    const card = Core.draw('wyr');
+  async round() {
+    Core.stopTimers(); Core.setPrimary(null);
+    const card = await deal('wyr', () => this.round());
+    if (!card) return;
     if (!card.a) { const m = card.text.replace(/^would you rather\s*/i, '').replace(/\?$/, '').split(/\s+or\s+/i); card.a = m[0]; card.b = m.slice(1).join(' or '); }
-    Core.setPrimary(null); Core.setPassInfo('free');
+    Core.setTurn(-1);
     const s = stageHTML(this.arena(card));
     setTimeout(() => { SFX.play('clash'); $('#ar')?.classList.add('shake'); vibrate(50); }, 450);
     $$('[data-m]', s).forEach((b) => (b.onclick = () => { this.mode = b.dataset.m; SFX.play('tap'); this.round(); }));
-    Core.onPass(() => { Core.doPass(card, -1); Core.nextRound(); this.round(); });
+    Core.onSkip(() => { Core.nextRound(); this.round(); });
     this.mode === 'vote' ? this.vote(card) : this.couples(card);
+  },
+  // The talk clock (Timer setting): counts down, then the vote starts on its own. Tap to start early.
+  clock(msg, label) {
+    return new Promise((resolve) => {
+      ctl().innerHTML = `<div class="wyr-clock">${Core.timerRing(Core.timerSecs(), 'id="tm"')}<p class="center muted">${msg}</p></div>
+        <button class="btn block" id="go" style="margin-top:12px">${label}</button>`;
+      let done = false;
+      const go = () => { if (done) return; done = true; t.stop(); resolve(); };
+      const t = Core.timer($('#tm'), Core.timerSecs(), () => { SFX.play('buzzer'); go(); });
+      $('#go').onclick = () => { SFX.play('tap'); go(); };
+    });
   },
   btns(who, label) {
     return `<p class="center muted" style="margin:10px 0 0">${label}</p>
@@ -293,8 +324,7 @@ Games.wyr = {
   },
   async vote(card) {
     const ps = Core.players(), votes = {};
-    ctl().innerHTML = `<button class="btn block" id="go" style="margin-top:12px">Start secret vote</button>`;
-    await new Promise((r) => ($('#go').onclick = r));
+    await this.clock('Talk it out. Voting starts when the clock runs out.', 'Start secret vote');
     for (let i = 0; i < ps.length; i++) {
       await Core.handoff(ps[i].name, 'Vote in secret. Then hand it on.');
       Core.setTurn(i);
@@ -321,8 +351,7 @@ Games.wyr = {
   },
   async couples(card) {
     const [P, G] = Core.currentCouple();
-    ctl().innerHTML = `<button class="btn block" id="go" style="margin-top:12px">${N(P)} picks first</button>`;
-    await new Promise((r) => ($('#go').onclick = r));
+    await this.clock(`Make your case. ${N(P)} picks when the clock runs out.`, `${N(P)} picks now`);
     await Core.handoff(Core.name(P), 'Pick in secret.');
     Core.setTurn(P);
     const pick = await this.pick(P, `<b>${N(P)}</b>, what would YOU rather?`);
@@ -344,11 +373,13 @@ Games.wyr = {
 Games.hotseat = {
   title: 'Hot Seat Quiz', tag: 'How well do you know them?', streak: 0,
   start() { mount('hotseat', 'Hot Seat Quiz', ''); this.round(); },
-  round() {
+  async round() {
+    Core.setPrimary(null);
     const seat = Core.current(), guesser = Core.partnerOf(seat);
-    const card = Core.draw('hotseat');
-    Core.setTurn(seat); Core.setPassInfo(passCost(card)); Core.setPrimary(null);
-    Core.onPass(() => { Core.doPass(card, seat); Core.nextRound(); Core.nextTurn(); this.round(); });
+    const card = await deal('hotseat', () => this.round());
+    if (!card) return;
+    Core.setTurn(seat);
+    Core.onSkip(() => { Core.nextRound(); Core.nextTurn(); this.round(); });
     const s = stageHTML(`
       <div class="seat-name">🔥 In the hot seat: ${N(seat)} 🔥</div>
       <div class="streak" title="Streak">${this.streak}<span style="font-size:16px"> streak</span></div>
@@ -386,11 +417,13 @@ Games.hotseat = {
 Games.swap = {
   title: 'Swap Rounds', tag: 'Answer as your partner.',
   start() { mount('swap', 'Swap Rounds', ''); SFX.play('shimmer'); this.round(); },
-  round() {
+  async round() {
+    Core.setPrimary(null);
     const me = Core.current(), them = Core.partnerOf(me);
-    const card = Core.draw('swap');
-    Core.setTurn(me); Core.setPassInfo(passCost(card)); Core.setPrimary(null);
-    Core.onPass(() => { Core.doPass(card, me); Core.nextRound(); Core.nextTurn(); this.round(); });
+    const card = await deal('swap', () => this.round());
+    if (!card) return;
+    Core.setTurn(me);
+    Core.onSkip(() => { Core.nextRound(); Core.nextTurn(); this.round(); });
     const s = stageHTML(`
       <div class="swapnames"><span>${N(me)}</span><span class="arrow">⇄</span><span>${N(them)}</span></div>
       <div class="reflect" data-t="YOU ARE NOW ${esc(Core.name(them).toUpperCase())}">YOU ARE NOW ${esc(Core.name(them).toUpperCase())}</div>
@@ -416,15 +449,19 @@ const voteSeg = (cur, opts) => `<div class="seg vote-seg" style="margin-bottom:1
 Games.mostlikely = {
   title: "Who's Most Likely To", tag: '3… 2… 1… POINT!', vote: 'point', card: null, token: 0,
   start() { mount('mostlikely', "WHO'S MOST LIKELY TO", ''); this.deal(); },
-  deal() {
-    Core.stopTimers();
-    const card = (this.card = Core.draw('mostlikely'));
-    Core.setTurn(-1); Core.setPassInfo('free'); Core.setPrimary(null);
-    Core.onPass(() => { Core.toast('Skipped'); this.next(); });
+  async deal() {
+    Core.stopTimers(); Core.setPrimary(null);
+    const card = await deal('mostlikely', () => this.deal());
+    if (!card) return;
+    this.card = card;
+    Core.setTurn(-1);
+    Core.onSkip(() => this.next());
     const text = card.text.replace(/^who'?s most likely to\s*/i, '').replace(/\?\s*$/, '');
     const s = stageHTML(`${voteSeg(this.vote, [['point', '👉 Point on 3'], ['secret', '🤫 Secret vote']])}
       <div class="panel"><span class="cap">WHO'S MOST LIKELY TO…</span><div class="bubble">${esc(text)}?</div></div>
+      <div class="ml-clock">${Core.timerRing(Core.timerSecs(), 'id="tm"')}<p class="note">Argue it out. When the clock runs out, everyone votes.</p></div>
       <div class="spacer"></div><div id="ctl"></div>`);
+    this.clock = Core.timer($('#tm', s), Core.timerSecs(), () => { SFX.play('buzzer'); const b = $('.controls .primary'); if (b && !b.hidden && !s.dataset.answering) b.click(); });
     $$('.vote-seg button', s).forEach((b) => (b.onclick = () => {
       if (b.classList.contains('on') || s.dataset.answering) return;
       SFX.play('tap'); this.vote = b.dataset.v;
@@ -435,7 +472,7 @@ Games.mostlikely = {
   },
   next() { Core.nextRound(); Core.nextTurn(); this.deal(); },
   collect() { Core.setPrimary(null); const tok = ++this.token; this.vote === 'point' ? this.point(tok) : this.secret(tok); },
-  begin() { const st = $('#stage'); if (st) st.dataset.answering = '1'; $$('.vote-seg button').forEach((b) => (b.disabled = !b.classList.contains('on'))); },
+  begin() { const st = $('#stage'); if (st) st.dataset.answering = '1'; if (this.clock) this.clock.stop(); $$('.vote-seg button').forEach((b) => (b.disabled = !b.classList.contains('on'))); },
   live(tok) { if (tok !== this.token || !$('#ctl')) throw new Error('left-game'); },
   point(tok) {
     ctl().innerHTML = '<p class="center muted">On zero, everyone points at the guilty one.</p>';
@@ -457,7 +494,7 @@ Games.mostlikely = {
   },
   secret(tok) {
     const ps = Core.players();
-    ctl().innerHTML = `<p class="center muted">Pass the phone around. Everyone votes in secret, then the tally drops.</p>`;
+    ctl().innerHTML = `<p class="center muted">Hand the phone around. Everyone votes in secret, then the tally drops.</p>`;
     Core.setPrimary('Start the vote', async () => {
       this.begin(); Core.setPrimary(null);
       const tally = ps.map(() => 0);
@@ -494,20 +531,22 @@ Games.mostlikely = {
 Games.twotruths = {
   title: 'Two Truths & a Lie', tag: 'Read the table.', vote: 'secret', card: null, token: 0,
   start() { mount('twotruths', 'Two Truths & a Lie', ''); this.deal(); },
-  deal() {
-    Core.stopTimers();
+  async deal() {
+    Core.stopTimers(); Core.setPrimary(null);
     const teller = Core.current();
-    const card = (this.card = Core.draw('twotruths'));
+    const card = await deal('twotruths', () => this.deal());
+    if (!card) return;
+    this.card = card;
     const tok = ++this.token;
-    Core.setTurn(teller); Core.setPassInfo('free'); Core.setPrimary(null);
-    Core.onPass(() => { Core.stopTimers(); Core.toast('Skipped'); this.next(); });
+    Core.setTurn(teller);
+    Core.onSkip(() => this.next());
     SFX.play('chip');
     const topic = card.text.replace(/^two truths and a lie about\s*/i, '');
     const s = stageHTML(`
       <p class="center muted" style="letter-spacing:.2em;font-size:12px">THE DEALER CALLS</p>
       <h2 class="center" style="font-size:34px;margin:4px 0 12px">${N(teller)}</h2>
       <div class="playing" data-suit="${rand(['♥', '♦', '♠', '♣'])}"><span class="cap">Two truths and a lie about…</span><p class="prompt" style="margin:6px 0 0">${esc(topic)}</p></div>
-      <div class="timer" id="tm" style="--p:1;margin-top:14px"><span>60</span></div>
+      ${Core.timerRing(Core.timerSecs(), 'id="tm"')}
       <p class="center muted">${N(teller)} tells three: #1, #2, #3. Two true, one lie.</p>
       ${voteSeg(this.vote, [['secret', '🤫 Secret vote'], ['fingers', '✋ Fingers on 3']])}
       <div id="ctl"></div>`);
@@ -517,8 +556,8 @@ Games.twotruths = {
     }));
     let t = null;
     const toVote = () => { if (t) t.stop(); Core.setPrimary(null); this.collect(teller, tok); };
-    Core.setPrimary('Start the 60s clock', () => {
-      t = Core.timer($('#tm'), 60, () => { SFX.play('buzzer'); toVote(); });
+    Core.setPrimary(`Start the ${Core.timerSecs()}s clock`, () => {
+      t = Core.timer($('#tm'), Core.timerSecs(), () => { SFX.play('buzzer'); toVote(); });
       Core.setPrimary('Done telling → vote', toVote);
     });
   },
