@@ -46,6 +46,11 @@ button.hchip { font: inherit; color: inherit; background: none; border: 0; paddi
 /* ---------- Home: pass banner ---------- */
 .pass-banner-slot { padding: 0 18px; margin-top: 4px; }
 .pass-banner-slot:empty { display: none; }
+/* Lite and Premium: a compact status pill centred under the header, not a full-width bar */
+.pass-banner-slot[data-pill="1"] { display: flex; justify-content: center; margin-top: 2px; margin-bottom: 2px; }
+.pass-banner-slot[data-pill="1"] .pass-banner { width: auto; min-height: 30px; padding: 0 14px; gap: 8px; border-radius: 99px; justify-content: center;
+  font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.pass-banner-slot[data-pill="1"] .pass-banner .pb-warn { font-size: 10px; padding: 2px 6px; }
 .pass-banner { position: relative; overflow: hidden; width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 0 16px; border-radius: 16px; font-weight: 800; font-size: 15px; letter-spacing: .01em; font-variant-numeric: tabular-nums; text-align: left; }
 .pass-banner .pb-text { position: relative; z-index: 1; }
@@ -60,11 +65,6 @@ button.hchip { font: inherit; color: inherit; background: none; border: 0; paddi
   color: #16222f; border: 1px solid #5f7489;
   box-shadow: inset 0 1px 0 #ffffff, inset 0 -1px 0 #3c4d5f66, inset 0 0 0 1px #ffffff40, inset 0 -8px 14px -10px #2a3a4c80, 0 1px 0 #ffffff1a, 0 10px 24px -12px #8fb0d0b3;
   text-shadow: 0 1px 0 #ffffffb3, 0 -1px 0 #0000001f; letter-spacing: .02em; }
-.pass-banner .pb-ico { position: relative; z-index: 1; display: inline-flex; width: 28px; height: 28px; border-radius: 50%; align-items: center; justify-content: center; flex: none;
-  background: linear-gradient(180deg, #2b3b4d, #0f1a26); box-shadow: inset 0 1px 0 #ffffff40, 0 1px 0 #ffffffa0; color: #e4eef8; }
-.pass-banner .pb-ico .ico { width: 18px; height: 18px; stroke-width: 2.4; }
-.pass-banner.premium .pb-text { margin-right: auto; }
-.pass-banner.premium .pb-tag { position: relative; z-index: 1; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #2c3e52; opacity: .8; }
 .pass-banner.admin { background: #ffffff14; color: var(--fg); border: 1px solid var(--line); }
 .pass-banner.none { background: #ffffff0a; color: var(--muted); border: 1px dashed var(--line); font-weight: 600; min-height: 40px; }
 .pass-banner.none .pb-go { color: var(--fg); opacity: .8; }
@@ -189,3 +189,12 @@ button.hchip { font: inherit; color: inherit; background: none; border: 0; paddi
 }
 html[data-motion="reduce"] .pb-sheen::before, html[data-motion="reduce"] .pb-sheen::after, html[data-motion="reduce"] .plan-sheen::after { animation: none; opacity: 0; }
 html[data-motion="reduce"] .heat-row.shake, html[data-motion="reduce"] .switch.nope { animation: none; }
+
+/* First-card gate: a Hot card is only spent once it's dealt */
+.deal-gate { max-width: 420px; margin: 8vh auto 0; padding: 24px 20px; text-align: center; border-radius: 22px;
+  background: linear-gradient(180deg, #ffffff10, #ffffff05); border: 1px solid var(--line); box-shadow: 0 18px 40px -24px #000c; }
+.deal-gate h2 { margin: 12px 0 6px; }
+.deal-gate .muted { margin: 0 0 18px; }
+.deal-gate .btn + .btn { margin-top: 10px; }
+.deal-gate .dg-chip { display: inline-block; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  background: linear-gradient(90deg, #ff3d6e, #ff8a3d); color: #fff; }
