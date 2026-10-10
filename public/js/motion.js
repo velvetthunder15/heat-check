@@ -17,6 +17,7 @@
   amb.innerHTML = '<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="glow"></div><div class="grain"></div>';
   const meshAnims = [];
   const startMesh = () => {
+    return;   // v12.2: static ambience (60 fps on phones); heat still shifts it via --heat-t
     if (reduced() || meshAnims.length || !amb.animate) return;
     const drift = (el, a, b, dur) => meshAnims.push(el.animate([{ transform: `translate(0,0) scale(1)` }, { transform: `translate(${a}) scale(${b})` }], { duration: dur, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }));
     drift(amb.querySelector('.b1'), '18vmax, 14vmax', 1.12, 18000);
@@ -318,7 +319,7 @@
   hook();
   ensureAmb();
   startMesh();
-  rateLoop();
+  // rateLoop(); (v12.2: ambience is static, nothing to retime)
   setHeat(Core.S ? Core.heatProgress() : 0);
   runSplash();
   RM.addEventListener && RM.addEventListener('change', () => { if (reduced()) { meshAnims.forEach((a) => a.cancel()); meshAnims.length = 0; } else startMesh(); });
