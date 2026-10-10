@@ -45,10 +45,10 @@ const Intro = {
   // One shared style for every tile tag (uppercase, bold): see .t-hot in tiers.css
   hotBadge(id) {
     const t = Ent.tier();
-    if (t === 'premium') return '<span class="t-hot open">Hot open</span>';
+    if (t === 'premium') return '<span class="t-hot open">Fully unlocked 🔓</span>';
     if (t === 'lite') { const left = Limits.hotLeft(id); return left > 0 ? `<span class="t-hot open">Hot open · ${left} left</span>` : '<span class="t-hot">Hot used</span>'; }
     if (t === 'base' && Taste.canClaim(id)) return '<span class="t-hot free">1 free Hot card</span>';
-    return '<span class="t-hot">Hot locked</span>';
+    return '<span class="t-hot">🔒 Hot locked</span>';
   },
   avatar() {
     if (Auth.signedIn()) {
@@ -74,6 +74,10 @@ const Intro = {
           <button class="icon-btn" data-act="mute" aria-label="Sound">${SFX.muted ? '🔇' : '🔊'}</button>
           <button class="icon-btn" id="cfg" aria-label="Players and settings">⚙️</button>
           <span id="avatarSlot">${this.avatar()}</span></div></div>
+      <div class="session-bar">
+        <button class="sb-chip sb-who" data-act="players" aria-label="Players">${ps.length >= need ? `👥 ${who}` : '👥 Add players'}</button>
+        <span class="sb-chip">${mode}</span>
+        ${App.nightActive() ? '<button class="btn sm end-night" id="endNight">End night</button>' : ''}</div>
       <div id="passBanner" class="pass-banner-slot"></div>
 
       <div class="side-switch" role="tablist" aria-label="Who's playing">
@@ -84,7 +88,7 @@ const Intro = {
 
       <section class="hc-hero" id="hero">
         <p class="hero-micro">${esc(this.micro())}</p>
-        <h1 class="hero-title">How hot is tonight?</h1>
+        <h1 class="hero-title">How <span class="hot-word">hot</span> is tonight?</h1>
         <div class="ring-row">
           <span class="ring-side" aria-hidden="true"></span>
           <button class="hold-btn" id="holdBtn" aria-describedby="holdLine" aria-label="Hold to set the heat level">
@@ -97,13 +101,10 @@ const Intro = {
           </button>
           <button class="ring-reset" id="ringReset" aria-label="Reset heat to level 1" title="Back to Lv1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4 4.5v4h4"/></svg></button>
         </div>
-        <div class="ring-dots" aria-hidden="true"><i data-l="1"></i><i data-l="2"></i><i data-l="3"></i></div>
+        <div class="heat-steps" role="group" aria-label="Heat levels">${[1, 2, 3].map((l) => `<button class="hs" data-step="${l}"><span class="hs-lk" aria-hidden="true">🔒</span><i aria-hidden="true"></i>${HEAT[l].name}</button>`).join('')}</div>
         <p class="hold-line" id="holdLine" aria-live="polite">Press and hold. Each turn of the ring is one level.</p>
       </section>
 
-      <div class="home-sub">${who}<br>
-        <span class="heat-badge" style="background:#ffffff14;margin-top:8px">${mode}</span>
-        ${App.nightActive() ? '<div><button class="btn sm end-night" id="endNight">End night</button></div>' : ''}</div>
 
       <h2 class="stack-title" id="pick">Pick your poison</h2>
       <section class="stack" id="stack">
@@ -166,7 +167,7 @@ const Intro = {
       hero.style.setProperty('--hold', ((lv + frac) / 3).toFixed(3));
       if (hero.dataset.level !== String(lv)) {
         hero.dataset.level = lv;
-        $$('.ring-dots i', hero).forEach((d) => d.classList.toggle('on', +d.dataset.l <= lv));
+        $$('.heat-steps .hs', hero).forEach((d) => d.classList.toggle('on', +d.dataset.step === lv));
         window.Motion && Motion.setHeat && Motion.setHeat(Math.max(0.05, lv / 3));
       }
     };
@@ -176,7 +177,22 @@ const Intro = {
       const info = UI.lockInfo(level, null);
       return info ? `<span class="lk" aria-hidden="true">${icon('lock')}</span> <span>${esc(info.text)}</span> ${UI.lockActions(info)}` : '';
     };
+    // Level chips: show every level, lock the ones this account can't play yet
+    const steps = $$('.heat-steps .hs', hero);
+    const syncSteps = () => { const cap = Core.heatCap(); steps.forEach((b) => { const lk = +b.dataset.step > cap; b.classList.toggle('locked', lk); b.setAttribute('aria-label', `${HEAT[+b.dataset.step].name}${lk ? ', locked' : ''}`); }); };
+    steps.forEach((b) => (b.onclick = () => {
+      const lv = +b.dataset.step;
+      if (lv > Core.heatCap()) {
+        SFX.play('buzzer'); vibrate([30, 30, 30]);
+        hero.classList.remove('locked'); void hero.offsetWidth; hero.classList.add('locked');
+        line.innerHTML = lockMessage(lv); return;
+      }
+      SFX.play('tap'); vibrate(10);
+      Core.setHeat(lv);
+      line.textContent = `Locked in: ${ptsLabel(lv)}.`;
+    }));
     const sync = () => {
+      syncSteps();
       if (holding) return;
       const h = Core.heat(); shown = h;
       paint(h, 0); label(h);
@@ -282,6 +298,16 @@ const Intro = {
      which is what made "Pick your poison" and the cards blank out on fast scrolls). */
   bindStack() {
     const stack = $('#stack'); if (!stack) return;
+    // 60 fps: idle loops only run on tiles in view; sheens pause while the page scrolls
+    if ('IntersectionObserver' in window) {
+      const vis = new IntersectionObserver((es) => es.forEach((e) => e.target && e.target.classList.toggle('offscreen', !e.isIntersecting)), { rootMargin: '80px 0px' });
+      $$('.tile', stack).forEach((t) => vis.observe(t));
+      this._cleanup.push(() => vis.disconnect());
+    }
+    let st = 0;
+    const onScroll = () => { if (!st) document.documentElement.classList.add('is-scrolling'); clearTimeout(st); st = setTimeout(() => { st = 0; document.documentElement.classList.remove('is-scrolling'); }, 140); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    this._cleanup.push(() => { window.removeEventListener('scroll', onScroll); clearTimeout(st); document.documentElement.classList.remove('is-scrolling'); });
     if (stack.dataset.fanned || reducedMotion() || !('IntersectionObserver' in window)) { stack.classList.add('fanned', 'no-anim'); stack.dataset.fanned = '1'; return; }
     const io = new IntersectionObserver((entries) => {
       if (!entries.some((e) => e.isIntersecting)) return;
