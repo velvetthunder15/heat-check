@@ -9,7 +9,7 @@ compatibility_date = "2026-09-01"
 [vars]
 # Change this when the custom .app/.dev domain is live. Everything (CORS, canonical,
 # og tags, manifest, sitemap) follows it.
-SITE_URL = "https://heat-check.pages.dev"
+SITE_URL = "https://heat-check-a9b.pages.dev"
 
 # Rate limiting store. Create it once:
 #   npx wrangler kv namespace create RATE_KV
