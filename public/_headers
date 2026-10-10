@@ -40,5 +40,7 @@
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 /web-app-manifest-*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+/logo-wordmark.webp
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 /og.png
   Cache-Control: public, max-age=86400
