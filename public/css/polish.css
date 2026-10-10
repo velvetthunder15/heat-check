@@ -10,7 +10,7 @@
 
 :root { --sf: -apple-system, BlinkMacSystemFont, "Inter", "Inter Fallback", system-ui, sans-serif; }
 
-/* One family everywhere (the disguised pause screen keeps its plain notes look) */
+/* One family everywhere */
 #app, #app *, #splash, #splash *, .doc, .doc *, body:not(:has(#app)) * { font-family: var(--sf) !important; }
 #app { --font-display: var(--sf); --font-body: var(--sf); font-weight: 400; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-feature-settings: "ss01", "kern"; }
 
@@ -39,19 +39,19 @@
 .timer span, .streak, .big { font-weight: 900 !important; font-style: italic; letter-spacing: -.04em; }
 
 /* ---------- Depth: shared surfaces ---------- */
-.card, .modal, .icon-btn, .chip, .controls .pause, .controls .pass, .input, .seg {
+.card, .modal, .icon-btn, .chip, .controls .pass, .input, .seg {
   background-image: linear-gradient(180deg, #ffffff12, #ffffff03 60%, #00000014);
 }
 .card { box-shadow: inset 0 1px 0 #ffffff1c, inset 0 -1px 0 #0000004d, 0 1px 2px #0006, 0 18px 40px -20px #000c, 0 24px 60px -30px color-mix(in srgb, var(--accent) 45%, transparent); }
 .modal { box-shadow: inset 0 1px 0 #ffffff24, 0 -24px 60px -20px #000c, 0 -10px 40px -24px color-mix(in srgb, var(--accent) 60%, transparent); }
-.icon-btn, .chip, .controls .pause, .controls .pass { box-shadow: inset 0 1px 0 #ffffff1f, inset 0 -1px 0 #00000059, 0 6px 16px -8px #000c; }
+.icon-btn, .chip, .controls .pass { box-shadow: inset 0 1px 0 #ffffff1f, inset 0 -1px 0 #00000059, 0 6px 16px -8px #000c; }
 .chip.turn { box-shadow: inset 0 1px 0 #ffffff33, 0 0 0 1px var(--accent), 0 8px 22px -8px var(--accent); }
 .input { box-shadow: inset 0 2px 6px #00000059, inset 0 -1px 0 #ffffff10; }
 .input:focus { outline: none; border-color: color-mix(in srgb, var(--accent) 70%, transparent); box-shadow: inset 0 2px 6px #00000059, 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
 .seg { box-shadow: inset 0 2px 6px #00000066; }
 
 /* Primary buttons: accent gradient, top light, bottom shade, coloured drop shadow */
-.btn:not(.ghost):not(.pass):not(.pause) {
+.btn:not(.ghost):not(.pass) {
   background-image: linear-gradient(180deg, #ffffff38 0%, #ffffff00 48%), linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, var(--accent2)));
   box-shadow: inset 0 1px 0 #ffffff59, inset 0 -2px 0 #00000033, 0 2px 4px -1px #0008, 0 14px 30px -12px var(--accent);
   text-shadow: 0 1px 0 #ffffff26;
