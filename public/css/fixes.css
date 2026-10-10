@@ -22,3 +22,15 @@ button.scores { width: 100%; padding: 0; background: none; border: 0; color: inh
 .home-head .logo.logo-img img { display: block; width: auto; height: 64px; max-width: 48vw; object-fit: contain; pointer-events: none; }
 #splash .sp-logo.sp-logo-img { font-size: 0; line-height: 0; background: none; -webkit-text-fill-color: initial; filter: none; }
 #splash .sp-logo.sp-logo-img img { display: block; width: min(260px, 70vw); height: auto; pointer-events: none; user-select: none; }
+/* Home header with a pass/admin chip: the chip drops under the icon row so it never covers the logo */
+.home-head { align-items: center; }
+.home-head .logo.logo-img { flex: none; width: min(154px, 40vw); }
+.home-head .logo.logo-img img { width: 100%; height: auto; max-height: 64px; max-width: 154px; }
+.home-head .head-actions { flex: 0 1 auto; min-width: 0; flex-wrap: wrap; justify-content: flex-end; row-gap: 8px; margin-left: auto; }
+.home-head #passChipSlot:empty { display: none; }
+.home-head #passChipSlot:not(:empty) { order: 9; flex: 1 0 100%; display: flex; justify-content: flex-end; }
+.home-head #passChipSlot .pass-chip { min-height: 32px; font-size: 12px; padding: 0 12px; }
+/* Age gate: wordmark image, bold "Adults only." */
+.gate .logo.gate-logo { font-size: 0; line-height: 0; padding: 0; background: none; -webkit-text-fill-color: initial; filter: none; text-shadow: none; }
+.gate .logo.gate-logo img { display: block; width: min(280px, 72vw); height: auto; margin: 0 auto; pointer-events: none; user-select: none; }
+.gate p b { font-weight: 800; font-style: italic; color: var(--fg, #fff); }
