@@ -3,20 +3,31 @@
    Every sheet is appended inside #app so it inherits the current theme. */
 
 const TEASER = {
-  redflag: 'Hot scenarios you’d never pitch at family dinner.',
+  redflag: 'Steamier scenarios. Harder verdicts.',
   nhie: 'The confessions get a lot less innocent.',
-  bodypart: 'The map gets more interesting.',
-  charades: 'Scenes that end behind a closed door.',
+  charades: 'Titles you’d never act out for your parents.',
   wyr: 'Choices that turn into dares on the spot.',
-  mostlikely: 'You already know who. Now prove it.',
   hotseat: 'Questions you’ll want to answer up close.',
-  twotruths: 'The lies get warmer. So do the truths.',
   swap: 'Say it as them. Do it as you.',
+  mostlikely: 'The wild ones. Everyone already knows who.',
+  twotruths: 'Wild-night topics. Good luck keeping a straight face.',
 };
-const GAME_SHORT = { redflag: 'Flags', nhie: 'Never', bodypart: 'Body', charades: 'Charades', wyr: 'Rather', mostlikely: 'Likely', hotseat: 'Hot Seat', twotruths: '2 Truths', swap: 'Swap' };
-const GAME_ICON = { redflag: '🚩', nhie: '🥤', bodypart: '🕶', charades: '🎭', wyr: '⚔️', mostlikely: '👉', hotseat: '💺', twotruths: '🃏', swap: '🔁' };
+const GAME_SHORT = { redflag: 'Flags', nhie: 'Never', charades: 'Charades', wyr: 'Rather', hotseat: 'Hot Seat', swap: 'Swap', mostlikely: 'Likely', twotruths: '2 Truths' };
+const GAME_ICON = { redflag: '🚩', nhie: '🥤', charades: '🎭', wyr: '⚔️', hotseat: '💺', swap: '🔁', mostlikely: '👉', twotruths: '🃏' };
 const PLAN_LABEL = { guest: 'Guest', free: 'Free', pass: 'Date Night Pass', lifetime: 'Lifetime' };
-const BENEFITS = ['Lv3 Hot on all 9 games', 'Unlimited players', 'Saved player names', 'Extra themes and sound packs'];
+const PRO_PERKS = [['flame', 'Hot on every game'], ['people', 'Unlimited players'], ['tag', 'Saved player names'], ['note', 'Themes & sounds']];
+const GUEST_PERKS = [['flame', '1 free Hot card per game'], ['sync', 'Sync your settings'], ['bag', 'Buy & restore Pro'], ['chart', 'Keep your stats']];
+const ICONS = {
+  flame: '<path d="M12 3c1 3 4 4.5 4 8.5A4 4 0 0 1 8 11.5c0-1.6.8-2.6 1.6-3.4.2 1.5 1 2.2 1.7 2.4C11 8 11 5.5 12 3z"/><path d="M9.5 16.5a2.5 2.5 0 0 0 5 0"/>',
+  people: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.5 19c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5M15 14.6c2.3.2 4 1.6 4.6 4.4"/>',
+  tag: '<path d="M4 4h7l9 9-7 7-9-9z"/><circle cx="8" cy="8" r="1.5"/>',
+  note: '<path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="16" r="2"/>',
+  sync: '<path d="M4 12a8 8 0 0 1 13.7-5.6L20 9M20 4v5h-5M20 12a8 8 0 0 1-13.7 5.6L4 15M4 20v-5h5"/>',
+  bag: '<path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+};
+const icon = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>`;
+const perkList = (items) => `<ul class="perk-list">${items.map(([k, t]) => `<li>${icon(k)}<span>${esc(t)}</span></li>`).join('')}</ul>`;
 
 const fmtDate = (iso, time = true) => {
   if (!iso) return '';
@@ -48,7 +59,21 @@ const UI = {
     return { el: wrap, close, get closed() { return closed; } };
   },
   err(el, msg) { if (!el) return; el.textContent = msg || ''; el.hidden = !msg; if (msg) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); } },
-  busy(btn, on, label) { if (!btn) return; if (on) { btn.dataset.label = btn.innerHTML; btn.innerHTML = label || 'One sec…'; btn.disabled = true; } else { btn.innerHTML = btn.dataset.label || btn.innerHTML; btn.disabled = false; } },
+  /* Loading state: the button keeps its exact size; the label crossfades to a spinner. */
+  busy(btn, on) {
+    if (!btn) return;
+    if (on) {
+      if (btn.classList.contains('is-loading')) return;
+      const r = btn.getBoundingClientRect();
+      if (r.width) btn.style.width = r.width + 'px';
+      if (!btn.querySelector(':scope > .btn-label')) btn.innerHTML = `<span class="btn-label">${btn.innerHTML}</span>`;
+      if (!btn.querySelector(':scope > .btn-spin')) btn.insertAdjacentHTML('beforeend', '<span class="btn-spin" aria-hidden="true"></span>');
+      btn.classList.add('is-loading'); btn.disabled = true; btn.setAttribute('aria-busy', 'true');
+    } else {
+      btn.classList.remove('is-loading'); btn.disabled = false; btn.removeAttribute('aria-busy');
+      setTimeout(() => { if (!btn.classList.contains('is-loading')) btn.style.width = ''; }, 220);
+    }
+  },
 
   /* ---------- 6-digit code boxes ---------- */
   codeBoxes(host, onComplete) {
@@ -189,14 +214,14 @@ const UI = {
     if (plan === 'lifetime') { Core.toast('You’ve already got everything'); return null; }
     const pass = Cfg.product('pass'), life = Cfg.product('lifetime');
     const passActive = plan === 'pass';
-    const sub = reason === 'players' ? 'Free plays up to 4 people. Pro brings the whole group.'
+    const sub = reason === 'players' ? `Free plays up to ${HC.FREE_PLAYERS} people. Pro brings the whole group.`
       : game && TEASER[game] ? `${Games[game] ? Games[game].title + ': ' : ''}${TEASER[game]}` : 'Lv1 and Lv2 stay free forever. Pro opens up the rest.';
     const canBuy = Cfg.payments && pass && life;
     const s = this.sheet(`
       <div class="pw">
         <h2>Turn up the heat</h2>
         <p class="muted">${esc(sub)}</p>
-        <ul class="pw-benefits">${BENEFITS.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
+        ${perkList(PRO_PERKS)}
         ${canBuy ? `<div class="pw-options">
           <button class="pw-opt" data-buy="pass">
             <span class="pw-name">${passActive ? '+4 hours' : 'Date Night Pass'}</span>
@@ -209,7 +234,7 @@ const UI = {
             <span class="pw-desc">Pay once. Keep it forever.</span>
           </button>
         </div>` : '<p class="pw-soon">Pro is switching on soon. Everything free still works.</p>'}
-        ${game && !Taste.used(game) && document.getElementById('stage') ? '<button class="btn block ghost sm" id="pwTaste" style="margin-top:12px">Or try one hot card free</button>' : ''}
+        ${game && Taste.canClaim(game) && document.getElementById('stage') ? '<button class="btn block ghost sm" id="pwTaste" style="margin-top:12px">Or use your free Hot card</button>' : ''}
         <p class="form-err" id="pwErr" role="alert" hidden></p>
         <p class="note center pw-foot">${Auth.signedIn() ? '' : '<button class="linkish" id="pwRestore">Already bought? Restore purchase</button><br>'}
           UPI, cards and more via Razorpay. <a href="/terms">Terms</a> · <a href="/refund">Refunds</a></p>
@@ -217,7 +242,11 @@ const UI = {
       </div>`, { cls: 'pw-wrap' });
     const el = s.el, err = $('#pwErr', el);
     const tasteBtn = $('#pwTaste', el);
-    if (tasteBtn) tasteBtn.onclick = () => { Taste.pending = game; s.close(); Core.toast('Hot card’s up next'); };
+    if (tasteBtn) tasteBtn.onclick = async () => {
+      this.busy(tasteBtn, true);
+      try { await Taste.claim(game); s.close(); Core.toast('Your free Hot card is up next'); }
+      catch (e) { this.busy(tasteBtn, false); this.err(err, e.message); }
+    };
     const restore = $('#pwRestore', el);
     if (restore) restore.onclick = () => { s.close(); this.signIn({ reason: 'Sign in with the email you bought with. Your purchase comes back with it.', then: () => this.afterRestore() }); };
     $$('[data-buy]', el).forEach((b) => (b.onclick = async () => {
@@ -351,23 +380,22 @@ const UI = {
     return s;
   },
 
+  // Signed-in only: one icon per game, count from config (couples + groups)
   tasteTracker() {
-    return `<div class="taste-grid">${GAME_ORDER.map((g) => {
+    const left = GAME_IDS.filter((g) => !Taste.used(g)).length;
+    return `<div class="taste-grid">${GAME_IDS.map((g) => {
       const used = Taste.used(g);
-      return `<div class="taste ${used ? 'used' : ''}" title="${esc(Games[g].title)}"><span class="ti">${GAME_ICON[g]}</span><span class="tn">${GAME_SHORT[g]}</span><span class="ts">${used ? 'Used' : 'Free'}</span></div>`;
-    }).join('')}</div><p class="note">${Ent.pro() ? 'You’ve got all of Lv3, so these don’t matter tonight.' : `${GAME_IDS.length - Taste.usedCount()} of 9 free hot cards left.`}</p>`;
+      return `<div class="taste ${used ? 'used' : ''}" title="${esc(Games[g].title)}"><span class="ti">${GAME_ICON[g] || '🔥'}</span><span class="tn">${esc(GAME_SHORT[g] || g)}</span><span class="ts">${used ? 'Used' : 'Free'}</span></div>`;
+    }).join('')}</div><p class="note">${Ent.pro() ? 'Pro has every Hot card, so these can wait.' : `${left} of ${GAME_IDS.length} free Hot cards left.`}</p>`;
   },
 
   profileGuest() {
     return `
-      <section class="pf-card">
-        <span class="plan-badge">Guest</span>
-        <h2>Playing as guest</h2>
-        <p class="muted">Everything free works without an account. Signing in gets you:</p>
-        <ul class="pw-benefits"><li>Settings and stats synced across your phones</li><li>Your free hot cards remembered, even if you clear the app</li><li>Pro: buy once, keep it on every device</li><li>Restore purchases any time</li></ul>
-        <button class="btn block" id="pfSignIn">Sign in</button>
+      <section class="pf-card pf-hero guest">
+        <div class="pf-ring dim" aria-hidden="true"><span>Guest</span></div>
+        <button class="btn block pf-cta" id="pfSignIn">Sign in</button>
+        ${perkList(GUEST_PERKS)}
       </section>
-      <section class="pf-card"><h3>Free hot cards</h3>${this.tasteTracker()}</section>
       ${this.supportBlock()}`;
   },
 
@@ -381,26 +409,30 @@ const UI = {
     const p = Auth.profile, plan = Ent.plan(), prefs = Prefs.get(), st = Stats.get(), pro = Ent.pro();
     const fav = Stats.favorite();
     const pass = Cfg.product('pass');
-    const sub = plan === 'lifetime'
-      ? `<span class="plan-badge life">Lifetime</span><p class="muted" id="pfLifeDate">Thanks for backing Heat Check.</p>`
+    const life = Cfg.product('lifetime');
+    const status = plan === 'lifetime'
+      ? `<div class="pro-active"><span class="plan-badge life">Lifetime</span><b>Pro active</b><p class="muted" id="pfLifeDate">Thanks for backing Heat Check.</p></div>`
       : plan === 'pass'
-        ? `<span class="plan-badge pass">Date Night Pass</span><div class="pf-count" id="pfLeft">${fmtLeft(Ent.passLeft())}</div>
+        ? `<div class="pro-active"><span class="plan-badge pass">Date Night Pass</span><b>Pro active</b><div class="pf-count" id="pfLeft">${fmtLeft(Ent.passLeft())}</div>
            <p class="muted">Ends ${esc(fmtDate(p.premium_until))}</p>
-           ${Cfg.payments && pass ? `<button class="btn block" id="pfMore">+4 hours · ${esc(pass.display)}</button>` : ''}`
-        : `<span class="plan-badge">Free</span><p class="muted">Free: Lv1-Lv2</p><button class="btn block" id="pfUpgrade">Upgrade</button>`;
+           ${Cfg.payments && pass ? `<button class="btn block ghost sm" id="pfMore">+4 hours · ${esc(pass.display)}</button>` : ''}</div>`
+        : `${perkList(PRO_PERKS)}
+           ${Cfg.payments && pass && life ? `<div class="pf-buy"><button class="btn" data-pfbuy="pass">Pass · ${esc(pass.display)}</button><button class="btn alt best" data-pfbuy="lifetime">Lifetime · ${esc(life.display)}</button></div>` : '<p class="pw-soon">Pro is switching on soon.</p>'}`;
     const seg = (key, opts, cur, locked) => `<div class="seg ${locked ? 'locked' : ''}" data-pref="${key}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(cur) === String(v) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
     const sw = (key, on, label, note) => `<div class="toggle"><div><b>${label}</b>${note ? `<div class="note">${note}</div>` : ''}</div><button class="switch ${on ? 'on' : ''}" data-prefsw="${key}" aria-label="${label}"></button></div>`;
     return `
-      <section class="pf-card pf-account">
-        <div class="pf-avatar">${esc((Auth.email()[0] || '?').toUpperCase())}</div>
-        <div><div class="pf-email">${esc(Auth.email())}</div><div class="note">Member since ${esc(fmtDate(p.created_at, false))}</div></div>
+      <section class="pf-card pf-hero">
+        <div class="pf-ring glow" aria-hidden="true"><span>${esc((Auth.email()[0] || '?').toUpperCase())}</span></div>
+        <div class="pf-email">${esc(Auth.email())}</div>
+        <div class="row" style="justify-content:center;gap:8px"><span class="plan-badge ${plan === 'lifetime' ? 'life' : plan === 'pass' ? 'pass' : ''}">${PLAN_LABEL[plan]}</span><span class="note">Member since ${esc(fmtDate(p.created_at, false))}</span></div>
       </section>
-      <section class="pf-card"><h3>Subscription</h3>${sub}</section>
-      <section class="pf-card"><h3>Free hot cards</h3>${this.tasteTracker()}</section>
+      <section class="pf-card"><h3>${pro ? 'Your plan' : 'Go Pro'}</h3>${status}</section>
+      <section class="pf-card"><h3>Free Hot cards</h3>${this.tasteTracker()}</section>
       <section class="pf-card"><h3>Purchase history</h3><div id="pfPurchases"><p class="note">Digging out your receipts…</p></div>
         <p class="note"><a href="/refund">Need a refund?</a></p></section>
       <section class="pf-card"><h3>Preferences</h3>
-        <div class="field"><label>Default max heat</label>${seg('maxHeat', [[1, '😏 Flirty'], [2, '🌶️ Spicy'], [3, '🔥 Hot']], prefs.maxHeat)}</div>
+        ${sw('auto_ramp', prefs.auto_ramp, 'Auto-ramp', 'Heat climbs a level every few cards.')}
+        <div class="field"><label>Cards per ramp</label><div class="stepper"><button class="icon-btn" data-cpr="-1" aria-label="Fewer">−</button><b id="pfCpr">${prefs.cards_per_ramp}</b><button class="icon-btn" data-cpr="1" aria-label="More">+</button></div></div>
         <div class="field"><label>Penalties</label>${seg('mode', [['drink', '🍸 Drinks'], ['water', '💧 No alcohol'], ['dare', '🎲 Dares']], prefs.mode)}</div>
         ${sw('sound', !SFX.muted, 'Sound')}
         ${sw('haptics', prefs.haptics, 'Haptics')}
@@ -417,7 +449,7 @@ const UI = {
       <section class="pf-card"><h3>Your stats</h3>
         <div class="pf-stats"><div><b>${st.sessions}</b><span>games played</span></div>
           <div><b>${fav ? esc(Games[fav] ? Games[fav].title : fav) : 'None yet'}</b><span>favorite game</span></div>
-          <div><b>${st.maxHeat ? `Lv${st.maxHeat} ${HEAT[st.maxHeat].name}` : 'None yet'}</b><span>highest heat</span></div></div>
+          <div><b>${st.topHeat ? `Lv${st.topHeat} ${HEAT[st.topHeat].name}` : 'None yet'}</b><span>highest heat</span></div></div>
       </section>
       <section class="pf-card"><h3>Data and security</h3>
         <div class="col">
@@ -435,7 +467,15 @@ const UI = {
     const el = s.el;
     const on = (sel, fn) => { const b = $(sel, el); if (b) b.onclick = fn; };
     on('#pfSignIn', () => { s.close(); this.signIn({ then: () => this.profile() }); });
-    on('#pfUpgrade', () => this.paywall());
+    $$('[data-pfbuy]', el).forEach((b) => (b.onclick = async () => {
+      this.busy(b, true);
+      try {
+        const r = await Pay.buy(b.dataset.pfbuy);
+        if (r.ok) { s.close(); this.success(b.dataset.pfbuy); return; }
+        if (r.error) Core.toast(r.error.message);
+      } catch (e) { Core.toast(e.message); }
+      this.busy(b, false);
+    }));
     on('#pfMore', () => this.paywall());
     on('#pfRestore', async () => { await this.afterRestore(); });
     on('#pfOut', async () => { s.close(); await Auth.signOut(); Core.toast('Signed out'); this.refreshScreens(); });
@@ -468,13 +508,19 @@ const UI = {
       const k = g.dataset.pref, v = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v;
       $$('button', g).forEach((x) => x.classList.toggle('on', x === b)); SFX.play('tap');
       Prefs.set({ [k]: v });
-      if (k === 'maxHeat' || k === 'mode') Prefs.applyNightDefaults();
+      if (k === 'mode') Prefs.applyNightDefaults();
     }));
     $$('[data-prefsw]', el).forEach((b) => (b.onclick = () => {
       const k = b.dataset.prefsw;
       if (k === 'sound') { SFX.setMuted(!SFX.muted); b.classList.toggle('on', !SFX.muted); Prefs.set({}); }
       if (k === 'haptics') { const v = !Prefs.get().haptics; Prefs.set({ haptics: v }); b.classList.toggle('on', v); if (v) vibrate(20); }
+      if (k === 'auto_ramp') { const v = !Prefs.get().auto_ramp; Prefs.set({ auto_ramp: v }); Prefs.applyNightDefaults(); Core.S.rampCount = 0; Core.save(); b.classList.toggle('on', v); }
       SFX.play('tap');
+    }));
+    $$('[data-cpr]', el).forEach((b) => (b.onclick = () => {
+      const v = Math.min(HC.RAMP_MAX, Math.max(HC.RAMP_MIN, Prefs.get().cards_per_ramp + +b.dataset.cpr));
+      Prefs.set({ cards_per_ramp: v }); Prefs.applyNightDefaults(); Core.S.rampCount = 0; Core.save();
+      $('#pfCpr', el).textContent = v; SFX.play('tap');
     }));
     const nameIn = $('#pfNameIn', el);
     on('#pfNameAdd', () => { const n = nameIn.value.trim(); if (!n) return; Prefs.set({ savedNames: [...Prefs.get().savedNames, n] }); this.profile({ replace: el }); });
@@ -593,7 +639,7 @@ const UI = {
           <p class="note" id="adGrantMsg"></p></section>
         <section class="pf-card"><h3>Games</h3><div id="adGames"><p class="note">Loading…</p></div></section>
         <section class="pf-card"><h3>Lv3 cards</h3>
-          <div class="row ad-row"><select class="input" id="adGame">${['redflag', 'rate', ...GAME_ORDER.slice(1)].map((g) => `<option value="${g}">${g === 'rate' ? 'Rate your partner' : esc(Games[g].title)}</option>`).join('')}</select>
+          <div class="row ad-row"><select class="input" id="adGame">${GAME_IDS.map((g) => `<option value="${g}">${esc(Games[g].title)}</option>`).join('')}</select>
             <button class="btn sm" id="adNew">+ New</button></div>
           <div id="adForm"></div><div id="adCards"><p class="note">Loading…</p></div></section>
       </div>`, { full: true, cls: 'admin' });
@@ -627,27 +673,28 @@ const UI = {
     }).catch(fail);
     loadGames();
     // cards
-    const ZONE_LIST = ['forehead', 'eyelids', 'ear', 'cheek', 'lips', 'jaw', 'neck', 'nape', 'collarbone', 'shoulder', 'upperarm', 'elbow', 'wrist', 'palm', 'fingers', 'upperback', 'lowerback', 'waist', 'hip', 'thigh', 'knee', 'calf', 'ankle', 'foot'];
-    const CATS = ['Bedroom Charade', 'Celebrity', 'Dance Move', 'Movie', 'Scenario', 'Song'];
+    const CATS = ['Movie', 'TV Show', 'Song'], ORIGINS = ['Hollywood', 'Bollywood', 'Global'];
     let cards = [];
     const form = (c) => {
       const g = $('#adGame', el).value, x = (c && c.extra) || {};
       $('#adForm', el).innerHTML = `<div class="ad-form">
         <textarea class="input" id="cfText" rows="3" maxlength="400" placeholder="Card text">${c ? esc(c.text) : ''}</textarea>
-        <textarea class="input" id="cfDare" rows="2" maxlength="400" placeholder="Optional dare">${c && c.optional_dare ? esc(c.optional_dare) : ''}</textarea>
+        ${HC.modeOf(g) === 'couples' && g !== 'charades' ? `<textarea class="input" id="cfDare" rows="2" maxlength="400" placeholder="Optional dare">${c && c.optional_dare ? esc(c.optional_dare) : ''}</textarea>` : ''}
         ${g === 'wyr' ? `<input class="input" id="cfA" maxlength="200" placeholder="Option A" value="${esc(x.a || '')}"><input class="input" id="cfB" maxlength="200" placeholder="Option B" value="${esc(x.b || '')}">` : ''}
-        ${g === 'bodypart' ? `<select class="input" id="cfZone">${ZONE_LIST.map((z) => `<option ${x.zone === z ? 'selected' : ''}>${z}</option>`).join('')}</select>` : ''}
-        ${g === 'charades' ? `<select class="input" id="cfCat">${CATS.map((z) => `<option ${x.category === z ? 'selected' : ''}>${z}</option>`).join('')}</select>` : ''}
+        ${g === 'charades' ? `<select class="input" id="cfCat">${CATS.map((z) => `<option ${x.category === z ? 'selected' : ''}>${z}</option>`).join('')}</select><select class="input" id="cfOrigin">${ORIGINS.map((z) => `<option ${x.origin === z ? 'selected' : ''}>${z}</option>`).join('')}</select>` : ''}
+        <div class="toggle"><div><b>Free Hot card (taste)</b><div class="note">Only one per game is used. Served by /api/taste only.</div></div><button class="switch ${c && c.is_taste ? 'on' : ''}" id="cfTaste" aria-label="Taste card"></button></div>
         <div class="toggle"><div><b>Active</b></div><button class="switch ${!c || c.active ? 'on' : ''}" id="cfActive" aria-label="Active"></button></div>
         <div class="row ad-row"><button class="btn sm" id="cfSave">${c ? 'Save' : 'Add card'}</button><button class="btn sm ghost" id="cfCancel">Cancel</button></div>
         <p class="note" id="cfMsg"></p></div>`;
       $('#cfActive', el).onclick = (e) => e.currentTarget.classList.toggle('on');
+      $('#cfTaste', el).onclick = (e) => e.currentTarget.classList.toggle('on');
       $('#cfCancel', el).onclick = () => ($('#adForm', el).innerHTML = '');
       $('#cfSave', el).onclick = async (e) => {
-        const extra = g === 'wyr' ? { a: $('#cfA', el).value, b: $('#cfB', el).value } : g === 'bodypart' ? { zone: $('#cfZone', el).value } : g === 'charades' ? { category: $('#cfCat', el).value } : {};
+        const extra = g === 'wyr' ? { a: $('#cfA', el).value, b: $('#cfB', el).value } : g === 'charades' ? { category: $('#cfCat', el).value, origin: $('#cfOrigin', el).value } : {};
+        const dareEl = $('#cfDare', el);
         this.busy(e.currentTarget, true, 'Saving…');
         try {
-          await Admin.api('POST', '/api/admin/cards', { id: c ? c.id : undefined, game: g, text: $('#cfText', el).value, optional_dare: $('#cfDare', el).value, extra, active: $('#cfActive', el).classList.contains('on') });
+          await Admin.api('POST', '/api/admin/cards', { id: c ? c.id : undefined, game: g, text: $('#cfText', el).value, optional_dare: dareEl ? dareEl.value : '', extra, active: $('#cfActive', el).classList.contains('on'), is_taste: $('#cfTaste', el).classList.contains('on') });
           $('#adForm', el).innerHTML = ''; loadCards(); Premium.loaded = false; Premium.load();
           Core.toast(c ? 'Card saved' : 'Card added');
         } catch (err) { $('#cfMsg', el).textContent = err.message; this.busy($('#cfSave', el), false); }
@@ -658,7 +705,7 @@ const UI = {
       $('#adCards', el).innerHTML = '<p class="note">Loading…</p>';
       Admin.api('GET', '/api/admin/cards?game=' + encodeURIComponent(g)).then((rows) => {
         cards = rows;
-        $('#adCards', el).innerHTML = rows.length ? `<ul class="ad-cards">${rows.map((c, i) => `<li class="${c.active ? '' : 'off'}"><span>${esc(c.text)}</span><button class="btn ghost sm" data-edit="${i}">Edit</button></li>`).join('')}</ul>` : '<p class="note">No Lv3 cards for this game yet.</p>';
+        $('#adCards', el).innerHTML = rows.length ? `<ul class="ad-cards">${rows.map((c, i) => `<li class="${c.active ? '' : 'off'}"><span>${c.is_taste ? '<b class="pro-tag">Taste</b> ' : ''}${esc(c.text)}</span><button class="btn ghost sm" data-edit="${i}">Edit</button></li>`).join('')}</ul>` : '<p class="note">No Lv3 cards for this game yet.</p>';
         $$('[data-edit]', el).forEach((b) => (b.onclick = () => { form(cards[+b.dataset.edit]); $('#adForm', el).scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
       }).catch(fail);
     };
@@ -668,64 +715,42 @@ const UI = {
   },
 };
 
-/* ---------- Lv3 moments (never nag: once per game per session) ---------- */
+/* ---------- Hot is locked: a quiet chip, at most once per session. Never nags. ---------- */
 const Lock = {
-  // Keys are per game and per state: the free-taste offer shows once, then the soft lock shows once
-  key(game) { return game + (Taste.used(game) ? ':lock' : ':taste'); },
-  shown() { try { return JSON.parse(sessionStorage.getItem('hc_lockshown') || '{}'); } catch (e) { return {}; } },
-  mark(k) { const s = this.shown(); s[k] = 1; try { sessionStorage.setItem('hc_lockshown', JSON.stringify(s)); } catch (e) {} },
-  onLockedDraw(game) {
-    const k = this.key(game);
-    if (this.shown()[k]) return;
-    this.mark(k);
-    setTimeout(() => { if (document.getElementById('stage')) this.moment(game); }, 500);
-  },
-  // Starting a game already at Lv3: offer the taste before the first card is dealt
-  beforeStart(game) {
-    const k = this.key(game);
-    if (Core.heat() < 3 || Ent.pro() || this.shown()[k]) return Promise.resolve();
-    this.mark(k);
-    return this.moment(game);
-  },
-  moment(game) {
-    return new Promise((resolve) => {
-      const title = Games[game] ? Games[game].title : '';
-      let s;
-      if (!Taste.used(game)) {
-        s = UI.sheet(`<span class="heat-badge h3b">Lv3 Hot</span><h2 style="margin-top:12px">One hot card, on the house</h2>
-          <p class="muted">${esc(title)}: ${esc(TEASER[game] || '')} Try one free. It’s a teaser, not the whole menu.</p>
-          <div class="col" style="margin-top:12px"><button class="btn block" id="lkTry">Try one hot card (free)</button>
-          <button class="btn block ghost" id="lkStay">Stay at Spicy</button></div>`, { cls: 'lock-moment', onClose: () => resolve() });
-        $('#lkTry', s.el).onclick = () => {
-          Taste.pending = game; s.close();
-          if (document.getElementById('stage')) Core.toast('Hot card’s up next');
-        };
-      } else {
-        s = UI.sheet(`<span class="heat-badge h3b">Lv3 Hot · locked</span><h2 style="margin-top:12px">Stay at Spicy, or unlock</h2>
-          <p class="muted">${esc(TEASER[game] || '')}</p>
-          <div class="col" style="margin-top:12px"><button class="btn block" id="lkUnlock">Unlock Lv3</button>
-          <button class="btn block ghost" id="lkStay">Stay at Spicy</button></div>`, { cls: 'lock-moment', onClose: () => resolve() });
-        $('#lkUnlock', s.el).onclick = () => { s.close(); UI.paywall({ game }); };
-      }
-      $('#lkStay', s.el).onclick = () => s.close();
+  rampLocked(game) {
+    try { if (sessionStorage.getItem('hc_hotchip')) return; sessionStorage.setItem('hc_hotchip', '1'); } catch (e) {}
+    const chip = document.createElement('div');
+    chip.className = 'hot-chip'; chip.setAttribute('role', 'status');
+    const action = !Auth.signedIn() ? '<button class="linkish" data-hc="signin">Sign in to try Hot</button>'
+      : Taste.canClaim(game) ? '<button class="linkish" data-hc="taste">Use your free Hot card?</button>'
+      : '<button class="linkish" data-act="paywall">Unlock</button>';
+    chip.innerHTML = `<span aria-hidden="true">🔒</span> Hot is locked. ${action}<button class="hc-x" aria-label="Dismiss">✕</button>`;
+    document.getElementById('app').appendChild(chip);
+    const close = () => { chip.classList.add('out'); setTimeout(() => chip.remove(), 240); };
+    const t = setTimeout(close, 6000);
+    chip.addEventListener('click', async (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      clearTimeout(t); close();
+      if (b.dataset.hc === 'signin') UI.signIn({ reason: 'Sign in and every game gives you one free Hot card.' });
+      if (b.dataset.hc === 'taste') { try { await Taste.claim(game); Core.toast('Your free Hot card is up next'); } catch (err) { Core.toast(err.message); } }
     });
   },
 };
 
-/* HUD: at Lv3 without access, a locked Lv3 card with its one-line teaser (tap for the paywall) */
+/* HUD: once this game's free Hot card is spent (and no Pro), say so plainly with a way out */
 (() => {
   const orig = Core.updateHud.bind(Core);
   Core.updateHud = function () {
     orig();
     const hud = $('.hud'); if (!hud) return;
-    const game = document.getElementById('app').dataset.theme;
+    const game = Core.game;
     let strip = $('.hot-lock', hud);
-    const show = Core.heat() >= 3 && !Ent.pro() && TEASER[game];
+    const show = game && !Ent.pro() && Auth.signedIn() && Taste.used(game) && !Taste.showing && !Taste.pendingFor(game);
     if (!show) { if (strip) strip.remove(); return; }
     if (!strip) {
-      strip = document.createElement('button');
-      strip.className = 'hot-lock'; strip.dataset.act = 'paywall'; strip.dataset.game = game;
-      strip.innerHTML = `<span class="hl-badge">🔒 Lv3</span><span class="hl-text">${esc(TEASER[game])}</span>`;
+      strip = document.createElement('div');
+      strip.className = 'hot-lock';
+      strip.innerHTML = '<span class="hl-badge" aria-hidden="true">🔒</span><span class="hl-text">Still at Spicy. Hot is locked.</span><button class="linkish" data-act="paywall">Unlock</button>';
       const heat = $('.heat', hud); heat ? heat.after(strip) : hud.appendChild(strip);
     }
   };
