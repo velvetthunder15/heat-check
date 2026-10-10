@@ -104,12 +104,24 @@
 
   /* ---------------- Game intros (0.6–0.8 s, genre specific, palette only) ---------------- */
   const INTROS = {
-    redflag: ['<i class="pole r"></i><i class="flag r"></i><i class="pole g"></i><i class="flag g"></i>', (o) => {
-      $$('.flag', o).forEach((f, k) => f.animate([
-        { transform: 'scaleX(0) skewY(0)', opacity: 0 }, { transform: 'scaleX(1.05) skewY(-6deg)', opacity: 1, offset: .45 },
-        { transform: 'scaleX(.97) skewY(5deg)', offset: .65 }, { transform: 'scaleX(1) skewY(-2deg)', offset: .82 }, { transform: 'scaleX(1) skewY(0)', opacity: 1 }], { duration: 620, delay: k * 60, easing: EASE, fill: 'both' }));
-      $$('.pole', o).forEach((p) => p.animate([{ transform: 'translateY(40px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: EASE, fill: 'both' }));
-      return 720;
+    // Two cloth flags (SVG, S-curve edges) unfurl from their poles with a spring, then wave.
+    // The wave is vertical slices of the same SVG moving on transform only: no path morphing.
+    redflag: [(() => {
+      const svg = (id, a, b) => `<svg viewBox="0 0 120 80" preserveAspectRatio="none"><defs><linearGradient id="${id}" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><path d="M0 8C30 0 60 16 120 6L118 72C88 82 50 64 0 76Z" fill="url(#${id})"/><path d="M30 7C40 30 34 50 44 73" stroke="#fff" stroke-opacity=".22" stroke-width="6" fill="none"/><path d="M80 10C88 30 82 52 92 70" stroke="#000" stroke-opacity=".16" stroke-width="8" fill="none"/></svg>`;
+      const flag = (side, a, b) => `<div class="rf-wrap rf-${side}"><i class="rf-pole"></i><div class="rf-flag">${Array.from({ length: 6 }, (_, k) => `<div class="rf-sl" style="--k:${k}"><div class="rf-in">${svg('rfg' + side + k, a, b)}</div></div>`).join('')}</div></div>`;
+      return flag('l', '#ff5a68', '#b0101f') + flag('r', '#5ff0a0', '#13995a');
+    })(), (o) => {
+      if (reduced()) return 700; // static flags
+      $$('.rf-flag', o).forEach((f, k) => f.animate([
+        { transform: 'scaleX(0) skewY(0)', opacity: 0 }, { transform: 'scaleX(1.06) skewY(-5deg)', opacity: 1, offset: .5 },
+        { transform: 'scaleX(.97) skewY(3deg)', offset: .75 }, { transform: 'scaleX(1) skewY(0)', opacity: 1 }], { duration: 620, delay: 80 + k * 70, easing: EASE, fill: 'both' }));
+      $$('.rf-pole', o).forEach((p) => p.animate([{ transform: 'translateY(40px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 280, easing: EASE, fill: 'both' }));
+      $$('.rf-sl', o).forEach((sl) => {
+        const k = +sl.style.getPropertyValue('--k'), amp = 2 + k * 1.4;
+        sl.animate([{ transform: 'translateY(0)' }, { transform: `translateY(${-amp}px)` }, { transform: 'translateY(0)' }, { transform: `translateY(${amp}px)` }, { transform: 'translateY(0)' }],
+          { duration: 760, delay: 560 + k * 55, easing: 'ease-in-out', iterations: 1 });
+      });
+      return 1360;
     }],
     nhie: ['<i class="cup l"></i><i class="cup r"></i><i class="clink"></i>', (o) => {
       const [l, r] = $$('.cup', o);
@@ -118,10 +130,6 @@
       $('.clink', o).animate([{ opacity: 0, transform: 'scale(.3)' }, { opacity: 0, transform: 'scale(.3)', offset: .5 }, { opacity: 1, transform: 'scale(.8)', offset: .58 }, { opacity: 0, transform: 'scale(1.6)' }], { duration: 700, easing: 'ease-out', fill: 'both' });
       setTimeout(() => { buzz(15); window.SFX && SFX.play('softtick'); }, 350);
       return 760;
-    }],
-    bodypart: ['<i class="iris"></i>', (o) => {
-      $('.iris', o).animate([{ transform: 'scale(0)' }, { transform: 'scale(.6)', offset: .3 }, { transform: 'scale(60)' }], { duration: 760, easing: 'cubic-bezier(.6,0,.3,1)', fill: 'both' });
-      return 780;
     }],
     charades: ['<i class="curtain l"></i><i class="curtain r"></i><i class="valance"></i>', (o) => {
       $('.curtain.l', o).animate([{ transform: 'translateX(0) scaleX(1)' }, { transform: 'translateX(-90%) scaleX(.45)' }], { duration: 760, delay: 60, easing: 'cubic-bezier(.7,0,.2,1)', fill: 'both' });
@@ -161,7 +169,8 @@
     }],
   };
   const intro = (theme) => {
-    const def = INTROS[theme]; if (!def || reduced() || !document.body.animate) return;
+    const def = INTROS[theme]; if (!def || !document.body.animate) return;
+    if (reduced() && theme !== 'redflag') return; // reduced motion: only the static flags show
     const o = document.createElement('div');
     o.className = 'intro intro-' + theme; o.setAttribute('aria-hidden', 'true'); o.innerHTML = def[0];
     app().appendChild(o);
