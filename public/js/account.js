@@ -2,8 +2,7 @@
    UI for all of this lives in account-ui.js. Nothing here is trusted by the server:
    the server decides plan, prices and access (Lv3 cards come from Supabase RLS). */
 
-const GAME_IDS = ['redflag', 'nhie', 'bodypart', 'charades', 'wyr', 'mostlikely', 'hotseat', 'twotruths', 'swap'];
-const GAME_OF = (cardGame) => (cardGame === 'rate' ? 'redflag' : cardGame);
+const GAME_IDS = HC.GAMES.map((g) => g.id);
 const SITE = { contact: '%%CONTACT_EMAIL%%'.startsWith('%%') ? '' : '%%CONTACT_EMAIL%%' };
 
 const Store = {
@@ -130,6 +129,8 @@ const Auth = {
     this._clear();
   },
   _clear() {
+    Taste.drop(); Taste.armed = false;
+    if (Core.S && Core.S.heat > 2) { Core.S.heat = 2; Core.save(); }
     if (!this.user && !this.profile) return;
     this.user = null; this.profile = null; Admin.exp = 0;
     Ent._wasPro = false; Ent._adminWas = false; Ent._expirePending = false; // signing out isn't an expiry
@@ -187,6 +188,7 @@ const Ent = {
     const nowPro = this.pro();
     const admin = Admin.active();
     if (this._wasPro && !nowPro) {
+      if (Core.S.heat > 2) { Core.S.heat = 2; Core.save(); }
       if (this._adminWas && !admin && !this.profilePro()) {
         Premium.clear(); Core.toast('Admin session ended');
       } else if (this.inGame()) this._expirePending = true;
@@ -230,26 +232,46 @@ const Premium = {
   clear() { this.cards = []; this.loaded = false; },
 };
 
-/* ---------- One free Lv3 card per game ---------- */
+/* ---------- One free Hot card per game (signed-in accounts only) ----------
+   The card lives on the server. POST /api/taste checks, marks and returns it in one
+   SQL call; a second call for the same game is refused. The card is held in memory
+   for exactly one draw, then heat is back to Spicy. Guests get no taste. */
 const Taste = {
-  pending: null,   // game id whose free hot card plays next
-  local() { return Store.get('hc_taste', {}); },
-  used(game) { return !!(this.local()[game] || (Auth.profile && Auth.profile.taste_used && Auth.profile.taste_used[game])); },
+  armed: false,     // "Use your free Hot card?" accepted on the home ring: spend it on the next game picked
+  _card: null, _game: null,
+  showing: null,    // game id while the taste card is on screen (Core.heat() reads 3 for it)
+  available() { return Auth.signedIn() && !!Auth.profile; },
+  used(game) { return !!(Auth.profile && Auth.profile.taste_used && Auth.profile.taste_used[game]); },
   usedCount() { return GAME_IDS.filter((g) => this.used(g)).length; },
-  card(game) { return Core.cards.find((c) => c.taste && c.game === game) || null; },
-  // Marked when the card is shown (drawn), so a reload never gives a second one
-  markUsed(game) {
-    const l = this.local();
-    if (!l[game]) { l[game] = new Date().toISOString(); Store.set('hc_taste', l); }
-    if (Auth.signedIn()) this.push({ [game]: l[game] });
+  unusedAny() { return this.available() && GAME_IDS.some((g) => !this.used(g)); },
+  canClaim(game) { return this.available() && !Ent.pro() && !this.used(game); },
+  async claim(game) {
+    if (!this.canClaim(game)) throw new Error(this.available() ? 'You’ve used this game’s free Hot card.' : 'Sign in to try Hot.');
+    const r = await Api.call('POST', '/api/taste', { game });
+    if (!r || !r.card) throw new Error('No Hot card came back. Try again.');
+    if (Auth.profile) Auth.profile.taste_used = Object.assign({}, Auth.profile.taste_used, { [game]: r.used_at || new Date().toISOString() });
+    const c = r.card;
+    this._card = { ...(c.extra || {}), game: c.game, heat: 3, text: c.text, ...(c.optional_dare ? { optionalDare: c.optional_dare } : {}), taste: true };
+    this._game = game;
+    this.armed = false;
+    Bus.emit('taste');
+    return this._card;
   },
-  async push(obj) {
-    try {
-      const c = await SB.get();
-      const { data, error } = await c.rpc('add_tastes', { p_tastes: obj });
-      if (!error && data && Auth.profile) Auth.profile.taste_used = data;
-    } catch (e) {}
+  pendingFor(game) { return !!this._card && this._game === game; },
+  take(game) {
+    if (!this._card || this._game !== game) return null;
+    const c = this._card; this._card = null; this._game = null;
+    return c;
   },
+  // Called on the draw after the taste card: heat drops back to Spicy everywhere
+  finish() {
+    const g = this.showing; this.showing = null;
+    if (Core.S.heat > Core.heatCap()) Core.S.heat = Core.heatCap();
+    Core.save(); Core.updateHud();
+    Bus.emit('heat');
+    if (g && document.getElementById('stage')) Core.toast('Still at Spicy. Hot is locked.');
+  },
+  drop() { this._card = null; this._game = null; this.showing = null; },
 };
 
 /* ---------- Haptics switch (wraps navigator.vibrate) ---------- */
@@ -263,11 +285,13 @@ const Taste = {
 
 /* ---------- Preferences (local for guests, synced for accounts) ---------- */
 const Prefs = {
-  defaults: { maxHeat: 3, mode: 'drink', haptics: true, motion: 'system', savedNames: [], soundPack: 'classic', look: 'ember' },
-  get() { return { ...this.defaults, ...Store.get('hc_prefs', {}) }; },
+  defaults: { mode: 'drink', auto_ramp: true, cards_per_ramp: HC.RAMP_DEFAULT, haptics: true, motion: 'system', savedNames: [], soundPack: 'classic', look: 'ember' },
+  get() { return this.clean(Store.get('hc_prefs', {})); },
   clean(p) {
     const o = { ...this.defaults, ...p };
-    o.maxHeat = [1, 2, 3].includes(+o.maxHeat) ? +o.maxHeat : 3;
+    for (const k of ['maxHeat', 'max_heat', 'startHeat', 'start_heat', 'vibe']) delete o[k]; // retired settings
+    o.auto_ramp = o.auto_ramp !== false;
+    o.cards_per_ramp = Math.min(HC.RAMP_MAX, Math.max(HC.RAMP_MIN, Math.round(+o.cards_per_ramp || HC.RAMP_DEFAULT)));
     o.mode = ['drink', 'water', 'dare'].includes(o.mode) ? o.mode : 'drink';
     o.haptics = o.haptics !== false;
     o.motion = ['system', 'reduce', 'full'].includes(o.motion) ? o.motion : 'system';
@@ -292,11 +316,10 @@ const Prefs = {
     const app = document.getElementById('app');
     if (app) { if (pro && p.look !== 'ember') app.dataset.look = p.look; else delete app.dataset.look; }
   },
-  // Defaults for a new night: max heat and penalty mode
+  // Synced defaults: penalty mode and auto-ramp
   applyNightDefaults() {
     const p = this.get(), st = Core.S.settings;
-    st.maxHeat = p.maxHeat; st.mode = p.mode;
-    if (st.startHeat > st.maxHeat) st.startHeat = st.maxHeat;
+    st.mode = p.mode; st.autoRamp = p.auto_ramp; st.cardsPerRamp = p.cards_per_ramp;
     Core.save();
   },
   _t: 0,
@@ -311,10 +334,10 @@ const Prefs = {
 
 /* ---------- Light stats ---------- */
 const Stats = {
-  get() { const s = Store.get('hc_stats', {}); return { sessions: +s.sessions || 0, games: s.games && typeof s.games === 'object' ? s.games : {}, maxHeat: +s.maxHeat || 0 }; },
+  get() { const s = Store.get('hc_stats', {}); return { sessions: +s.sessions || 0, games: s.games && typeof s.games === 'object' ? s.games : {}, topHeat: +s.topHeat || 0 }; },
   save(s) { Store.set('hc_stats', s); this.push(); },
   game(id) { const s = this.get(); s.sessions++; s.games[id] = (s.games[id] || 0) + 1; this.save(s); },
-  heat(h) { const s = this.get(); if (h > s.maxHeat) { s.maxHeat = h; this.save(s); } },
+  heat(h) { const s = this.get(); if (h > s.topHeat) { s.topHeat = h; this.save(s); } },
   favorite() { const g = this.get().games; let best = null; for (const k of Object.keys(g)) if (!best || g[k] > g[best]) best = k; return best; },
   _t: 0,
   push() {
@@ -331,10 +354,6 @@ const Sync = {
   async onLogin() {
     const p = Auth.profile; if (!p) return;
     const c = await SB.get();
-    // tastes
-    const local = Taste.local(), have = p.taste_used || {};
-    const add = {}; for (const g of Object.keys(local)) if (GAME_IDS.includes(g) && !have[g]) add[g] = local[g];
-    if (Object.keys(add).length) await Taste.push(add);
     // preferences: an account's saved prefs win; an empty account takes this device's
     const remote = p.preferences || {};
     if (Object.keys(remote).length) {
@@ -347,11 +366,11 @@ const Sync = {
     Prefs.apply();
     // stats: add this device's guest stats once, then the account is the source of truth
     const flag = 'hc_stats_merged_' + p.id, rs = p.stats || {};
-    const remoteStats = { sessions: +rs.sessions || 0, games: rs.games && typeof rs.games === 'object' ? rs.games : {}, maxHeat: +rs.maxHeat || 0 };
+    const remoteStats = { sessions: +rs.sessions || 0, games: rs.games && typeof rs.games === 'object' ? rs.games : {}, topHeat: +rs.topHeat || 0 };
     if (!Store.get(flag, false)) {
       const l = Stats.get(), games = { ...remoteStats.games };
       for (const k of Object.keys(l.games)) games[k] = (games[k] || 0) + (+l.games[k] || 0);
-      const merged = { sessions: remoteStats.sessions + l.sessions, games, maxHeat: Math.max(remoteStats.maxHeat, l.maxHeat) };
+      const merged = { sessions: remoteStats.sessions + l.sessions, games, topHeat: Math.max(remoteStats.topHeat, l.topHeat) };
       Store.set('hc_stats', merged); Store.set(flag, true);
       try { await c.from('profiles').update({ stats: merged }).eq('id', p.id); } catch (e) {}
     } else Store.set('hc_stats', remoteStats);
@@ -457,6 +476,8 @@ const Admin = {
 /* ---------- Start up (called from boot.js) ---------- */
 const Account = {
   async start() {
+    Store.del('hc_taste'); Store.del('hc_vibe');   // retired: guests no longer get a taste, and Vibe is gone
+    Store.set('hc_prefs', Prefs.get());           // rewrites saved prefs without retired keys
     Prefs.apply();
     await Cfg.load();
     Bus.emit('config');
@@ -468,4 +489,4 @@ const Account = {
 };
 
 // Expose on window too (other modules feature-check with window.X)
-Object.assign(window, { GAME_IDS, GAME_OF, SITE, Store, Cfg, SB, Bus, Auth, Api, Ent, Premium, Taste, Prefs, Stats, Sync, Pay, Captcha, Admin, Account });
+Object.assign(window, { GAME_IDS, SITE, Store, Cfg, SB, Bus, Auth, Api, Ent, Premium, Taste, Prefs, Stats, Sync, Pay, Captcha, Admin, Account });
