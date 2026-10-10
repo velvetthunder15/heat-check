@@ -100,11 +100,6 @@
   box-shadow: inset 0 0 0 1.5px #ff2bd6, inset 0 0 24px #ff2bd655, 0 0 30px -8px #ff2bd6, 0 30px 50px -30px #000 !important; }
 .tile.nhie .t-name { color: #ffd2f6 !important; text-shadow: 0 0 6px #ff2bd6, 0 0 18px #ff2bd6, 0 0 36px #ff2bd699 !important; }
 
-/* Guess the Body Part: noir spotlight */
-.tile.bodypart { --tile-glow: #c9a86a;
-  background: radial-gradient(42% 55% at 62% 28%, #f3e2b866, #f3e2b11a 45%, transparent 70%), conic-gradient(from 200deg at 62% -20%, transparent 0 18deg, #fff5d812 22deg 34deg, transparent 38deg), linear-gradient(180deg, #1a1712, #050505 75%); }
-.tile.bodypart .t-name { color: #f6ecd6; }
-
 /* Strip Charades: velvet curtains with gold trim */
 .tile.charades { --tile-glow: #ff2e63;
   background: linear-gradient(180deg, #d4af37 0 5px, #8a6d1e 5px 7px, transparent 7px),
