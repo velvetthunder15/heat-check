@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" class="booting">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#120a12" />
+  <meta name="color-scheme" content="dark" />
+    <meta name="description" content="Heat Check: flirty party games for couples. 18+." />
+  <link rel="canonical" href="https://heat-check-sage.vercel.app/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Heat Check" />
+  <meta property="og:title" content="Heat Check: party games for couples (18+)" />
+  <meta property="og:description" content="Red flags, blindfolds, strip charades and more. Nine games, one phone, three heat levels." />
+  <meta property="og:url" content="https://heat-check-sage.vercel.app/" />
+  <meta property="og:image" content="https://heat-check-sage.vercel.app/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Heat Check logo on a dark background" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Heat Check: party games for couples (18+)" />
+  <meta name="twitter:description" content="Nine games, one phone, three heat levels." />
+  <meta name="twitter:image" content="https://heat-check-sage.vercel.app/og.png" />
+  <meta name="rating" content="adult" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Heat Check</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/sf-regular.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/sf-bold.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/sf-blackitalic.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/sf-heavyitalic.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/sf-lightitalic.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/sf-semibolditalic.woff2" crossorigin />
+  <link rel="stylesheet" href="/css/base.css?v=9" />
+  <link rel="stylesheet" href="/css/themes.css?v=9" />
+  <link rel="stylesheet" href="/css/fixes.css?v=9" />
+  <link rel="stylesheet" href="/css/motion.css?v=9" />
+  <link rel="stylesheet" href="/css/polish.css?v=9" />
+</head>
+<body>
+  <div id="splash" aria-label="Loading Heat Check">
+    <div class="sp-bloom"></div>
+    <div class="sp-inner"><div class="sp-logo">Heat<br>Check</div><div class="sp-meter"><i></i><i></i><i></i></div></div>
+    <div class="sp-skip">Tap to skip</div>
+  </div>
+  <div id="app" data-theme="home"></div>
+
+  <!-- Pause / panic screen: deliberately boring -->
+  <div id="pause" hidden>
+    <div class="pz-bar"><span>Notes</span><span class="pz-time" id="pzTime"></span></div>
+    <div class="pz-body">
+      <h1>Groceries</h1>
+      <ul>
+        <li>Oat milk</li><li>Bananas (6)</li><li>Rice, 5 kg</li><li>Dish soap</li>
+        <li>Onions</li><li>Coffee filters</li><li>Bread</li><li>AA batteries</li>
+      </ul>
+      <h1>To do</h1>
+      <ul><li>Pay electricity bill</li><li>Call about the internet</li><li>Return library book</li></ul>
+    </div>
+    <button class="pz-resume" id="pzResume" aria-label="Resume">Hold to resume</button>
+  </div>
+
+  <noscript>Heat Check needs JavaScript.</noscript>
+  <script src="/js/audio.js?v=9"></script>
+  <script src="/js/core.js?v=9"></script>
+  <script src="/js/games.js?v=9"></script>
+  <script src="/js/app.js?v=9"></script>
+  <script src="/js/motion.js?v=9"></script>
+</body>
+</html>
