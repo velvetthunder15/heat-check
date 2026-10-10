@@ -56,7 +56,6 @@ h2 { font-size: clamp(22px, 6vw, 30px); }
   animation: grainShift .9s steps(4) infinite; will-change: transform; }
 @keyframes grainShift { 0% { transform: translate(0, 0); } 25% { transform: translate(-22px, 14px); } 50% { transform: translate(18px, -26px); } 75% { transform: translate(-12px, -8px); } 100% { transform: translate(0, 0); } }
 /* Noir already ships its own film grain */
-[data-theme="bodypart"] #amb .grain { display: none; }
 
 /* ---------- 1. Splash ---------- */
 #splash { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; background: #120a12; touch-action: manipulation; }
@@ -103,17 +102,19 @@ html.vt-run #app .screen, html.vt-run #app .tile, html.vt-run #app .home-head, h
 .intro * { position: absolute; will-change: transform, opacity; }
 .intro .flash { inset: 0; background: var(--accent); opacity: 0; }
 /* Red flag / green flag */
-.intro .flag { width: 34vw; max-width: 200px; height: 22vw; max-height: 130px; top: 34%; transform-origin: left center; border-radius: 4px 10px 10px 4px; }
-.intro .flag.r { left: 12%; background: linear-gradient(90deg, #ff3b4e, #e11d2e); }
-.intro .flag.g { right: 12%; left: auto; transform-origin: right center; background: linear-gradient(270deg, #3ee08a, #1fb96a); border-radius: 10px 4px 4px 10px; }
-.intro .pole { width: 5px; height: 42vw; max-height: 260px; top: 33%; background: #ffcf33; border-radius: 3px; }
-.intro .pole.r { left: calc(12% - 5px); } .intro .pole.g { right: calc(12% - 5px); }
+.intro .rf-wrap { top: 30%; width: 38vw; max-width: 210px; height: 30vw; max-height: 170px; }
+.intro .rf-l { left: 10%; } .intro .rf-r { right: 10%; transform: scaleX(-1); }
+.intro .rf-pole { left: 0; top: 0; width: 5px; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #ffe58a, #c99a1a); box-shadow: 0 6px 14px #0008; }
+.intro .rf-flag { left: 5px; top: 4px; width: calc(100% - 5px); height: 62%; transform-origin: left center; }
+.intro .rf-wrap { --fw: calc(min(38vw, 210px) - 5px); }
+.intro .rf-sl { top: 0; height: 100%; left: calc(var(--k) * var(--fw) / 6); width: calc(var(--fw) / 6 + 1px); overflow: hidden; }
+.intro .rf-in { top: 0; height: 100%; width: var(--fw); left: calc(var(--k) * var(--fw) / -6); }
+.intro .rf-in svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.intro .rf-sl, .intro .rf-in, .intro .rf-in svg, .intro .rf-pole { will-change: auto; }
 /* NHIE cups */
 .intro .cup { width: 72px; height: 92px; top: 40%; background: linear-gradient(#ff3b3b, #b5121b); clip-path: polygon(0 0, 100% 0, 84% 100%, 16% 100%); box-shadow: inset 0 10px 0 #ffffff55; }
 .intro .cup.l { left: calc(50% - 76px); } .intro .cup.r { left: calc(50% + 4px); }
 .intro .clink { width: 120px; height: 120px; top: calc(40% - 30px); left: calc(50% - 60px); border-radius: 50%; border: 3px solid #00f0ff; opacity: 0; }
-/* Noir iris */
-.intro .iris { width: 30px; height: 30px; border-radius: 50%; left: calc(50% - 15px); top: calc(40% - 15px); box-shadow: 0 0 0 200vmax #000; background: transparent; }
 /* Curtains */
 .intro .curtain { top: 0; bottom: 0; width: 51%; background: repeating-linear-gradient(90deg, #5c0016 0 18px, #3d000e 18px 36px); box-shadow: inset 0 -40px 60px #00000066; }
 .intro .curtain.l { left: 0; transform-origin: left; } .intro .curtain.r { right: 0; transform-origin: right; }
