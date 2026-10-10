@@ -1,0 +1,18 @@
+
+/* scoreboard extras */
+button.scores { width: 100%; padding: 0; background: none; border: 0; color: inherit; text-align: left; cursor: pointer; }
+.chip { position: relative; }
+.chip .plus { position: absolute; right: -4px; top: -10px; background: var(--accent); color: #140a10; font-weight: 800; font-size: 12px; padding: 2px 6px; border-radius: 99px; animation: plusUp 1s ease forwards; pointer-events: none; }
+@keyframes plusUp { to { transform: translateY(-14px); opacity: 0; } }
+.standings { list-style: none; padding: 0; margin: 14px 0 0; }
+.standings li { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 18px; }
+.standings b { color: var(--accent); }
+.legal { display: flex; justify-content: center; gap: 22px; margin-top: 18px; }
+.legal a { color: var(--muted); font-size: 14px; }
+/* legal + error pages */
+.doc { max-width: 680px; margin: 0 auto; padding: 32px 22px 64px; line-height: 1.6; font-size: 16px; color: #f1e6ee; }
+.doc h1 { font-family: "Fraunces", serif; font-size: 36px; margin: 20px 0 8px; color: #fff; }
+.doc h2 { font-family: "Fraunces", serif; font-size: 22px; margin: 26px 0 6px; color: #fff; }
+.doc a { color: #ffb03b; }
+.doc ul { padding-left: 20px; }
+.gate .logo.small { font-size: 44px; line-height: 1; }
