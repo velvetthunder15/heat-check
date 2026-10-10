@@ -1,0 +1,717 @@
+[
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Titanic",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "3 Idiots",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Kal Ho Naa Ho",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "The Lion King",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Sholay",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Avengers: Endgame",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Lagaan",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Jurassic Park",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Baahubali: The Beginning",
+  "category": "Movie",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "RRR",
+  "category": "Movie",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Harry Potter and the Philosopher's Stone",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Dangal",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Friends",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Stranger Things",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Game of Thrones",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "The Office",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Money Heist",
+  "category": "TV Show",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Squid Game",
+  "category": "TV Show",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Taarak Mehta Ka Ooltah Chashmah",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Kaun Banega Crorepati",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Mahabharat",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Sacred Games",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Breaking Bad",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Shape of You",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Despacito",
+  "category": "Song",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Gangnam Style",
+  "category": "Song",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Chaiyya Chaiyya",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Jai Ho",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Kala Chashma",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Naatu Naatu",
+  "category": "Song",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Dynamite",
+  "category": "Song",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Happy",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Lungi Dance",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 1,
+  "text": "Waka Waka (This Time for Africa)",
+  "category": "Song",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Pretty Woman",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Notting Hill",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "The Notebook",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "La La Land",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Love Actually",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Before Sunrise",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Dilwale Dulhania Le Jayenge",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Kuch Kuch Hota Hai",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Jab We Met",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Yeh Jawaani Hai Deewani",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Veer-Zaara",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Amélie",
+  "category": "Movie",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Crash Landing on You",
+  "category": "TV Show",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Goblin",
+  "category": "TV Show",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Business Proposal",
+  "category": "TV Show",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Emily in Paris",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Normal People",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "How I Met Your Mother",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Gossip Girl",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Little Things",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Made in Heaven",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Iss Pyaar Ko Kya Naam Doon?",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Kuch Rang Pyar Ke Aise Bhi",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Tum Hi Ho",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Tujhe Dekha To",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Kesariya",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Pehla Nasha",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Gerua",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Perfect",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "All of Me",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Thinking Out Loud",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Love Story",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Señorita",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 2,
+  "text": "Bésame Mucho",
+  "category": "Song",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Fifty Shades of Grey",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Magic Mike",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Basic Instinct",
+  "category": "Movie",
+  "origin": "Hollywood",
+  "taste": true
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Dirty Dancing",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Friends with Benefits",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Crazy, Stupid, Love.",
+  "category": "Movie",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Murder",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Jism",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Hate Story",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Lust Stories",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Grand Masti",
+  "category": "Movie",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "365 Days",
+  "category": "Movie",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Bridgerton",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Elite",
+  "category": "TV Show",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Sex Education",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Sex and the City",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Euphoria",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Desperate Housewives",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Too Hot to Handle",
+  "category": "TV Show",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Four More Shots Please!",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Gandii Baat",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "MTV Splitsvilla",
+  "category": "TV Show",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Nevertheless,",
+  "category": "TV Show",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "SexyBack",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Toxic",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Wicked Game",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Talk Dirty",
+  "category": "Song",
+  "origin": "Hollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Hips Don't Lie",
+  "category": "Song",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Gasolina",
+  "category": "Song",
+  "origin": "Global"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Sheila Ki Jawani",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Munni Badnaam Hui",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Chikni Chameli",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Bheegey Hont Tere",
+  "category": "Song",
+  "origin": "Bollywood"
+ },
+ {
+  "game": "charades",
+  "heat": 3,
+  "text": "Kaanta Laga",
+  "category": "Song",
+  "origin": "Bollywood"
+ }
+]
