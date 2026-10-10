@@ -1,0 +1,453 @@
+[
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What's my favorite way to be greeted by you?",
+  "optionalDare": "Greet your partner that way, then hold the hug around their waist for 10 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Do I prefer holding hands or an arm around my waist?",
+  "optionalDare": "Hold your partner's hand or waist, whichever they guessed, for one minute."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Which of your features do I notice first?",
+  "optionalDare": "Kiss your partner's cheek and tell them which feature you noticed first."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What compliment from you makes me blush the most?",
+  "optionalDare": "Whisper that compliment into your partner's ear."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Am I a big spoon or a little spoon?",
+  "optionalDare": "Spoon for one minute in the position your partner guessed."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What song would I pick for us to slow dance to?",
+  "optionalDare": "Slow dance for 30 seconds, hands on each other's waist."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Do I like being hugged from behind or face to face?",
+  "optionalDare": "Hug your partner that way for 20 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What's the first thing I noticed about you?",
+  "optionalDare": "Kiss your partner's knuckles while they answer."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Do I like forehead kisses or cheek kisses more?",
+  "optionalDare": "Give your partner three of whichever kiss they guessed."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Which of your outfits do I find most attractive?",
+  "optionalDare": "Run one finger along your partner's collar for 10 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What tiny gesture from you makes my whole day?",
+  "optionalDare": "Do that gesture now, then hold your partner's hand for 30 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Where would I plan our dream date night?",
+  "optionalDare": "Hold hands and describe that date in 30 seconds, fingers interlaced."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Would I rather cuddle you or be cuddled?",
+  "optionalDare": "Cuddle in the role your partner guessed for one minute."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What do I do when I'm trying to flirt with you?",
+  "optionalDare": "Flirt with your eyes only for 15 seconds, then kiss your partner's cheek."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "How long can I hold eye contact with you before I smile?",
+  "optionalDare": "Hold eye contact and both hands for 30 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What's my favorite part of your face?",
+  "optionalDare": "Kiss that part of your partner's face for 3 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Would I rather have my hair played with or my back scratched?",
+  "optionalDare": "Play with your partner's hair or scratch their back, whichever they guessed, for one minute."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What's my go-to move to get your attention?",
+  "optionalDare": "Do that move now, then hug your partner for 10 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Which scent on you do I love the most?",
+  "optionalDare": "Breathe in at your partner's neck for 5 seconds, then kiss their cheek."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What moment from our early days do I still replay?",
+  "optionalDare": "Recreate your first kiss, 5 seconds on the lips."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Which nickname from you secretly makes me melt?",
+  "optionalDare": "Whisper that nickname into your partner's ear."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Do I like kisses with a warning or as a surprise?",
+  "optionalDare": "Kiss your partner's temple the way they guessed."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "Where do I like your hand to rest when we sit together?",
+  "optionalDare": "Rest your hand there for one minute."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What's my favorite way to fall asleep next to you?",
+  "optionalDare": "Lie down in that position together for one minute."
+ },
+ {
+  "game": "hotseat",
+  "heat": 1,
+  "text": "What do you do with your hands that I find attractive?",
+  "optionalDare": "Run your hands down your partner's arms, shoulders to wrists, slowly."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Where on my neck do I most like being kissed: front, side, or nape?",
+  "optionalDare": "Kiss that exact spot for 15 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Would I rather get a back massage or a neck massage right now?",
+  "optionalDare": "Give your partner that massage for two minutes."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "What's one thing I'd love you to whisper in my ear?",
+  "optionalDare": "Whisper it with your lips against their ear."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "How long do I think our longest make out session lasted?",
+  "optionalDare": "Make out for one minute."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Do I prefer sitting on your lap or you sitting on mine?",
+  "optionalDare": "Sit that way for one minute, arms around each other."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Which is more sensitive on me: my ears or my neck?",
+  "optionalDare": "Kiss behind your partner's ear, then their neck, 5 seconds each, and find out."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Where do I want your hands when we make out?",
+  "optionalDare": "Put your hands there and kiss your partner for 30 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "What's the most attractive thing you do without realizing it?",
+  "optionalDare": "Do it on purpose, then kiss your partner's jaw."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Do I like slow, soft kisses or deep, intense ones more?",
+  "optionalDare": "Kiss your partner that way for 20 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Which spot is my secret weak spot: inner wrist, collarbone, or nape?",
+  "optionalDare": "Kiss the spot your partner names for 10 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Would I rather be kissed on the collarbone or the jaw?",
+  "optionalDare": "Kiss the guessed spot for 10 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Where outside home have I wanted to make out with you?",
+  "optionalDare": "Make out for 30 seconds like you're there right now."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "What do I want more right now: a kiss or a whisper?",
+  "optionalDare": "Give your partner both: a whisper in the ear, then a kiss on the lips."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Which part of my body do I love most when you massage it?",
+  "optionalDare": "Massage that part for one minute."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Would I rather have my earlobe nibbled or kissed?",
+  "optionalDare": "Do whichever they guessed for 5 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "What do I think about when you kiss my neck?",
+  "optionalDare": "Kiss your partner's neck for 15 seconds while they think about it."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "What would I want you to do if we were alone right now?",
+  "optionalDare": "Pull your partner onto your lap and kiss them for 20 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "How do I like being pulled in for a kiss: by the waist, hand, or collar?",
+  "optionalDare": "Pull your partner in that way and kiss them for 10 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Which of your outfits do I think is the sexiest?",
+  "optionalDare": "Run your hands down your partner's sides, shoulders to hips, once."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "What sound do I make when you kiss behind my ear?",
+  "optionalDare": "Kiss behind your partner's ear for 10 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Would I rather make out in the rain or by a fireplace?",
+  "optionalDare": "Make out for 30 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "What part of you do I most like to touch when we kiss?",
+  "optionalDare": "Guide your partner's hand there and kiss them for 20 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "Do I want my lower back or my shoulders rubbed more?",
+  "optionalDare": "Rub the guessed spot for one minute."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "What do you do that instantly makes me want to kiss you?",
+  "optionalDare": "Do it now, then let your partner kiss you for 10 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 2,
+  "text": "How many neck kisses before I pull you in for a real kiss?",
+  "optionalDare": "Kiss your partner's neck that many times, slowly."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Where on my body do I most want to be kissed right now?",
+  "optionalDare": "Kiss that spot, over clothes, for 20 seconds. Keep it to neck, jaw, collarbone, waist, hips, or thighs."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Would I rather pin you down or be pinned down?",
+  "optionalDare": "Gently pin your partner's wrists and kiss their neck for 30 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "What's a fantasy I've never fully told you about?",
+  "optionalDare": "Whisper the first line of it, then kiss your partner's ear."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "How would I react if you blindfolded me right now?",
+  "optionalDare": "Cover your partner's eyes for one minute and kiss three spots: jaw, nape, inner wrist."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Do I want your hands on my hips or my thighs when we kiss?",
+  "optionalDare": "Grip your partner's hips or thighs, whichever they guessed, over clothes, and kiss them for 30 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Which outer layer of yours would I most like to take off you?",
+  "optionalDare": "Let your partner slowly remove it while kissing your neck."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Would I like having my wrists tied with something soft?",
+  "optionalDare": "Loosely loop a scarf around your partner's wrists and kiss their jaw for 30 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Where would I most want you to leave a slow trail of kisses?",
+  "optionalDare": "Trail kisses there, over clothes, for 30 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "What's the boldest place I'd want to kiss you in public?",
+  "optionalDare": "Kiss your partner's neck for 10 seconds like someone might walk in."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Do I like it more when you take control or when I do?",
+  "optionalDare": "Whoever is in control places the other's hands on their hips for one minute."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "What's one thing I want you to do to me tonight that I haven't asked for?",
+  "optionalDare": "Whisper your answer, then kiss your partner's collarbone."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "How high up my thigh would I let your hand go under the dinner table?",
+  "optionalDare": "Rest your hand on your partner's thigh, over clothes, for one minute."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "What's my favorite way for you to hold me while we make out?",
+  "optionalDare": "Hold your partner that way and make out for 30 seconds.",
+  "taste": true
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Would I rather be kissed slowly blindfolded or fast with my hands held?",
+  "optionalDare": "Do whichever they guessed for 20 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Which room have I most imagined pinning you against a wall in?",
+  "optionalDare": "Back your partner against the nearest wall and kiss them for 30 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "What's the one spot that makes me lose focus when you kiss it?",
+  "optionalDare": "Kiss your partner's neck, jaw, and ear, 5 seconds each, until you find it."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "How long could I last blindfolded before I'd reach for you?",
+  "optionalDare": "Blindfold your partner for one minute and trace their jaw and neck with your fingertips."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "What would I want you to say while you pin me against the wall?",
+  "optionalDare": "Pin your partner to the wall and say it into their ear."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Would I want my jacket taken off slowly or pulled off fast?",
+  "optionalDare": "Remove one outer layer from your partner the way they guessed."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "What role would I want to play in a fantasy date with you?",
+  "optionalDare": "Play that role for 30 seconds and end it with a kiss on your partner's neck."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Where would I want your lips if my hands were tied?",
+  "optionalDare": "Hold your partner's hands behind their back and kiss their neck or collarbone for 20 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "What's the hottest thing you've ever done to me, in my opinion?",
+  "optionalDare": "Recreate it as a 20 second kiss on your partner's neck."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "Do I like my hips pulled into you or my lower back held?",
+  "optionalDare": "Do whichever they guessed while kissing them for 20 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "What do I picture when I imagine you pinning me down?",
+  "optionalDare": "Gently pin your partner's hips and kiss their jaw for 20 seconds."
+ },
+ {
+  "game": "hotseat",
+  "heat": 3,
+  "text": "What would I do if you gave me total control for ten minutes?",
+  "optionalDare": "Give your partner control for 2 minutes. They direct where your lips go, neck and up."
+ }
+]
