@@ -1,5 +1,5 @@
 /* Heat Check: app shell: gates, home, setup, routing */
-const GAME_ORDER = ['redflag', 'nhie', 'bodypart', 'charades', 'wyr', 'mostlikely', 'hotseat', 'twotruths', 'swap'];
+const GAME_ORDER = HC.GAMES.map((g) => g.id); // every list and count comes from config.js
 const TILE_EXTRA = { redflag: '<span class="onair">ON AIR</span>' };
 
 const App = {
@@ -48,112 +48,156 @@ const App = {
 
   /* ---------- home (intro + game picker, see intro.js) ---------- */
   home() {
+    Core.game = null;
+    window.Taste && (Taste.showing = null);
     this.set('home', Intro.html());
     Intro.bind();
     $('#cfg').onclick = () => this.setup();
     $('#reset').onclick = async () => {
-      const ok = await Core.ask('Start a fresh night?', 'Heat goes back to the start, scores and layers clear. Players stay.', [{ label: 'Reset', value: 1 }, { label: 'Cancel', value: 0, cls: 'ghost' }]);
-      if (ok) { Object.assign(Core.S, { scores: {}, layers: {}, round: 0, turn: 0 }); Core.used = {}; Core.vibeDraws = 0; window.Prefs && Prefs.applyNightDefaults(); Core.save(); this.home(); }
+      const ok = await Core.ask('Start a fresh night?', 'Heat goes back to Lv1, scores and layers clear. Players stay.', [{ label: 'Reset', value: 1 }, { label: 'Cancel', value: 0, cls: 'ghost' }]);
+      if (ok) { Object.assign(Core.S, { scores: {}, layers: {}, named: {}, round: 0, turn: 0, heat: 1, rampCount: 0 }); Core.used = {}; window.Prefs && Prefs.applyNightDefaults(); Core.save(); this.home(); }
     };
     $$('.tile').forEach((t) => (t.onclick = () => this.choose(t.dataset.game)));
   },
 
-  /* Picking a game: consent once per session, players, then the Lv3 moment if it's due */
+  minPlayers() { return Core.isGroup() ? HC.GROUP_MIN : 2; },
+
+  /* Picking a game: consent once per session, players, then a free Hot card if one is armed */
   async choose(id) {
+    if (!Games[id] || !HC.modeOf(id)) return;
     if (window.Cfg && !Cfg.gameOn(id)) return Core.toast('That game is taking a night off');
+    const side = HC.modeOf(id) === 'group' ? 'group' : 'couples';
+    if (Core.S.side !== side) { Core.S.side = side; Core.save(); }
     let consented = false;
     try { consented = sessionStorage.getItem('hc_consent') === '1'; } catch (e) {}
     if (!consented) return this.consent(() => this.choose(id));
-    if (Core.players().length < 2) { this.pendingGame = id; return this.setup(); }
-    if (window.Lock) await Lock.beforeStart(id);
+    if (Core.players().length < this.minPlayers()) { this.pendingGame = id; return this.setup(); }
+    if (window.Taste && Taste.armed) {
+      if (Taste.canClaim(id)) { try { await Taste.claim(id); Core.toast('Your free Hot card is up first'); } catch (e) { Core.toast(e.message); } }
+      else { Taste.armed = false; Core.toast(Taste.used(id) ? 'This game’s free Hot card is used. Still at Spicy.' : 'Hot stays locked'); }
+    }
     this.play(id);
   },
 
   play(id) {
-    if (Core.players().length < 2) { this.pendingGame = id; return this.setup(); }
+    if (Core.players().length < this.minPlayers()) { this.pendingGame = id; return this.setup(); }
     SFX.unlock(); SFX.play('tap');
+    Core.game = id;
     window.Stats && Stats.game(id);
     Core.stopTimers();
     Core._wantWake = true; Core.wake(true);
     Games[id].start();
   },
 
-  /* ---------- setup ---------- */
+  /* ---------- setup: couples (pairs) or a group roster ---------- */
   setup() {
-    const S = Core.S, st = S.settings;
+    const S = Core.S, st = S.settings, group = Core.isGroup();
     const unlimited = !!(window.Ent && Ent.unlimitedPlayers());
-    const capped = !unlimited && S.couples.length >= 2;
     const savedNames = unlimited && window.Prefs ? Prefs.get().savedNames : [];
+    const coupleCap = HC.FREE_PLAYERS / 2;
+    const cappedCouples = !unlimited && S.couples.length >= coupleCap;
+    const filledGroup = S.group.players.length;
+    const cappedGroup = !unlimited && filledGroup >= HC.FREE_PLAYERS;
     const coupleRow = (c, i) => `<div class="couple" data-c="${i}">
         <input class="input" data-k="a" maxlength="14" placeholder="Name" value="${esc(c.a)}">
         <span class="amp">&amp;</span>
         <input class="input" data-k="b" maxlength="14" placeholder="Name" value="${esc(c.b)}">
         <button class="icon-btn" data-del="${i}" aria-label="Remove couple" ${S.couples.length < 2 ? 'style="visibility:hidden"' : ''}>✕</button></div>`;
-    const seg = (key, opts) => `<div class="seg" data-seg="${key}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(st[key]) === String(v) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
-    this.set('home', `<main class="screen" style="padding-bottom:40px">
-      <div class="row" style="justify-content:space-between;margin-bottom:18px"><h1 style="font-size:34px">Who's playing?</h1>
-        ${Core.players().length >= 2 ? '<button class="icon-btn" id="back" aria-label="Back">✕</button>' : ''}</div>
-      <div class="col" id="couples">${S.couples.map(coupleRow).join('')}</div>
+    const groupRow = (n, i) => `<div class="grow-row" data-g="${i}">
+        <span class="gnum">${i + 1}</span><input class="input" data-k="p" maxlength="14" placeholder="Player ${i + 1}" value="${esc(n)}">
+        <button class="icon-btn" data-gdel="${i}" aria-label="Remove player" ${S.group.players.length <= HC.GROUP_MIN ? 'style="visibility:hidden"' : ''}>✕</button></div>`;
+    const seg = (key, opts, obj = st) => `<div class="seg" data-seg="${key}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(obj[key]) === String(v) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+    const canBack = Core.players().length >= this.minPlayers();
+    this.set('home', `<main class="screen setup ${group ? 'is-group' : ''}" style="padding-bottom:40px">
+      <div class="row" style="justify-content:space-between;margin-bottom:16px"><h1 style="font-size:34px">${group ? 'Who’s in?' : 'Who’s playing?'}</h1>
+        ${canBack ? '<button class="icon-btn" id="back" aria-label="Back">✕</button>' : ''}</div>
+      ${group ? `
+        <p class="note">${HC.GROUP_MIN} to ${HC.GROUP_MAX} players. Everyone plays for themselves.</p>
+        <div class="col" id="roster">${S.group.players.map(groupRow).join('')}</div>
+        <button class="btn ghost sm" id="addp" style="margin-top:12px;align-self:flex-start">+ Add a player${cappedGroup ? ' <span class="pro-tag">Pro</span>' : ''}</button>
+        ${!unlimited && filledGroup > HC.FREE_PLAYERS ? `<p class="note">Free plays the first ${HC.FREE_PLAYERS}. Pro brings everyone.</p>` : ''}`
+      : `
+        <div class="col" id="couples">${S.couples.map(coupleRow).join('')}</div>
+        <button class="btn ghost sm" id="addc" style="margin-top:12px;align-self:flex-start">+ Add a couple${cappedCouples ? ' <span class="pro-tag">Pro</span>' : ''}</button>
+        ${!unlimited && S.couples.length > coupleCap ? `<p class="note">Free plays the first ${coupleCap} couples. Pro brings everyone.</p>` : ''}`}
       ${savedNames.length ? `<div class="saved-names"><span class="note">Saved names, tap to add</span><div class="chips-row">${savedNames.map((n) => `<button class="chip" data-name="${esc(n)}">${esc(n)}</button>`).join('')}</div></div>` : ''}
-      <button class="btn ghost sm" id="addc" style="margin-top:12px;align-self:flex-start">+ Add a couple${capped ? ' <span class="pro-tag">Pro</span>' : ''}</button>
-      ${!unlimited && S.couples.length > 2 ? '<p class="note">Free plays the first 2 couples. Pro brings everyone.</p>' : ''}
       <div class="spacer"></div>
 
       <div class="field"><label>How do penalties work?</label>
-        ${seg('mode', [['drink', '🍸 Drinks'], ['water', '💧 Water'], ['dare', '🎲 Dares']])}
+        ${group ? seg('mode', [['drink', '🍸 Sips'], ['water', '💧 No alcohol']], S.group) : seg('mode', [['drink', '🍸 Drinks'], ['water', '💧 Water'], ['dare', '🎲 Dares']])}
         <p class="note" id="modeNote"></p></div>
       <div class="spacer"></div>
 
-      <div class="field"><label>Start at</label>${seg('startHeat', [[1, '😏 Flirty'], [2, '🌶️ Spicy'], [3, '🔥 Hot']])}</div>
-      <div class="spacer"></div>
-      <div class="field"><label>Max heat tonight</label>${seg('maxHeat', [[1, '😏 Flirty'], [2, '🌶️ Spicy'], [3, '🔥 Hot']])}</div>
-      <div class="toggle"><div><b>Heat Meter auto-ramp</b><div class="note">Cards climb a level every few rounds.</div></div><button class="switch ${st.ramp ? 'on' : ''}" data-sw="ramp" aria-label="Auto-ramp"></button></div>
-      <div class="field" id="rpl" ${st.ramp ? '' : 'hidden'}><label>Rounds per level</label>${seg('roundsPerLevel', [[4, '4'], [6, '6'], [8, '8'], [12, '12']])}</div>
-      <div class="spacer"></div>
-
-      <div class="toggle"><div><b>Strip Charades: layers</b><div class="note">Off = kiss, massage or sip instead.</div></div><button class="switch ${st.strip ? 'on' : ''}" data-sw="strip" aria-label="Strip penalties"></button></div>
-      <div class="field" id="lay" ${st.strip ? '' : 'hidden'}><label>Layers each</label>${seg('layers', [[3, '3'], [4, '4'], [5, '5'], [6, '6']])}</div>
+      <div class="toggle"><div><b>Auto-ramp</b><div class="note">Heat climbs one level every few cards, up to the highest level you have.</div></div><button class="switch ${st.autoRamp ? 'on' : ''}" data-sw="autoRamp" aria-label="Auto-ramp"></button></div>
+      <div class="field" id="rpl" ${st.autoRamp ? '' : 'hidden'}><label>Cards per ramp</label>
+        <div class="stepper"><button class="icon-btn" data-step="-1" aria-label="Fewer">−</button><b id="cpr">${st.cardsPerRamp}</b><button class="icon-btn" data-step="1" aria-label="More">+</button></div></div>
+      ${group ? '' : `<div class="spacer"></div>
+      <div class="field"><label>Strip Charades: layers each</label>${seg('layers', [[3, '3'], [4, '4'], [5, '5'], [6, '6']])}</div>`}
 
       <div class="spacer"></div>
-      <p class="note">1 pt per Flirty card, 2 per Spicy, 3 per Hot. Points set the penalty size and land on the scoreboard. Pass is always free on dares and intimate cards.</p>
+      <p class="note">1 pt per Flirty card, 2 per Spicy, 3 per Hot. Points set the penalty size and land on the scoreboard.${group ? '' : ' Pass is always free on dares and intimate cards.'}</p>
       <div class="spacer"></div>
-      <button class="btn block" id="save">Let's play →</button>
+      <button class="btn block" id="save">Let’s play →</button>
     </main>`);
     const notes = { drink: 'Points = sips. Drink responsibly: pace yourselves, keep water on the table, and nobody drives.', water: 'Points = sips of water. Same game, no hangover.', dare: 'No drinks. Lv1 = truth or compliment, Lv2 = kiss, massage or whisper, Lv3 = hot dare.' };
-    const refreshNote = () => ($('#modeNote').textContent = notes[st.mode]);
+    const refreshNote = () => ($('#modeNote').textContent = notes[group ? S.group.mode : st.mode]);
     refreshNote();
-    const readCouples = () => { S.couples = $$('.couple').map((r) => ({ a: $('[data-k=a]', r).value, b: $('[data-k=b]', r).value })); };
-    $('#addc').onclick = () => {
-      readCouples(); Core.save();
-      if (capped) return window.UI ? UI.paywall({ reason: 'players' }) : Core.toast('Free plays up to 4 people');
+    const readCouples = () => { if (!group) S.couples = $$('.couple').map((r) => ({ a: $('[data-k=a]', r).value, b: $('[data-k=b]', r).value })); };
+    const readGroup = () => { if (group) S.group.players = $$('.grow-row [data-k=p]').map((i) => i.value); };
+    const read = () => { readCouples(); readGroup(); Core.save(); };
+    $('#addc') && ($('#addc').onclick = () => {
+      read();
+      if (cappedCouples) return window.UI ? UI.paywall({ reason: 'players' }) : Core.toast(`Free plays up to ${HC.FREE_PLAYERS} people`);
       S.couples.push({ a: '', b: '' }); Core.save(); this.setup();
-    };
+    });
+    $('#addp') && ($('#addp').onclick = () => {
+      read();
+      if (S.group.players.length >= HC.GROUP_MAX) return Core.toast(`${HC.GROUP_MAX} players max`);
+      if (cappedGroup) return window.UI ? UI.paywall({ reason: 'players' }) : Core.toast(`Free plays up to ${HC.FREE_PLAYERS} people`);
+      S.group.players.push(''); Core.save(); this.setup();
+    });
     $$('[data-name]').forEach((b) => (b.onclick = () => {
-      const empty = $$('.couple input').find((i) => !i.value.trim());
-      if (!empty) return Core.toast('Add a couple first');
+      const empty = $$(group ? '.grow-row input' : '.couple input').find((i) => !i.value.trim());
+      if (!empty) return Core.toast(group ? 'Add a player first' : 'Add a couple first');
       empty.value = b.dataset.name; SFX.play('tap');
     }));
-    $$('[data-del]').forEach((b) => (b.onclick = () => { readCouples(); S.couples.splice(+b.dataset.del, 1); Core.save(); this.setup(); }));
+    $$('[data-del]').forEach((b) => (b.onclick = () => { read(); S.couples.splice(+b.dataset.del, 1); Core.save(); this.setup(); }));
+    $$('[data-gdel]').forEach((b) => (b.onclick = () => { read(); S.group.players.splice(+b.dataset.gdel, 1); Core.save(); this.setup(); }));
     $$('[data-seg]').forEach((g) => g.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
       const k = g.dataset.seg; const v = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v;
-      st[k] = v; SFX.play('tap');
-      if (k === 'startHeat' && st.maxHeat < v) st.maxHeat = v;
-      if (k === 'maxHeat' && st.startHeat > v) st.startHeat = v;
-      $$('[data-seg]').forEach((gg) => $$('button', gg).forEach((x) => x.classList.toggle('on', String(st[gg.dataset.seg]) === x.dataset.v)));
+      const obj = group && k === 'mode' ? S.group : st;
+      obj[k] = v; SFX.play('tap');
+      $$('button', g).forEach((x) => x.classList.toggle('on', x === b));
       refreshNote();
     }));
     $$('[data-sw]').forEach((b) => (b.onclick = () => {
       const k = b.dataset.sw; st[k] = !st[k]; b.classList.toggle('on', st[k]); SFX.play('tap');
-      $('#rpl').hidden = !st.ramp; $('#lay').hidden = !st.strip;
+      $('#rpl').hidden = !st.autoRamp;
+      if (k === 'autoRamp') { S.rampCount = 0; window.Prefs && Prefs.set({ auto_ramp: st.autoRamp }); }
     }));
-    $('#back') && ($('#back').onclick = () => { readCouples(); Core.save(); this.home(); });
+    $$('[data-step]').forEach((b) => (b.onclick = () => {
+      st.cardsPerRamp = Math.min(HC.RAMP_MAX, Math.max(HC.RAMP_MIN, st.cardsPerRamp + +b.dataset.step));
+      S.rampCount = 0; $('#cpr').textContent = st.cardsPerRamp; SFX.play('tap');
+      window.Prefs && Prefs.set({ cards_per_ramp: st.cardsPerRamp });
+    }));
+    $('#back') && ($('#back').onclick = () => { read(); this.home(); });
     $('#save').onclick = () => {
-      readCouples();
-      const full = S.couples.filter((c) => c.a.trim() && c.b.trim());
-      if (!full.length) return Core.toast('Add at least one couple (two names)');
-      S.couples = full; Core.save(); SFX.play('reveal');
-      if (unlimited && window.Prefs) Prefs.set({ savedNames: [...Prefs.get().savedNames, ...full.flatMap((c) => [c.a.trim(), c.b.trim()])] });
+      read();
+      let names;
+      if (group) {
+        const list = S.group.players.map((n) => n.trim()).filter(Boolean);
+        const unique = new Set(list.map((n) => n.toLowerCase()));
+        if (list.length < HC.GROUP_MIN) return Core.toast(`Groups need at least ${HC.GROUP_MIN} players`);
+        if (unique.size !== list.length) return Core.toast('Two players have the same name');
+        S.group.players = list; names = list;
+      } else {
+        const full = S.couples.filter((c) => c.a.trim() && c.b.trim());
+        if (!full.length) return Core.toast('Add at least one couple (two names)');
+        S.couples = full; names = full.flatMap((c) => [c.a.trim(), c.b.trim()]);
+      }
+      Core.save(); SFX.play('reveal');
+      if (unlimited && window.Prefs) Prefs.set({ savedNames: [...Prefs.get().savedNames, ...names] });
       const g = this.pendingGame; this.pendingGame = null;
       if (g) this.choose(g); else this.home();
     };
@@ -174,14 +218,6 @@ const App = {
       if (a === 'standings') Core.standings();
       if (a === 'pass') { SFX.play('tap'); Core.stopTimers(); $$('.modal-wrap').forEach((m) => m.remove()); Core._pass && Core._pass(); }
     });
-    // Spotlight follows the finger in noir mode
-    let px = 0, py = 0, queued = false;
-    document.addEventListener('pointermove', (e) => {
-      const r = this.root(); if (r.dataset.theme !== 'bodypart') return;
-      px = e.clientX; py = e.clientY;
-      if (queued) return; queued = true;
-      requestAnimationFrame(() => { queued = false; r.style.setProperty('--sx', (px / innerWidth) * 100 + '%'); r.style.setProperty('--sy', (py / innerHeight) * 100 + '%'); });
-    }, { passive: true });
     // Panic: Escape key or hiding the tab pauses
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') Core.paused ? Core.resume() : Core.pause(); });
   },
