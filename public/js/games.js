@@ -21,7 +21,38 @@ function stageHTML(html) {
 }
 function ctl() { const c = $('#ctl'); if (!c) throw new Error('left-game'); return c; }
 // Asks the deck for the next card. null: this tier's limit is reached and the lock sheet is up.
-async function deal(game, again) { const c = await Core.next(game, again); if (!$('#stage')) throw new Error('left-game'); return c; }
+async function deal(game, again) {
+  // Nothing limited is spent just by opening a game: a first card that would use a Hot
+  // (Lite's 3 per game or Base's free one) waits for a tap on "Deal it".
+  if (!Core.dealt[game]) { await hotGate(game); Core.dealt[game] = true; }
+  const c = await Core.next(game, again); if (!$('#stage')) throw new Error('left-game'); return c;
+}
+let gateWait = null;
+function hotGate(game) {
+  if (gateWait) return gateWait;
+  const taste = window.Taste && Taste.armed && Taste.canClaim(game);
+  const lite = Core.tier() === 'lite' && Math.min(Core.S.heat, Core.levelCap(game)) === 3 && window.Limits && Limits.hotLeft(game) > 0;
+  if (!taste && !lite) return Promise.resolve();
+  const s = $('#stage'); if (!s) return Promise.reject(new Error('left-game'));
+  s.innerHTML = `<div class="deal-gate"><span class="dg-chip">🔥 Hot</span>
+      <h2>First card is Hot</h2>
+      <p class="muted">${taste ? 'Your free Hot card is only used once it’s dealt.' : `It counts as 1 of your ${HC.LIMITS.lite.hot} Hot cards here once it’s dealt.`}</p>
+      <button class="btn block" id="dgGo">Deal it</button>
+      <button class="btn block ghost sm" id="dgNo">${taste ? 'Save it, start at Spicy' : 'Start at Spicy'}</button></div>`;
+  gateWait = new Promise((resolve) => {
+    $('#dgGo').onclick = async () => {
+      SFX.play('reveal');
+      if (taste) { try { await Taste.claim(game); } catch (e) { Core.toast(e.message); } }
+      gateWait = null; resolve();
+    };
+    $('#dgNo').onclick = () => {
+      SFX.play('tap');
+      if (taste) Taste.armed = false; else Core.setHeat(2);
+      gateWait = null; resolve();
+    };
+  });
+  return gateWait;
+}
 
 const Games = {};
 
