@@ -1,9 +1,10 @@
-// POST /api/create-order  { product: 'pass' | 'lifetime' }   (signed-in users only)
-// The server picks the amount from lib/pricing.js. The client never sends a price.
+// POST /api/create-order  { product: 'lite' | 'premium' }   (signed-in users only)
+// The server picks the amount from lib/pricing.js. The client sends only the product name.
+// Premium never expires, so a Premium account can't buy Lite (or Premium again).
 import { json, handle, readJson, HttpError, clientIp, requireEnv } from '../../lib/http.js';
 import { requireUser, getProfile, rest } from '../../lib/supabase.js';
 import { createOrder } from '../../lib/razorpay.js';
-import { priceFor } from '../../lib/pricing.js';
+import { priceFor, isProduct } from '../../lib/pricing.js';
 import { limit } from '../../lib/ratelimit.js';
 
 export const onRequestPost = handle(async ({ request, env }) => {
@@ -14,11 +15,11 @@ export const onRequestPost = handle(async ({ request, env }) => {
 
   const body = await readJson(request);
   const productId = String(body.product || '');
-  if (productId !== 'pass' && productId !== 'lifetime') throw new HttpError(400, 'bad_product', 'Unknown product.');
+  if (!isProduct(productId)) throw new HttpError(400, 'bad_product', 'Unknown product.');
 
   const profile = await getProfile(env, user.id);
   if (!profile) throw new HttpError(409, 'no_profile', 'Your account is still being set up. Try again in a moment.');
-  if (profile.plan === 'lifetime') throw new HttpError(409, 'already_lifetime', 'You already have Pro Lifetime.');
+  if (profile.plan === 'premium') throw new HttpError(409, 'already_premium', 'You already have Premium.');
 
   const price = priceFor(productId, request.cf && request.cf.country);
   if (price.currency !== 'INR') throw new HttpError(400, 'currency_unavailable', 'Payments are INR only for now.');
