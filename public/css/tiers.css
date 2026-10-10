@@ -51,7 +51,20 @@ button.hchip { font: inherit; color: inherit; background: none; border: 0; paddi
 .pass-banner .pb-text { position: relative; z-index: 1; }
 .pass-banner .pb-go, .pass-banner .pb-warn { position: relative; z-index: 1; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .pass-banner.lite { background: var(--grad-gold); color: var(--gold-ink); box-shadow: inset 0 1px 0 #fff9, 0 8px 20px -12px #e2ad48aa; }
-.pass-banner.premium { background: var(--grad-ice); color: var(--ice-ink); box-shadow: inset 0 1px 0 #fff, 0 8px 22px -12px #a9c2dbcc; }
+.pass-banner.premium {
+  /* Polished titanium: a chrome horizon line, brushed grain, bevelled edges, engraved text */
+  background:
+    repeating-linear-gradient(90deg, #ffffff0d 0 1px, #00000008 1px 2px, transparent 2px 4px),
+    linear-gradient(100deg, #ffffff00 30%, #ffffff8c 46%, #ffffff00 60%),
+    linear-gradient(180deg, #fbfdff 0%, #dbe7f3 16%, #aebfd2 44%, #7e93aa 50%, #c9d8e7 54%, #eef4fa 74%, #9cb0c5 100%);
+  color: #16222f; border: 1px solid #5f7489;
+  box-shadow: inset 0 1px 0 #ffffff, inset 0 -1px 0 #3c4d5f66, inset 0 0 0 1px #ffffff40, inset 0 -8px 14px -10px #2a3a4c80, 0 1px 0 #ffffff1a, 0 10px 24px -12px #8fb0d0b3;
+  text-shadow: 0 1px 0 #ffffffb3, 0 -1px 0 #0000001f; letter-spacing: .02em; }
+.pass-banner .pb-ico { position: relative; z-index: 1; display: inline-flex; width: 28px; height: 28px; border-radius: 50%; align-items: center; justify-content: center; flex: none;
+  background: linear-gradient(180deg, #2b3b4d, #0f1a26); box-shadow: inset 0 1px 0 #ffffff40, 0 1px 0 #ffffffa0; color: #e4eef8; }
+.pass-banner .pb-ico .ico { width: 18px; height: 18px; stroke-width: 2.4; }
+.pass-banner.premium .pb-text { margin-right: auto; }
+.pass-banner.premium .pb-tag { position: relative; z-index: 1; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #2c3e52; opacity: .8; }
 .pass-banner.admin { background: #ffffff14; color: var(--fg); border: 1px solid var(--line); }
 .pass-banner.none { background: #ffffff0a; color: var(--muted); border: 1px dashed var(--line); font-weight: 600; min-height: 40px; }
 .pass-banner.none .pb-go { color: var(--fg); opacity: .8; }
@@ -60,7 +73,11 @@ button.hchip { font: inherit; color: inherit; background: none; border: 0; paddi
 .pass-banner.lite .pb-sheen::after, .pass-banner.premium .pb-sheen::after,
 .plan .plan-sheen::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 40%;
   background: linear-gradient(100deg, transparent, #ffffffa6 50%, transparent); opacity: .55; transform: translateX(-160%) skewX(-18deg); animation: sheen 4.2s ease-in-out infinite; }
-.pass-banner.premium .pb-sheen::after, .plan.premium .plan-sheen::after { animation-duration: 5.4s; opacity: .7; }
+.plan.premium .plan-sheen::after { animation-duration: 5.4s; opacity: .7; }
+.pass-banner.premium .pb-sheen::after { width: 22%; opacity: .95; animation-duration: 3.6s;
+  background: linear-gradient(100deg, transparent, #ffffffe6 45%, #f2fbff 50%, #ffffffe6 55%, transparent); }
+.pass-banner.premium .pb-sheen::before { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 8%; opacity: .6;
+  background: linear-gradient(100deg, transparent, #ffffffcc, transparent); transform: translateX(-200%) skewX(-18deg); animation: sheen 3.6s ease-in-out .18s infinite; }
 @keyframes sheen { 0%, 55% { transform: translateX(-160%) skewX(-18deg); } 100% { transform: translateX(360%) skewX(-18deg); } }
 .pass-chip.lite { background: var(--grad-gold); color: var(--gold-ink); border-color: transparent; }
 .pass-chip.lite.warn { box-shadow: 0 0 0 2px #ffffff55; }
@@ -167,8 +184,8 @@ button.hchip { font: inherit; color: inherit; background: none; border: 0; paddi
 .seg button.lk { opacity: .5; }
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion="full"]) .pb-sheen::after, html:not([data-motion="full"]) .plan-sheen::after { animation: none; opacity: 0; }
+  html:not([data-motion="full"]) .pb-sheen::before, html:not([data-motion="full"]) .pb-sheen::after, html:not([data-motion="full"]) .plan-sheen::after { animation: none; opacity: 0; }
   html:not([data-motion="full"]) .heat-row.shake, html:not([data-motion="full"]) .switch.nope { animation: none; }
 }
-html[data-motion="reduce"] .pb-sheen::after, html[data-motion="reduce"] .plan-sheen::after { animation: none; opacity: 0; }
+html[data-motion="reduce"] .pb-sheen::before, html[data-motion="reduce"] .pb-sheen::after, html[data-motion="reduce"] .plan-sheen::after { animation: none; opacity: 0; }
 html[data-motion="reduce"] .heat-row.shake, html[data-motion="reduce"] .switch.nope { animation: none; }
