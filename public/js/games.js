@@ -16,28 +16,47 @@ const Games = {};
 
 /* =========================================================
    1. RED FLAG / GREEN FLAG  — talk-show couples reveal
+   One scenario stays on screen until Next (or Pass). The Flags / Rate toggle
+   only changes how answers are collected: it never re-deals or re-renders the card.
    ========================================================= */
 Games.redflag = {
-  title: 'Red Flag / Green Flag', tag: 'Lock in. 3-2-1. Reveal.', mode: 'flags',
-  start() { mount('redflag', '🚩 Red Flag / Green Flag 🟢', ''); this.round(); },
-  modeSwitch() {
-    return `<div class="seg" style="margin-bottom:14px">
-      <button class="${this.mode === 'flags' ? 'on' : ''}" data-m="flags">🚩 Flags</button>
-      <button class="${this.mode === 'rate' ? 'on' : ''}" data-m="rate">⭐ Rate your partner</button></div>`;
-  },
-  bindMode(s) { $$('[data-m]', s).forEach((b) => (b.onclick = () => { SFX.play('tap'); this.mode = b.dataset.m; this.round(); })); },
-  round() {
+  title: 'Red Flag / Green Flag', tag: 'Lock in. 3-2-1. Reveal.', mode: 'flags', card: null, token: 0,
+  start() { mount('redflag', '🚩 Red Flag / Green Flag 🟢', ''); this.deal(); },
+  deal() {
     Core.stopTimers();
-    this.mode === 'flags' ? this.flags() : this.rate();
-  },
-
-  flags() {
-    const [A, B] = Core.currentCouple();
-    const card = Core.draw('redflag');
-    const picks = {};
-    Core.setTurn(A); Core.setPrimary(null); Core.setPassInfo(passCost(card));
-    const s = stageHTML(`${this.modeSwitch()}
+    const card = (this.card = Core.draw('redflag'));
+    const s = stageHTML(`<div class="seg rf-mode" style="margin-bottom:14px">
+        <button class="${this.mode === 'flags' ? 'on' : ''}" data-m="flags">🚩 Flags</button>
+        <button class="${this.mode === 'rate' ? 'on' : ''}" data-m="rate">⭐ Rate your partner</button></div>
       <div class="lower-third"><span class="tag">● TONIGHT'S SCENARIO</span><div class="prompt">${esc(card.text)}</div></div>
+      <div id="answer"></div>`);
+    $$('[data-m]', s).forEach((b) => (b.onclick = () => {
+      if (this.mode === b.dataset.m || s.dataset.answering) return;
+      SFX.play('tap'); this.mode = b.dataset.m;
+      $$('[data-m]', s).forEach((x) => x.classList.toggle('on', x === b));
+      this.collect();
+    }));
+    this.collect();
+  },
+  next() { Core.nextRound(); Core.nextTurn(); this.deal(); },
+  // Answer area only. A token makes any async step from the other mode a no-op.
+  collect() {
+    Core.stopTimers(); Core.setPrimary(null);
+    const tok = ++this.token;
+    const st = $('#stage'); if (st) delete st.dataset.answering;
+    this.mode === 'flags' ? this.flags(tok) : this.rate(tok);
+  },
+  answer(html) { const a = $('#answer'); if (!a) throw new Error('left-game'); a.innerHTML = html; return a; },
+  begin() { const st = $('#stage'); if (st) st.dataset.answering = '1'; $$('.rf-mode button').forEach((b) => (b.disabled = !b.classList.contains('on'))); },
+  live(tok) { if (tok !== this.token || !$('#answer')) throw new Error('left-game'); },
+
+  flags(tok) {
+    const [A, B] = Core.currentCouple();
+    const card = this.card;
+    const picks = {};
+    Core.setTurn(A); Core.setPassInfo(passCost(card));
+    Core.onPass(() => { Core.doPass(card, A); this.next(); });
+    const s = this.answer(`
       <div class="frames">
         <div class="frame active" data-p="${A}"><span class="rec">● REC</span><div class="big">🤔</div><div class="nm">${N(A)}</div></div>
         <div class="frame" data-p="${B}"><span class="rec">● REC</span><div class="big">🤔</div><div class="nm">${N(B)}</div></div>
@@ -47,11 +66,9 @@ Games.redflag = {
         <button class="flagbtn red" data-f="red"><span>🚩</span>RED FLAG</button>
         <button class="flagbtn green" data-f="green"><span>🟢</span>GREEN FLAG</button>
       </div>`);
-    this.bindMode(s);
     let who = A;
-    Core.onPass(() => { Core.doPass(card, A); Core.nextRound(); Core.nextTurn(); this.round(); });
     $$('.flagbtn', s).forEach((b) => (b.onclick = async () => {
-      SFX.play('tap'); vibrate(20);
+      SFX.play('tap'); vibrate(20); this.begin();
       picks[who] = b.dataset.f;
       const fr = $(`.frame[data-p="${who}"]`, s);
       fr.classList.remove('active'); fr.classList.add('locked'); $('.big', fr).textContent = '🔒';
@@ -61,12 +78,12 @@ Games.redflag = {
         return;
       }
       $('.flagbtns', s).remove(); $('#instr').textContent = 'Both locked in. On the count of three…';
-      await Core.countdown(3);
+      await Core.countdown(3); this.live(tok);
       [A, B].forEach((p) => { const big = $(`.frame[data-p="${p}"] .big`, s); big.textContent = picks[p] === 'red' ? '🚩' : '🟢'; big.classList.add('wave'); $(`.frame[data-p="${p}"]`, s).style.borderColor = picks[p] === 'red' ? '#ff3b4e' : '#3ee08a'; });
       if (picks[A] === picks[B]) {
         SFX.play('applause'); SFX.play('ding');
         $('#instr').outerHTML = `<div class="verdict" style="color:#3ee08a">SAME PAGE 💞</div><p class="center muted">Nobody drinks. Smug kiss optional.</p>`;
-        Core.setPrimary('Next scenario →', () => { Core.nextRound(); Core.nextTurn(); this.round(); });
+        Core.setPrimary('Next scenario →', () => this.next());
       } else {
         SFX.play('buzzer'); vibrate([60, 40, 60]);
         $('#instr').outerHTML = `<div class="verdict" style="color:#ffcf33">DEBATE! 🎤</div>
@@ -77,8 +94,9 @@ Games.redflag = {
           if (ended) return; ended = true;
           t.stop(); Core.setPrimary(null);
           const loser = await Core.ask('Who lost the debate?', 'Be honest. Or be dramatic.', [{ label: Core.name(A), value: A }, { label: Core.name(B), value: B }]);
+          this.live(tok);
           await Core.penalty({ who: loser, card, reason: 'Lost the debate' });
-          Core.nextRound(); Core.nextTurn(); this.round();
+          this.next();
         };
         const t = Core.timer(s, 30, () => { SFX.play('buzzer'); finish(); });
         Core.setPrimary('Debate over', finish);
@@ -86,50 +104,50 @@ Games.redflag = {
     }));
   },
 
-  rate() {
+  // Same scenario, scored instead: how big a red flag is it, 1 to 10?
+  rate(tok) {
     const rater = Core.current(), target = Core.partnerOf(rater);
-    const card = Core.draw('rate');
-    Core.setTurn(rater); Core.setPrimary(null); Core.setPassInfo(passCost(card));
-    Core.onPass(() => { Core.doPass(card, rater); Core.nextRound(); Core.nextTurn(); this.round(); });
+    const card = this.card;
+    Core.setTurn(rater); Core.setPassInfo(passCost(card));
+    Core.onPass(() => { Core.doPass(card, rater); this.next(); });
     const pad = () => `<div class="ratepad">${Array.from({ length: 10 }, (_, i) => `<button data-n="${i + 1}">${i + 1}</button>`).join('')}</div>`;
-    const s = stageHTML(`${this.modeSwitch()}
-      <div class="lower-third"><span class="tag">● RATE YOUR PARTNER</span><div class="prompt">${esc(card.text)}</div></div>
+    const s = this.answer(`
       <div class="frames">
         <div class="frame active"><span class="rec">● RATER</span><div class="big" id="r1">?</div><div class="nm">${N(rater)}</div></div>
         <div class="frame"><span class="rec">● GUESSER</span><div class="big" id="r2">?</div><div class="nm">${N(target)}</div></div>
       </div>
-      <p class="center muted" id="instr"><b style="color:#fff">${N(rater)}</b>: rate ${N(target)} out of 10, secretly.</p>
+      <p class="center muted" id="instr"><b style="color:#fff">${N(rater)}</b>: how big a red flag is this, 1 to 10? Rate it secretly.</p>
       <div id="pad">${pad()}</div>`);
-    this.bindMode(s);
     let step = 0, score, guess;
     $('#pad', s).onclick = async (e) => {
       const b = e.target.closest('button'); if (!b) return;
-      SFX.play('tap');
+      SFX.play('tap'); this.begin();
       if (step === 0) {
         score = +b.dataset.n; step = 1; $('#r1').textContent = '🔒';
-        await Core.handoff(Core.name(target), `Guess the score ${Core.name(rater)} gave you.`);
+        await Core.handoff(Core.name(target), `Guess the score ${Core.name(rater)} gave this one.`); this.live(tok);
         Core.setTurn(target);
-        $('#instr').innerHTML = `<b style="color:#fff">${N(target)}</b>: what did ${N(rater)} give you?`;
+        $('#instr').innerHTML = `<b style="color:#fff">${N(target)}</b>: what did ${N(rater)} give it?`;
         $('#pad').innerHTML = pad();
       } else if (step === 1) {
         guess = +b.dataset.n; step = 2; $('#r2').textContent = '🔒'; $('#pad').innerHTML = '';
-        await Core.countdown(3);
+        await Core.countdown(3); this.live(tok);
         $('#r1').textContent = score; $('#r2').textContent = guess;
         const diff = Math.abs(score - guess);
         if (diff >= 3) {
           SFX.play('buzzer');
           $('#instr').outerHTML = `<div class="verdict" style="color:#ff3b4e">WAY OFF 😬</div><p class="center muted">${N(rater)} explains the ${score}. ${N(target)} pays for doubting.</p>`;
-          await sleep(900);
+          await sleep(900); this.live(tok);
           await Core.penalty({ who: target, card, reason: `Off by ${diff}` });
-        } else {
-          SFX.play('applause');
-          $('#instr').outerHTML = `<div class="verdict" style="color:#3ee08a">${diff === 0 ? 'MIND READER 🔮' : 'CLOSE ENOUGH 👌'}</div><p class="center muted">${N(rater)}, defend that ${score} out loud.</p>`;
+          this.next(); return;
         }
-        Core.setPrimary('Next →', () => { Core.nextRound(); Core.nextTurn(); this.round(); });
+        SFX.play('applause');
+        $('#instr').outerHTML = `<div class="verdict" style="color:#3ee08a">${diff === 0 ? 'MIND READER 🔮' : 'CLOSE ENOUGH 👌'}</div><p class="center muted">${N(rater)}, defend that ${score} out loud.</p>`;
+        Core.setPrimary('Next scenario →', () => this.next());
       }
     };
   },
 };
+
 
 /* =========================================================
    2. NEVER HAVE I EVER  — neon house party, red cups
@@ -171,100 +189,11 @@ Games.nhie = {
 };
 
 /* =========================================================
-   3. GUESS THE BODY PART  — noir, blindfold, spotlight
-   ========================================================= */
-const ZONES = {
-  forehead: [60, 16, 'Forehead'], eyelids: [60, 24, 'Eyelids'], ear: [44, 27, 'Ear'], cheek: [52, 32, 'Cheek'], lips: [60, 36, 'Lips'], jaw: [66, 40, 'Jawline'],
-  neck: [60, 50, 'Neck'], nape: [60, 47, 'Nape of the neck', 1], collarbone: [60, 60, 'Collarbone'], shoulder: [37, 63, 'Shoulder'], upperarm: [29, 84, 'Upper arm'],
-  elbow: [24, 104, 'Inner elbow'], wrist: [19, 134, 'Wrist'], palm: [17, 146, 'Palm'], fingers: [15, 158, 'Fingertips'], upperback: [60, 78, 'Upper back', 1],
-  lowerback: [60, 124, 'Lower back', 1], waist: [76, 112, 'Waist'], hip: [43, 140, 'Hip'], thigh: [47, 176, 'Thigh (over clothes)'], knee: [47, 206, 'Knee'],
-  calf: [47, 234, 'Calf', 1], ankle: [47, 268, 'Ankle'], foot: [47, 284, 'Foot'],
-};
-function bodyMap(zone) {
-  const z = ZONES[zone] || ZONES.palm;
-  return `<svg class="bodymap" viewBox="0 0 120 300" aria-label="Body map: ${z[2]}">
-    <g class="sil">
-      <circle cx="60" cy="27" r="15"/>
-      <rect x="54" y="40" width="12" height="14" rx="4"/>
-      <path d="M36 56 Q60 50 84 56 L82 118 Q86 138 80 150 L40 150 Q34 138 38 118 Z"/>
-      <path d="M37 58 L23 108 L15 150 L22 153 L31 112 L44 76 Z"/>
-      <path d="M83 58 L97 108 L105 150 L98 153 L89 112 L76 76 Z"/>
-      <path d="M41 148 L40 282 L54 282 L59 152 Z"/>
-      <path d="M61 152 L66 282 L80 282 L79 148 Z"/>
-      <ellipse cx="45" cy="287" rx="10" ry="5"/><ellipse cx="75" cy="287" rx="10" ry="5"/>
-    </g>
-    <circle class="hot" cx="${z[0]}" cy="${z[1]}" r="9"/>
-  </svg>`;
-}
-Games.bodypart = {
-  title: 'Guess the Body Part', tag: 'Blindfold on. Lights low.', caseNo: 1,
-  start() {
-    mount('bodypart', 'Guess the Body Part', '', 'free');
-    SFX.play('sax');
-    this.round();
-  },
-  round() {
-    const toucher = Core.current(), guesser = Core.partnerOf(toucher);
-    const card = Core.draw('bodypart');
-    const z = ZONES[card.zone] || ZONES.palm;
-    Core.setTurn(toucher); Core.setPassInfo('free'); Core.setPrimary(null);
-    Core.onPass(() => { Core.toast('Passed — no questions asked'); Core.nextRound(); Core.nextTurn(); this.round(); });
-    const s = stageHTML(`
-      <div class="spotlight"></div>
-      <div class="noir-title" style="margin:8px 0 14px">Case No. ${String(this.caseNo).padStart(3, '0')}</div>
-      <div class="casefile">
-        <p style="margin:0 0 6px">THE SUSPECT: <b>${N(guesser)}</b></p>
-        <p style="margin:0">THE HANDS: <b>${N(toucher)}</b></p>
-      </div>
-      <div class="spacer"></div>
-      <p class="prompt center">${N(guesser)}, put the blindfold on.</p>
-      <p class="center muted">No peeking. ${N(toucher)} gets the orders.</p>
-      <div class="spacer"></div>
-      <button class="btn block" id="bf">Blindfold's on 🕶</button>`);
-    $('#bf', s).onclick = () => { SFX.play('heartbeat'); this.orders(card, z, toucher, guesser); };
-  },
-  orders(card, z, toucher, guesser) {
-    const s = stageHTML(`
-      <div class="spotlight"></div>
-      <p class="center muted" style="margin:6px 0 12px">${N(toucher)}, eyes only.</p>
-      <div class="hold noir" id="h">
-        <div class="cover">Hold to read your orders<br><small class="muted" style="font-family:'Special Elite'">release to hide</small></div>
-        <div class="secret">
-          ${bodyMap(card.zone)}
-          <div class="heat-badge h${card.heat}b" style="margin-top:10px">${z[2]}${z[3] ? ' · back' : ''}</div>
-          <p class="prompt" style="font-size:22px;margin:12px 0 0">${esc(card.text)}</p>
-        </div>
-      </div>
-      <div class="spacer"></div>
-      <button class="btn block" id="go" disabled>Done — make them guess</button>
-      <p class="note center" style="margin-top:12px">Clothed, gentle, and stop the second anyone says so.</p>`);
-    Core.holdReveal($('#h', s), () => { SFX.play('reveal'); $('#go', s).disabled = false; });
-    $('#go', s).onclick = () => this.verdict(card, z, toucher, guesser);
-  },
-  verdict(card, z, toucher, guesser) {
-    SFX.play('heartbeat');
-    const s = stageHTML(`
-      <div class="noir-title" style="margin:10px 0">The interrogation.</div>
-      <p class="prompt center">${N(guesser)}, where were you touched?</p>
-      <p class="center muted">Blindfold off after the answer.</p>
-      <div class="spacer"></div>
-      <div class="col">
-        <button class="btn block" id="yes">Nailed it 🎯</button>
-        <button class="btn block ghost" id="no">Wrong guess</button>
-      </div>`);
-    const done = () => { this.caseNo++; Core.nextRound(); Core.nextTurn(); this.round(); };
-    $('#yes', s).onclick = () => { SFX.play('correct'); Core.toast(`Case closed: ${z[2]}`); done(); };
-    $('#no', s).onclick = async () => {
-      SFX.play('wrong');
-      await Core.penalty({ who: guesser, card, reason: `It was the ${z[2].toLowerCase()}` });
-      done();
-    };
-  },
-};
-
-/* =========================================================
    4. STRIP CHARADES  — velvet curtain cabaret
+   Only real movies, TV shows and songs. A flop means one item of clothing comes off.
+   No dares, no sips, no swaps.
    ========================================================= */
+const wordCount = (t) => String(t).split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
 Games.charades = {
   title: 'Strip Charades', tag: 'Curtain up. 60 seconds.',
   start() { mount('charades', 'Strip Charades', '', 'free'); this.round(); },
@@ -272,24 +201,26 @@ Games.charades = {
     Core.stopTimers();
     const actor = Core.current();
     const card = Core.draw('charades');
+    const n = wordCount(card.text);
     Core.setTurn(actor); Core.setPassInfo('free'); Core.setPrimary(null);
-    Core.onPass(() => { Core.stopTimers(); Core.toast('Passed — no questions asked'); Core.nextRound(); Core.nextTurn(); this.round(); });
+    Core.onPass(() => { Core.stopTimers(); Core.toast('Passed, no questions asked'); Core.nextRound(); Core.nextTurn(); this.round(); });
     const s = stageHTML(`
       <div class="stage" id="st">
         <div class="valance"></div><div class="curtain l"></div><div class="curtain r"></div>
         <div class="inner">
           <div class="marquee">${'<i></i>'.repeat(9)}</div>
           <div class="muted" style="letter-spacing:.3em;font-size:12px;margin-top:8px">NOW PERFORMING</div>
-          <h1 class="gold" style="font-size:44px;margin:6px 0 14px">${N(actor)}</h1>
+          <h1 class="gold" style="font-size:44px;margin:6px 0 10px">${N(actor)}</h1>
+          <div class="ch-chips"><span class="ch-chip">${esc(card.category || 'Title')}</span><span class="ch-chip alt">${esc(card.origin || 'Global')}</span><span class="ch-chip">${n} word${n === 1 ? '' : 's'}</span></div>
           <div class="timer" id="tm" style="--p:1"><span>60</span></div>
-          <div class="muted" style="font-size:13px">${esc(card.category || 'Charade')} · no words, no sounds</div>
+          <div class="muted" style="font-size:13px">No words, no sounds. Flop and lose a layer.</div>
         </div>
       </div>
       <div class="spacer"></div>
       <div id="ctl">
         <div class="hold velvet" id="h" style="min-height:150px">
           <div class="cover">Hold to read your secret</div>
-          <div class="secret"><div class="heat-badge h${card.heat}b">${esc(card.category || '')}</div><p class="prompt" style="font-size:26px;margin:10px 0 0">${esc(card.text)}</p></div>
+          <div class="secret"><div class="heat-badge h${card.heat}b">${esc(card.category || '')} · ${esc(card.origin || '')}</div><p class="prompt" style="font-size:26px;margin:10px 0 0">${esc(card.text)}</p></div>
         </div>
         <div class="spacer"></div>
         <button class="btn block" id="up" disabled>Curtain up! 🎭</button>
@@ -298,16 +229,18 @@ Games.charades = {
     $('#up', s).onclick = () => {
       SFX.play('drumroll');
       $('#st').classList.add('open');
-      ctl().innerHTML = `<div class="col"><button class="btn block" id="got">They got it! 🎉</button><button class="btn block ghost" id="fail">Fail 💀</button></div>`;
+      ctl().innerHTML = `<div class="col"><button class="btn block" id="got">They got it! 🎉</button><button class="btn block ghost" id="fail">Flop 💀</button></div>`;
       const t = Core.timer($('#tm'), 60, () => { SFX.play('buzzer'); fail(); });
       let ended = false;
       const fail = async () => {
         if (ended) return; ended = true;
         t.stop();
-        const extra = [];
-        const canStrip = Core.S.settings.strip && Core.layersLeft(actor) > 0;
-        if (canStrip) extra.push({ label: `Remove one item 👗 (${Core.layersLeft(actor)} left)`, cls: 'alt', fn: () => Core.removeLayer(actor) });
-        await Core.penalty({ who: actor, card, reason: canStrip ? 'Strip, sip, or do the dare' : 'Sip or do the dare', extra });
+        const left = Core.layersLeft(actor);
+        SFX.play('penalty'); vibrate(120);
+        const res = await Core.ask(`${esc(Core.name(actor))} flopped`,
+          left > 0 ? `One item of clothing comes off. ${left} layer${left === 1 ? '' : 's'} left.` : 'Out of layers. This one’s on the house.',
+          left > 0 ? [{ label: 'Done: one item off', value: 'off' }, { label: 'Pass, free', value: 'pass', cls: 'ghost' }] : [{ label: 'Next act', value: 'pass' }]);
+        if (res === 'off') Core.removeLayer(actor);
         Core.nextRound(); Core.nextTurn(); this.round();
       };
       $('#got').onclick = () => { if (ended) return; ended = true; t.stop(); SFX.play('cymbal'); SFX.play('applause'); Core.toast(`Standing ovation for ${Core.name(actor)} 👏`); Core.setPrimary('Next act →', () => { Core.nextRound(); Core.nextTurn(); this.round(); }); ctl().innerHTML = `<div class="gold center" style="font-size:38px">BRAVO!</div>`; };
@@ -315,6 +248,7 @@ Games.charades = {
     };
   },
 };
+
 
 /* =========================================================
    5. WOULD YOU RATHER  — fighting-game VS
@@ -405,38 +339,6 @@ Games.wyr = {
 };
 
 /* =========================================================
-   6a. WHO'S MOST LIKELY TO  — pop-art comic
-   ========================================================= */
-Games.mostlikely = {
-  title: "Who's Most Likely To", tag: '3… 2… 1… POINT!',
-  start() { mount('mostlikely', "WHO'S MOST LIKELY TO", ''); this.round(); },
-  round() {
-    const card = Core.draw('mostlikely');
-    Core.setTurn(-1); Core.setPassInfo('free');
-    const text = card.text.replace(/^who'?s most likely to\s*/i, '');
-    const s = stageHTML(`
-      <div class="spacer"></div>
-      <div class="panel"><span class="cap">WHO'S MOST LIKELY TO…</span><div class="bubble">${esc(text)}</div></div>
-      <div class="spacer"></div><div id="ctl"><p class="center muted">On zero, everyone points at the guilty party.</p></div>`);
-    Core.onPass(() => { Core.doPass(card, -1); Core.nextRound(); this.round(); });
-    Core.setPrimary('Countdown!', async () => {
-      Core.setPrimary(null);
-      await Core.countdown(3, 'count');
-      SFX.play('boing'); vibrate([30, 30, 30]);
-      ctl().innerHTML = `<div class="pow">POINT!</div><p class="center muted">Who got the most fingers?</p>
-        <div class="who-grid">${Core.players().map((p, i) => `<button data-i="${i}">${esc(p.name)}</button>`).join('')}</div>
-        <div class="spacer"></div><button class="btn block ghost" id="tie">It's a tie — skip</button>`;
-      $$('.who-grid button').forEach((b) => (b.onclick = async () => {
-        SFX.play('tap');
-        await Core.penalty({ who: +b.dataset.i, card, reason: 'The people have spoken' });
-        Core.nextRound(); this.round();
-      }));
-      $('#tie').onclick = () => { Core.nextRound(); this.round(); };
-    });
-  },
-};
-
-/* =========================================================
    6b. HOT SEAT QUIZ  — game-show stage
    ========================================================= */
 Games.hotseat = {
@@ -479,43 +381,6 @@ Games.hotseat = {
 };
 
 /* =========================================================
-   6c. TWO TRUTHS & A SPICY LIE  — casino felt
-   ========================================================= */
-Games.twotruths = {
-  title: 'Two Truths & a Spicy Lie', tag: 'Read the table.',
-  start() { mount('twotruths', 'Two Truths & a Spicy Lie', ''); this.round(); },
-  round() {
-    const teller = Core.current();
-    const card = Core.draw('twotruths');
-    Core.setTurn(teller); Core.setPassInfo(passCost(card)); Core.setPrimary(null);
-    Core.onPass(() => { Core.doPass(card, teller); Core.nextRound(); Core.nextTurn(); this.round(); });
-    SFX.play('chip');
-    const suit = rand(['♥', '♦', '♠', '♣']);
-    const s = stageHTML(`
-      <p class="center muted" style="letter-spacing:.2em;font-size:12px">THE DEALER CALLS</p>
-      <h2 class="center" style="font-size:34px;margin:4px 0 16px">${N(teller)}</h2>
-      <div class="playing" data-suit="${suit}"><p class="prompt" style="margin:0">${esc(card.text)}</p></div>
-      <p class="center muted" style="margin-top:18px">Say three things. Two true, one spicy lie. The table bets on the lie.</p>
-      <div class="chips3"><button data-c="1">#1</button><button data-c="2">#2</button><button data-c="3">#3</button></div>
-      <p class="center muted" id="bet">Tap the table's bet</p>
-      <div id="ctl"></div>`);
-    $$('.chips3 button', s).forEach((b) => (b.onclick = () => {
-      SFX.play('chip'); $$('.chips3 button').forEach((x) => x.classList.toggle('on', x === b));
-      $('#bet').textContent = `Table bets #${b.dataset.c} is the lie`;
-      ctl().innerHTML = `<p class="center">${N(teller)}, was #${b.dataset.c} the lie?</p><div class="col">
-        <button class="btn block" id="caught">Yes — busted 🃏</button><button class="btn block alt" id="fooled">No — fooled 'em 😈</button></div>`;
-      $('#caught').onclick = async () => { SFX.play('wrong'); await Core.penalty({ who: teller, card, reason: 'Caught lying' }); Core.nextRound(); Core.nextTurn(); this.round(); };
-      $('#fooled').onclick = async () => {
-        SFX.play('win');
-        const others = Core.players().map((_, i) => i).filter((i) => i !== teller);
-        await Core.penalty({ who: others, card, reason: `${Core.name(teller)} played you` });
-        Core.nextRound(); Core.nextTurn(); this.round();
-      };
-    }));
-  },
-};
-
-/* =========================================================
    6d. SWAP ROUNDS  — chrome mirror, answer as each other
    ========================================================= */
 Games.swap = {
@@ -540,3 +405,171 @@ Games.swap = {
     $('#n', s).onclick = async () => { SFX.play('wrong'); await Core.penalty({ who: me, card, reason: 'Bad impression' }); Core.nextRound(); Core.nextTurn(); this.round(); };
   },
 };
+
+/* =========================================================
+   GROUPS: no couples, no pairing, no dares. Everyone plays for themselves.
+   Penalties are heat points shown as sips (or water).
+   ========================================================= */
+const voteSeg = (cur, opts) => `<div class="seg vote-seg" style="margin-bottom:12px">${opts.map(([v, l]) => `<button data-v="${v}" class="${cur === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+
+/* 6a. WHO'S MOST LIKELY TO  — pop-art comic. Point on 3, or a secret vote. */
+Games.mostlikely = {
+  title: "Who's Most Likely To", tag: '3… 2… 1… POINT!', vote: 'point', card: null, token: 0,
+  start() { mount('mostlikely', "WHO'S MOST LIKELY TO", ''); this.deal(); },
+  deal() {
+    Core.stopTimers();
+    const card = (this.card = Core.draw('mostlikely'));
+    Core.setTurn(-1); Core.setPassInfo('free'); Core.setPrimary(null);
+    Core.onPass(() => { Core.toast('Skipped'); this.next(); });
+    const text = card.text.replace(/^who'?s most likely to\s*/i, '').replace(/\?\s*$/, '');
+    const s = stageHTML(`${voteSeg(this.vote, [['point', '👉 Point on 3'], ['secret', '🤫 Secret vote']])}
+      <div class="panel"><span class="cap">WHO'S MOST LIKELY TO…</span><div class="bubble">${esc(text)}?</div></div>
+      <div class="spacer"></div><div id="ctl"></div>`);
+    $$('.vote-seg button', s).forEach((b) => (b.onclick = () => {
+      if (b.classList.contains('on') || s.dataset.answering) return;
+      SFX.play('tap'); this.vote = b.dataset.v;
+      $$('.vote-seg button', s).forEach((x) => x.classList.toggle('on', x === b));
+      this.collect();
+    }));
+    this.collect();
+  },
+  next() { Core.nextRound(); Core.nextTurn(); this.deal(); },
+  collect() { Core.setPrimary(null); const tok = ++this.token; this.vote === 'point' ? this.point(tok) : this.secret(tok); },
+  begin() { const st = $('#stage'); if (st) st.dataset.answering = '1'; $$('.vote-seg button').forEach((b) => (b.disabled = !b.classList.contains('on'))); },
+  live(tok) { if (tok !== this.token || !$('#ctl')) throw new Error('left-game'); },
+  point(tok) {
+    ctl().innerHTML = '<p class="center muted">On zero, everyone points at the guilty one.</p>';
+    Core.setPrimary('Countdown!', async () => {
+      this.begin(); Core.setPrimary(null);
+      await Core.countdown(3, 'count'); this.live(tok);
+      SFX.play('boing'); vibrate([30, 30, 30]);
+      const picked = new Set();
+      ctl().innerHTML = `<div class="pow">POINT!</div><p class="center muted">Who got the most fingers? Tap everyone tied for most.</p>
+        <div class="who-grid">${Core.players().map((p, i) => `<button data-i="${i}">${esc(p.name)}</button>`).join('')}</div>
+        <div class="spacer"></div><button class="btn block" id="ok" disabled>That’s the verdict</button>`;
+      $$('.who-grid button').forEach((b) => (b.onclick = () => {
+        SFX.play('tap'); const i = +b.dataset.i;
+        picked.has(i) ? picked.delete(i) : picked.add(i);
+        b.classList.toggle('on', picked.has(i)); $('#ok').disabled = !picked.size;
+      }));
+      $('#ok').onclick = () => this.verdict([...picked], tok);
+    });
+  },
+  secret(tok) {
+    const ps = Core.players();
+    ctl().innerHTML = `<p class="center muted">Pass the phone around. Everyone votes in secret, then the tally drops.</p>`;
+    Core.setPrimary('Start the vote', async () => {
+      this.begin(); Core.setPrimary(null);
+      const tally = ps.map(() => 0);
+      for (let v = 0; v < ps.length; v++) {
+        await Core.handoff(ps[v].name, 'Vote in secret. Everyone else look away.'); this.live(tok);
+        const choice = await new Promise((resolve) => {
+          ctl().innerHTML = `<p class="center"><b>${esc(ps[v].name)}</b>, who’s most likely?</p>
+            <div class="who-grid">${ps.map((p, i) => `<button data-i="${i}">${esc(p.name)}</button>`).join('')}</div>`;
+          $$('.who-grid button').forEach((b) => (b.onclick = () => { SFX.play('tap'); vibrate(15); resolve(+b.dataset.i); }));
+        });
+        this.live(tok);
+        tally[choice]++;
+        ctl().innerHTML = '<p class="center muted">Vote locked 🔒</p>';
+      }
+      const max = Math.max(...tally), winners = tally.map((n, i) => (n === max ? i : -1)).filter((i) => i >= 0);
+      ctl().innerHTML = '<p class="center muted">And the votes say…</p>';
+      SFX.play('drumroll'); await sleep(1100); this.live(tok);
+      const order = ps.map((p, i) => ({ i, n: tally[i] })).sort((a, b) => b.n - a.n);
+      ctl().innerHTML = `<div class="tally">${order.map(({ i, n }) => `<div class="tally-row ${n === max ? 'top' : ''}"><span>${esc(ps[i].name)}</span><i style="--w:${max ? n / max : 0}"></i><b>${n}</b></div>`).join('')}</div>`;
+      SFX.play('cymbal');
+      Core.setPrimary(winners.length > 1 ? 'Tie: they share it →' : 'Take the penalty →', () => this.verdict(winners, tok));
+    });
+  },
+  async verdict(who, tok) {
+    this.live(tok); Core.setPrimary(null);
+    who.forEach((i) => { const n = Core.name(i); Core.S.named[n] = (Core.S.named[n] || 0) + 1; });
+    Core.save();
+    await Core.penalty({ who, card: this.card, reason: who.length > 1 ? 'Tied: you share it' : `Named ${Core.S.named[Core.name(who[0])]}× tonight` });
+    this.next();
+  },
+};
+
+/* 6c. TWO TRUTHS & A LIE  — casino felt. Tell, vote, reveal, rotate. */
+Games.twotruths = {
+  title: 'Two Truths & a Lie', tag: 'Read the table.', vote: 'secret', card: null, token: 0,
+  start() { mount('twotruths', 'Two Truths & a Lie', ''); this.deal(); },
+  deal() {
+    Core.stopTimers();
+    const teller = Core.current();
+    const card = (this.card = Core.draw('twotruths'));
+    const tok = ++this.token;
+    Core.setTurn(teller); Core.setPassInfo('free'); Core.setPrimary(null);
+    Core.onPass(() => { Core.stopTimers(); Core.toast('Skipped'); this.next(); });
+    SFX.play('chip');
+    const topic = card.text.replace(/^two truths and a lie about\s*/i, '');
+    const s = stageHTML(`
+      <p class="center muted" style="letter-spacing:.2em;font-size:12px">THE DEALER CALLS</p>
+      <h2 class="center" style="font-size:34px;margin:4px 0 12px">${N(teller)}</h2>
+      <div class="playing" data-suit="${rand(['♥', '♦', '♠', '♣'])}"><span class="cap">Two truths and a lie about…</span><p class="prompt" style="margin:6px 0 0">${esc(topic)}</p></div>
+      <div class="timer" id="tm" style="--p:1;margin-top:14px"><span>60</span></div>
+      <p class="center muted">${N(teller)} tells three: #1, #2, #3. Two true, one lie.</p>
+      ${voteSeg(this.vote, [['secret', '🤫 Secret vote'], ['fingers', '✋ Fingers on 3']])}
+      <div id="ctl"></div>`);
+    $$('.vote-seg button', s).forEach((b) => (b.onclick = () => {
+      if (b.classList.contains('on') || s.dataset.voting) return;
+      SFX.play('tap'); this.vote = b.dataset.v; $$('.vote-seg button', s).forEach((x) => x.classList.toggle('on', x === b));
+    }));
+    let t = null;
+    const toVote = () => { if (t) t.stop(); Core.setPrimary(null); this.collect(teller, tok); };
+    Core.setPrimary('Start the 60s clock', () => {
+      t = Core.timer($('#tm'), 60, () => { SFX.play('buzzer'); toVote(); });
+      Core.setPrimary('Done telling → vote', toVote);
+    });
+  },
+  next() { Core.nextRound(); Core.nextTurn(); this.deal(); },
+  live(tok) { if (tok !== this.token || !$('#ctl')) throw new Error('left-game'); },
+  async collect(teller, tok) {
+    const st = $('#stage'); if (st) st.dataset.voting = '1';
+    $$('.vote-seg button').forEach((b) => (b.disabled = !b.classList.contains('on')));
+    const ps = Core.players(), voters = ps.map((_, i) => i).filter((i) => i !== teller);
+    const guesses = {};
+    const chips = '<div class="chips3"><button data-c="1">#1</button><button data-c="2">#2</button><button data-c="3">#3</button></div>';
+    if (this.vote === 'secret') {
+      for (const v of voters) {
+        await Core.handoff(ps[v].name, 'Which one was the lie? Vote in secret.'); this.live(tok);
+        guesses[v] = await new Promise((resolve) => {
+          ctl().innerHTML = `<p class="center"><b>${esc(ps[v].name)}</b>, the lie was…</p>${chips}`;
+          $$('.chips3 button').forEach((b) => (b.onclick = () => { SFX.play('chip'); vibrate(15); resolve(+b.dataset.c); }));
+        });
+        this.live(tok);
+        ctl().innerHTML = '<p class="center muted">Vote locked 🔒</p>';
+      }
+    } else {
+      await Core.countdown(3, 'count'); this.live(tok);
+      SFX.play('boing');
+      await new Promise((resolve) => {
+        ctl().innerHTML = `<p class="center muted">Everyone shows 1, 2 or 3 fingers. Tap what each player showed.</p>
+          <div class="finger-rows">${voters.map((v) => `<div class="finger-row" data-v="${v}"><span>${esc(ps[v].name)}</span>${[1, 2, 3].map((c) => `<button data-c="${c}">${c}</button>`).join('')}</div>`).join('')}</div>
+          <div class="spacer"></div><button class="btn block" id="ok" disabled>Lock the votes</button>`;
+        $$('.finger-row').forEach((row) => row.addEventListener('click', (e) => {
+          const b = e.target.closest('button'); if (!b) return;
+          SFX.play('chip'); guesses[+row.dataset.v] = +b.dataset.c;
+          $$('button', row).forEach((x) => x.classList.toggle('on', x === b));
+          $('#ok').disabled = voters.some((v) => !guesses[v]);
+        }));
+        $('#ok').onclick = resolve;
+      });
+      this.live(tok);
+    }
+    await Core.handoff(ps[teller].name, 'Time to come clean. Only you tap.'); this.live(tok);
+    const lie = await new Promise((resolve) => {
+      ctl().innerHTML = `<p class="center"><b>${esc(ps[teller].name)}</b>, which one was the lie?</p>${chips}`;
+      $$('.chips3 button').forEach((b) => (b.onclick = () => { SFX.play('reveal'); resolve(+b.dataset.c); }));
+    });
+    this.live(tok);
+    const fooled = voters.filter((v) => guesses[v] !== lie);
+    ctl().innerHTML = `<div class="verdict" style="color:${fooled.length ? '#ffcf33' : '#3ee08a'}">${fooled.length ? `FOOLED ${fooled.length} 😈` : 'BUSTED 🃏'}</div>
+      <p class="center muted">The lie was #${lie}.</p>`;
+    await sleep(700); this.live(tok);
+    if (fooled.length) await Core.penalty({ who: fooled, card: this.card, reason: `${Core.name(teller)} fooled you` });
+    else await Core.penalty({ who: teller, card: this.card, reason: 'Nobody was fooled' });
+    this.next();
+  },
+};
+
