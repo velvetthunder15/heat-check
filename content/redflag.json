@@ -1,0 +1,579 @@
+[
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Ross says 'we were on a break' and sleeps with someone else the same night.",
+  "optionalDare": "Give your partner your most dramatic filmy compliment."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Raj won't elope with Simran without her father's blessing.",
+  "optionalDare": "Hold hands for the next two rounds."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Monica and Chandler keep their relationship a secret from all their friends for months.",
+  "optionalDare": "Do your best impression of your partner for 15 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Joey refuses to share a single fry on a date because 'Joey doesn't share food'.",
+  "optionalDare": "Sing one line of a Bollywood love song to your partner."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Ted says the L-word to Robin on their very first date.",
+  "optionalDare": "Draw a heart on your partner's palm with your fingertip."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Ted steals a blue French horn off a restaurant wall to impress Robin.",
+  "optionalDare": "Give your partner an Eskimo nose rub."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Jim gives Pam a teapot full of inside jokes for Secret Santa.",
+  "optionalDare": "Feed your partner a snack, no hands allowed for them."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Sheldon makes Amy sign a formal Relationship Agreement full of clauses.",
+  "optionalDare": "Tell your partner three things you like about their smile."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Barney uses a 'Playbook' of elaborate fake stories to pick up women.",
+  "optionalDare": "Give your partner a 10-second bear hug."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Geet tells a total stranger on a train her entire life story within an hour.",
+  "optionalDare": "Let your partner pick your pet name for the next round."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Rahul only sees Anjali as more than a friend once she shows up in a saree.",
+  "optionalDare": "Do a slow-motion movie run into your partner's arms."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Poo turns down boys asking her to prom because she thinks they aren't hot enough.",
+  "optionalDare": "Recreate a famous movie couple pose with your partner."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Phoebe insists Ross and Rachel are 'lobsters' destined to be together forever.",
+  "optionalDare": "Write your partner's name on your hand with a heart."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Jake proposes to Amy at the end of the annual Halloween heist.",
+  "optionalDare": "Give your partner a high five, then a hug, then a wink."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Ross and Rachel get drunk-married in Vegas and Ross secretly never files the annulment.",
+  "optionalDare": "Serenade your partner with a made-up two-line jingle about them."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "A Love Island girl gets 'the ick' because a guy ran to catch a bus.",
+  "optionalDare": "Lean your head on your partner's shoulder for one full round."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "A Splitsvilla contestant switches connections three times in one episode.",
+  "optionalDare": "Tell your partner the moment you first noticed them."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "A guy proposes on the stadium big screen in the middle of an IPL match.",
+  "optionalDare": "Give your partner a gentle forehead tap and say 'cutie'."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "A couple uploads a prank video every week where one of them fake-cries for views.",
+  "optionalDare": "Hold your partner's gaze for 20 seconds without laughing."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Someone replies 'k' to a long, heartfelt paragraph.",
+  "optionalDare": "Act out your partner's most annoying habit, lovingly."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "A guy brings his mom along on the second date.",
+  "optionalDare": "Propose to your partner on one knee with a fake ring."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Someone splits a 40 rupee chai bill down to the exact paisa on a first date.",
+  "optionalDare": "Make a heart with your hands and hold it up to your partner."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "A girl saves her crush's number as 'Mine' with three heart emojis.",
+  "optionalDare": "Give your partner a 20-second hand squeeze, no letting go."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "A couple wears matching outfits every single day, socks included.",
+  "optionalDare": "Describe your partner as a chai flavour and explain why."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "A guy sends a 'good morning' text with a sunrise photo at 6 a.m. sharp, every single day.",
+  "optionalDare": "Twirl your partner around once like a dance move."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "A couple shares one Netflix profile and calls watching ahead 'cheating'.",
+  "optionalDare": "Whisper a cheesy pickup line to your partner."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "On Indian Matchmaking, a guy wants a 'flexible' match but won't budge on a single thing himself.",
+  "optionalDare": "Interlock pinkies and make a silly promise to your partner."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Love Is Blind contestants get engaged to someone they've never seen within ten days.",
+  "optionalDare": "Give your partner a compliment in a different accent."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Too Hot to Handle contestants sneak a kiss and knock thousands off the group's prize pot.",
+  "optionalDare": "Let your partner draw a tiny doodle on your arm."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Someone screenshots every chat with a new crush and sends it to the group chat for analysis.",
+  "optionalDare": "Pose for a cute couple selfie with your partner."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "A guy likes every Instagram story within 30 seconds of it going up.",
+  "optionalDare": "Rate your partner's outfit out of 10, generously."
+ },
+ {
+  "game": "redflag",
+  "heat": 1,
+  "text": "Someone has been in a 'situationship' for two years and still won't call it dating.",
+  "optionalDare": "Give your partner a playful cheek pinch and a smile."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Mr. Big gets cold feet and never walks into the library, leaving Carrie in her wedding dress.",
+  "optionalDare": "Kiss your partner on the cheek for five seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Ross says Rachel's name instead of Emily's while standing at the altar.",
+  "optionalDare": "Whisper something you find attractive about your partner in their ear."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Ross writes Rachel an 18-page letter, front and back, and insists she read every word.",
+  "optionalDare": "Give your partner a 30-second shoulder massage."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Rachel gets off the plane to Paris at the last second to be with Ross.",
+  "optionalDare": "Plant a slow kiss on your partner's forehead."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Jim kisses Pam on Casino Night while she's still engaged to Roy.",
+  "optionalDare": "Massage your partner's hand for 30 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Joey falls for Rachel while she's pregnant with Ross's baby.",
+  "optionalDare": "Slow dance with your partner for 20 seconds, no music needed."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Stella leaves Ted at the altar to get back together with her ex.",
+  "optionalDare": "Kiss the back of your partner's hand like a royal."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Chuck trades Blair to his uncle Jack in exchange for his hotel.",
+  "optionalDare": "Give your partner a 10-second kiss on the lips."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Edward secretly watches Bella sleep in her room before they're even dating.",
+  "optionalDare": "Whisper your favourite memory of your partner in their ear."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Noah hangs off a Ferris wheel and threatens to let go unless Allie agrees to a date.",
+  "optionalDare": "Kiss your partner on the nose, then on the lips."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Elena dates one Salvatore brother, then falls for the other one.",
+  "optionalDare": "Rub your partner's back in slow circles for 30 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Bunny leaves for his dream career abroad without telling Naina how he feels.",
+  "optionalDare": "Sit on your partner's lap for the next round."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Akash mocks love at first sight, then falls hard for Shalini, who's engaged to someone else.",
+  "optionalDare": "Whisper what you want to do on your next date night."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Veer spends 22 years in a Pakistani prison without revealing who he is, to protect Zaara.",
+  "optionalDare": "Give your partner three quick kisses on three different spots on their face."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Devdas drinks himself to ruin instead of fighting for Paro.",
+  "optionalDare": "Massage your partner's temples for 30 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Vanraj takes Nandini to Italy to find the man she really loves, even though he married her.",
+  "optionalDare": "Hug your partner from behind and sway for 15 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Simran's mother tells her to forget the rules and run away with Raj.",
+  "optionalDare": "Kiss your partner's knuckles one by one."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Kabir announces to the whole college that one first-year student is 'his' and nobody else can go near her.",
+  "optionalDare": "Whisper a compliment in your partner's ear in your softest voice."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "A chaebol mother offers the K-drama heroine an envelope of cash to leave her son.",
+  "optionalDare": "Give your partner a slow Bollywood-style hug with eyes closed."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "A K-drama hero grabs the heroine's wrist and drags her out in the middle of an argument.",
+  "optionalDare": "Massage your partner's feet for 30 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "A Love Island islander recouples with someone new the minute their match leaves the villa.",
+  "optionalDare": "Kiss your partner like the movie is about to end."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "A Love Is Blind contestant says yes in the pods, then says no at the altar in front of both families.",
+  "optionalDare": "Brush your partner's hair back and kiss their temple."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "A Splitsvilla contestant cries about trust, then gets caught flirting right before the next dome session.",
+  "optionalDare": "Whisper the outfit you love seeing your partner in."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "An Indian Matchmaking client hands over a 50-point checklist at the very first meeting.",
+  "optionalDare": "Give your partner a 15-second kiss without using hands."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Three weeks in, a guy is planning a Goa trip, saying 'soulmate' and asking to meet the parents.",
+  "optionalDare": "Trace your partner's jawline with one finger, slowly."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Someone texts 'hey stranger' every two months, then vanishes again.",
+  "optionalDare": "Kiss your partner's cheek, then whisper 'your turn'."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "A girl wears her ex's hoodie on dates with a new guy.",
+  "optionalDare": "Massage your partner's neck and shoulders for 30 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "A guy keeps his ex as his phone wallpaper 'because it's a nice photo'.",
+  "optionalDare": "Hold your partner close and whisper a secret."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Someone checks a new date's location on Snap Map every hour.",
+  "optionalDare": "Kiss your partner's palm and close their hand around it."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "A couple shares Instagram passwords 'for trust'.",
+  "optionalDare": "Give your partner a lingering kiss on the cheek near their ear."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "A guy plans a flash-mob proposal in a crowded mall even though she hates attention.",
+  "optionalDare": "Hold your partner's face in your hands and kiss them softly."
+ },
+ {
+  "game": "redflag",
+  "heat": 2,
+  "text": "Someone scrolls through a date's camera roll while they're in the washroom.",
+  "optionalDare": "Whisper one thing about your partner that drives you a little crazy."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Christian Grey makes Ana sign an NDA before their first night together.",
+  "optionalDare": "Kiss your partner's neck for 10 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Christian flies to another state uninvited right after Ana says she needs space.",
+  "optionalDare": "Trail slow kisses along your partner's jaw."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Christian shows Ana his 'red room' and hands her a contract with a list of rules.",
+  "optionalDare": "Hold your partner by the waist and kiss them for 15 seconds.",
+  "taste": true
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Noah and Allie get caught in the rain and end up kissing passionately at the old house.",
+  "optionalDare": "Run your fingers slowly along your partner's thighs, over their clothes."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Allie spends a steamy few days with Noah while she's engaged to Lon.",
+  "optionalDare": "Gently nibble your partner's earlobe."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Jack sketches Rose 'like one of his French girls' just days after they meet.",
+  "optionalDare": "Pull your partner close by the waist and whisper what you want later."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Jack and Rose steam up a car in the cargo hold while she's engaged to Cal.",
+  "optionalDare": "Kiss your partner's collarbone once, slowly."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Carrie has an affair with a married Mr. Big while she's dating Aidan.",
+  "optionalDare": "Give your partner a 20-second kiss with your hands on their waist."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Samantha ends things with Smith because she loves herself more than the relationship.",
+  "optionalDare": "Kiss from your partner's ear down to their neck."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Connell and Marianne hook up in secret all year because he's scared of what his friends will think.",
+  "optionalDare": "Rest your hand on your partner's thigh for the next two rounds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Simon and Daphne fake a courtship that quickly gets very real and very steamy.",
+  "optionalDare": "Blindfold your partner and kiss them somewhere on their neck or jaw."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Anthony and Kate share a season of heated almost-kisses while he's courting her sister.",
+  "optionalDare": "Pin your partner's hands gently and kiss them for 10 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Monica and Chandler hook up in London the night of Ross's wedding.",
+  "optionalDare": "Whisper your hottest memory of your partner while holding their waist."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "John and Jane Smith find out they're both assassins, and their shootout ends in a very heated make-up.",
+  "optionalDare": "Kiss your partner's wrist, then their inner elbow, then their neck."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Dev asks Paro for a racy photo, then dumps her over a village rumour.",
+  "optionalDare": "Trace slow circles on your partner's lower back for 30 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Raghu runs away from his own wedding mid-ceremony to chase another girl.",
+  "optionalDare": "Breathe softly on your partner's neck for five seconds, then kiss it."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Two Love Island islanders get very cosy under the duvet on night one, cameras rolling.",
+  "optionalDare": "Straddle your partner's lap and kiss them for 15 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A Too Hot to Handle couple sneaks off for a steamy kiss knowing Lana will dock the prize money.",
+  "optionalDare": "Massage your partner's thighs over their clothes for 30 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A Splitsvilla couple gets very cosy in the villa jacuzzi on day two.",
+  "optionalDare": "Kiss your partner like nobody's watching for 20 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Someone sends a spicy voice note to the family WhatsApp group by mistake.",
+  "optionalDare": "Run your hands through your partner's hair while kissing their jaw."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A girl leaves a lipstick mark on his collar on purpose before he heads to an office party.",
+  "optionalDare": "Pull your partner in by their collar and kiss them hard."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Someone still has sleepovers with an ex 'just for comfort'.",
+  "optionalDare": "Slow-kiss your partner's shoulder over their clothes."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A situationship that only ever texts after 11 p.m. with 'u up?'",
+  "optionalDare": "Whisper exactly where you want to be kissed next, then get kissed there (neck, jaw or lips only)."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A couple keeps a shared playlist titled 'Do Not Disturb' and won't explain it.",
+  "optionalDare": "Hold your partner's waist and sway against them for 20 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A couple bans phones from the bedroom completely.",
+  "optionalDare": "Kiss the side of your partner's neck and hold it for five seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A guy books a surprise hotel staycation with rose petals after the third date.",
+  "optionalDare": "Let your partner kiss you anywhere on your face or neck for 15 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A couple sneaks off to make out behind the DJ booth at a friend's sangeet.",
+  "optionalDare": "Run one finger from your partner's jaw down to their collarbone."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Someone posts a thirst-trap story that's clearly meant for just one person.",
+  "optionalDare": "Wrap your arms around your partner's waist and kiss behind their ear."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A couple stops traffic to kiss in the middle of a Mumbai monsoon downpour.",
+  "optionalDare": "Give your partner a slow, deep kiss for 20 seconds."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A guy asks a girl for her 'body count' on the second date.",
+  "optionalDare": "Rest your partner's hands on your waist and kiss them slowly."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "A couple has a secret code word for 'let's leave this party right now'.",
+  "optionalDare": "Kiss your partner's neck while holding their thigh over their clothes."
+ },
+ {
+  "game": "redflag",
+  "heat": 3,
+  "text": "Someone keeps a 'just in case' toothbrush and spare outfit at three different people's places.",
+  "optionalDare": "Lock eyes with your partner for 10 seconds, then kiss their jaw."
+ }
+]
