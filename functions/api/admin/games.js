@@ -4,11 +4,13 @@ import { json, handle, readJson, HttpError } from '../../../lib/http.js';
 import { requireAdmin } from '../../../lib/admin.js';
 import { rest } from '../../../lib/supabase.js';
 
-const IDS = new Set(['redflag', 'nhie', 'bodypart', 'charades', 'wyr', 'mostlikely', 'hotseat', 'twotruths', 'swap']);
+import { GAME_IDS } from '../../../lib/games.js';
+
+const IDS = new Set(GAME_IDS);
 
 export const onRequestGet = handle(async ({ request, env }) => {
   await requireAdmin(request, env);
-  return json(await rest(env, 'games?select=id,enabled,sort&order=sort.asc'));
+  return json(await rest(env, 'games?select=id,mode,enabled,sort&order=sort.asc'));
 });
 
 export const onRequestPost = handle(async ({ request, env }) => {
