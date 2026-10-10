@@ -1,0 +1,27 @@
+/* ===== Heat Check: button feel (loads last) =====
+   Press feedback inside one frame, transform/opacity only, no layout shift while loading,
+   shared motion tokens, will-change only while something animates. */
+button, .btn, .tile, .icon-btn, .chip, .seg button, .pw-opt, [data-act], a.btn { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+/* Replace base/motion transitions that included filter: transform and opacity only */
+.btn { transition: transform var(--dur-s) var(--spring), opacity var(--dur-s) var(--ease-out) !important; }
+.btn:active:not(:disabled) { transform: scale(.96); transition-duration: 80ms !important; transition-timing-function: var(--ease-out) !important; }
+.icon-btn, .avatar, .ring-reset, .pass-chip, .chip, .pw-opt, .seg button, .who-grid button, .chips3 button, .finger-row button, .flagbtn, .cup, .ratepad button {
+  transition: transform var(--dur-s) var(--spring), opacity var(--dur-s) var(--ease-out); }
+.icon-btn:active, .avatar:active, .pass-chip:active, .chip:active, .pw-opt:active:not(:disabled), .seg button:active, .chips3 button:active, .finger-row button:active, .ratepad button:active {
+  transform: scale(.94); transition-duration: 80ms; }
+.btn:disabled, .btn[disabled] { opacity: .45; }
+
+/* Loading: label crossfades to a spinner; width is pinned by UI.busy so nothing moves */
+.btn .btn-label { display: inline-flex; align-items: center; gap: 8px; transition: opacity var(--dur-s) var(--ease-out); }
+.btn .btn-spin { position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%;
+  border: 2.5px solid currentColor; border-right-color: transparent; opacity: 0; transition: opacity var(--dur-s) var(--ease-out); }
+.btn.is-loading { pointer-events: none; opacity: 1 !important; }
+.btn.is-loading .btn-label { opacity: 0; }
+.btn.is-loading .btn-spin { opacity: 1; animation: spin .7s linear infinite; will-change: transform; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Hover only where there's a real pointer; no fades */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled), .pw-opt:hover:not(:disabled) { transform: translateY(-1px); }
+}
