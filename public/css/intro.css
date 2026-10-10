@@ -133,7 +133,7 @@
 .stepper { display: flex; align-items: center; gap: 16px; }
 .stepper b { min-width: 32px; text-align: center; font-size: 22px; font-variant-numeric: tabular-nums; }
 
-/* ---------- Pro home looks (existing palettes from the game themes) ---------- */
+/* ---------- Home looks: Midnight (Lite and Premium), Neon (Premium). Existing palettes ---------- */
 #app[data-theme="home"][data-side="couples"][data-look="midnight"] { background: radial-gradient(140% 60% at 50% -10%, #3ee08a1f, transparent 55%), linear-gradient(170deg, #13296b, #0a1433 55%, #060c24); }
 #app[data-theme="home"][data-side="couples"][data-look="neon"] { background: radial-gradient(120% 60% at 80% -10%, #ff2bd633, transparent 60%), radial-gradient(90% 50% at 0% 100%, #00f0ff1f, transparent 60%), #0d0019; }
 
