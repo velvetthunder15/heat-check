@@ -592,11 +592,11 @@ const UI = {
       this.busy(b, false);
     }));
     on('#pfRestore', async () => { await this.afterRestore(); });
-    on('#pfOut', async () => { s.close(); await Auth.signOut(); Core.toast('Signed out'); this.refreshScreens(); });
+    on('#pfOut', async () => { s.close(); try { await Auth.signOut(); } catch (e) {} Auth.wipeDevice('Signed out'); });
     on('#pfOutAll', async () => {
       const ok = await Core.ask('Sign out everywhere?', 'Every phone signed in to this account gets signed out.', [{ label: 'Sign out everywhere', value: 1 }, { label: 'Cancel', value: 0, cls: 'ghost' }]);
       if (!ok) return;
-      s.close(); await Auth.signOut('global'); Core.toast('Signed out on every device'); this.refreshScreens();
+      s.close(); try { await Auth.signOut('global'); } catch (e) {} Auth.wipeDevice('Signed out on every device');
     });
     on('#pfExport', async () => {
       try {
@@ -718,9 +718,7 @@ const UI = {
         s.close(); $$('.acct-wrap').forEach((w) => w.remove());
         try { const c = await SB.get(); await c.auth.signOut({ scope: 'local' }); } catch (err) {}
         Auth._clear();
-        Store.del('hc_prefs'); Store.del('hc_stats');
-        Core.toast('Account deleted');
-        App.home();
+        Auth.wipeDevice('Account deleted');
       } catch (err) { this.err($('#daErr2', el), err.message); code.disable(false); code.clear(); }
       finally { busy = false; }
     });
