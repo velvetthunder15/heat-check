@@ -1,0 +1,15 @@
+{
+  "name": "heat-check",
+  "private": true,
+  "version": "10.0.0",
+  "type": "module",
+  "description": "Heat Check: flirty party games for couples, 18+",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "dev": "node tools/build.mjs && npx wrangler pages dev ./dist --kv RATE_KV",
+    "hash-admin-password": "node tools/hash-admin-password.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
