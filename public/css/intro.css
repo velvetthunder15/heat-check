@@ -1,0 +1,80 @@
+/* ===== Heat Check: intro / home (hold to heat check, vibe, card stack) ===== */
+
+.head-actions { gap: 8px; align-items: center; }
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: var(--card); border: 1px solid var(--line); color: var(--fg); font-weight: 800; font-size: 18px;
+  box-shadow: inset 0 1px 0 #ffffff1f, inset 0 -1px 0 #00000059, 0 6px 16px -8px #000c; }
+.avatar svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; opacity: .85; }
+.avatar.on { background-image: linear-gradient(135deg, var(--accent), var(--accent2)); color: #140a10; border-color: transparent; }
+
+/* ---------- Hero ---------- */
+.hc-hero { position: relative; padding: 8px 18px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.hero-micro { margin: 0; color: var(--muted); font-size: 14px; font-style: italic; min-height: 20px; }
+.hero-title { font-size: clamp(34px, 10vw, 46px); margin: 0; }
+.hold-btn { position: relative; width: 184px; height: 184px; border-radius: 50%; display: grid; place-items: center; margin: 8px 0 4px;
+  touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+  background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent) calc(18% + var(--hold, 0) * 50%), #1e121d), #140b14 72%);
+  box-shadow: inset 0 1px 0 #ffffff26, inset 0 -6px 18px #00000080, 0 0 0 1px #ffffff14,
+              0 0 calc(20px + var(--hold, 0) * 60px) calc(var(--hold, 0) * 18px) color-mix(in srgb, var(--accent) 60%, transparent),
+              0 24px 50px -24px #000; transition: transform .25s cubic-bezier(.34,1.4,.64,1); }
+.hold-btn:focus-visible { outline: 3px solid var(--accent2); outline-offset: 6px; }
+.hc-hero.holding .hold-btn { transform: scale(.95); }
+.hold-ring { position: absolute; inset: -8px; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(#ffd166 0, #ff7a3c calc(var(--hold, 0) * 180deg), #ff2e63 calc(var(--hold, 0) * 360deg), #ffffff12 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); }
+.hold-core { display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; }
+.hold-word { font-size: 34px; font-weight: 900; font-style: italic; letter-spacing: -.03em; line-height: 1; }
+.hold-sub { font-size: 12px; font-weight: 600; font-style: italic; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.hc-hero.thump .hold-btn { animation: thump .32s cubic-bezier(.3,1.6,.5,1); }
+@keyframes thump { 0% { transform: scale(.95); } 35% { transform: scale(1.01); } 60% { transform: scale(.965); } 100% { transform: scale(.95); } }
+.hc-hero.locked .hold-meter .lock { animation: lockShake .5s cubic-bezier(.36,.07,.19,.97); }
+@keyframes lockShake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(3px); } 30%, 50%, 70% { transform: translateX(-5px); } 40%, 60% { transform: translateX(5px); } }
+
+.hold-meter { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: min(320px, 100%); }
+.hm-seg { --f: 0; position: relative; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.hm-seg i { display: block; width: 100%; height: 8px; border-radius: 99px; background: #ffffff14; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px #0009; }
+.hm-seg i::after { content: ""; position: absolute; inset: 0; transform-origin: left; transform: scaleX(var(--f)); border-radius: inherit; }
+.hm-seg[data-l="1"] i::after { background: linear-gradient(90deg, #ffd166, #ffb03b); }
+.hm-seg[data-l="2"] i::after { background: linear-gradient(90deg, #ffb03b, #ff7a3c); }
+.hm-seg[data-l="3"] i::after { background: linear-gradient(90deg, #ff7a3c, #ff2e63); }
+.hm-seg b { font-size: 11px; font-weight: 600; font-style: italic; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.hm-seg b em { font-style: italic; opacity: .7; text-transform: none; letter-spacing: 0; }
+.hold-line { margin: 0; min-height: 44px; font-size: 15px; color: var(--fg); max-width: 320px; line-height: 1.45; }
+.linkish { color: var(--accent2); text-decoration: underline; text-underline-offset: 3px; font-weight: 700; padding: 4px 0; }
+
+/* The whole screen warms while holding */
+#app.warming #amb .grain { opacity: calc(.05 + var(--hold, 0) * .1); }
+#app.warming #amb .glow { opacity: calc(.2 + var(--hold, 0) * .6); }
+#app[data-theme="home"]::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background: radial-gradient(80% 60% at 50% 30%, color-mix(in srgb, #ff2e63 calc(var(--hold, 0) * 30%), transparent), transparent 70%);
+  opacity: var(--hold, 0); transition: opacity .6s ease; }
+
+/* ---------- Vibe ---------- */
+.vibe { padding: 0 18px 8px; }
+.vibe .field { gap: 8px; }
+
+/* ---------- Card stack ---------- */
+.stack-title { padding: 16px 18px 4px; font-size: 28px; scroll-margin-top: 12px; }
+.stack { --fan: 0; position: relative; display: flex; flex-direction: column; gap: 14px; padding: 12px 22px 40px; }
+.stack .tile { width: 100%; min-height: 150px; text-align: left;
+  /* --fan 0: piled like a deck on the first card; 1: spread out, still a little tilted */
+  transform: translateY(calc((1 - var(--fan)) * var(--i) * -150px)) rotate(calc(var(--r) * (1 - var(--fan) * .65)));
+  z-index: calc(20 - var(--i)); transition: transform .12s linear; will-change: transform; }
+.stack .tile:active { transform: translateY(calc((1 - var(--fan)) * var(--i) * -150px)) rotate(calc(var(--r) * (1 - var(--fan) * .65))) scale(.97); }
+.t-hot { position: relative; z-index: 3; align-self: flex-start; margin-bottom: 8px; font-size: 11px; font-weight: 700; font-style: normal; letter-spacing: .04em; padding: 4px 9px; border-radius: 99px;
+  background: #000000a8; color: #fff; border: 1px solid #ffffff26; text-shadow: none; }
+.t-hot.free { background: linear-gradient(135deg, #ff7a3c, #ff2e63); border-color: transparent; }
+.t-hot.open { background: #ffffff1f; }
+
+/* ---------- Pro home looks (existing palettes from the game themes) ---------- */
+#app[data-theme="home"][data-look="midnight"] { background: radial-gradient(140% 60% at 50% -10%, #3ee08a1f, transparent 55%), linear-gradient(170deg, #13296b, #0a1433 55%, #060c24); }
+#app[data-theme="home"][data-look="neon"] { background: radial-gradient(120% 60% at 80% -10%, #ff2bd633, transparent 60%), radial-gradient(90% 50% at 0% 100%, #00f0ff1f, transparent 60%), #0d0019; }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .stack .tile { transform: rotate(calc(var(--r) * .35)); transition: none; }
+  html:not([data-motion="full"]) .hc-hero.thump .hold-btn, html:not([data-motion="full"]) .hc-hero.locked .hold-meter .lock { animation: none; }
+}
+html[data-motion="reduce"] .stack .tile { transform: rotate(calc(var(--r) * .35)); transition: none; }
+html[data-motion="reduce"] .hc-hero.thump .hold-btn, html[data-motion="reduce"] .hc-hero.locked .hold-meter .lock { animation: none; }
+html[data-motion="reduce"] *, html[data-motion="reduce"] *::before, html[data-motion="reduce"] *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
