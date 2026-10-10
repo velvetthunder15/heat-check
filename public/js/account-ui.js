@@ -1,5 +1,6 @@
-/* Heat Check: account screens. Sign-in (email OTP), paywall, pass chip and warnings,
-   the Lv3 lock moments, profile, receipts, account deletion and the hidden admin panel.
+/* Heat Check: account screens. Sign-in (email OTP), the paywall (Lite and Premium plan cards),
+   the home pass banner and Lite warnings, limit and lock moments, the in-game heat selector,
+   profile, receipts, account deletion and the hidden admin panel.
    Every sheet is appended inside #app so it inherits the current theme. */
 
 const TEASER = {
@@ -14,20 +15,28 @@ const TEASER = {
 };
 const GAME_SHORT = { redflag: 'Flags', nhie: 'Never', charades: 'Charades', wyr: 'Rather', hotseat: 'Hot Seat', swap: 'Swap', mostlikely: 'Likely', twotruths: '2 Truths' };
 const GAME_ICON = { redflag: '🚩', nhie: '🥤', charades: '🎭', wyr: '⚔️', hotseat: '💺', swap: '🔁', mostlikely: '👉', twotruths: '🃏' };
-const PLAN_LABEL = { guest: 'Guest', free: 'Free', pass: 'Date Night Pass', lifetime: 'Lifetime' };
-const PRO_PERKS = [['flame', 'Hot on every game'], ['people', 'Unlimited players'], ['tag', 'Saved player names'], ['note', 'Themes & sounds']];
-const GUEST_PERKS = [['flame', '1 free Hot card per game'], ['sync', 'Sync your settings'], ['bag', 'Buy & restore Pro'], ['chart', 'Keep your stats']];
+const PLAN_LABEL = { guest: 'Guest', base: 'Free', lite: 'Lite', premium: 'Premium' };
+
+/* One icon set for every plan row, perk and lock: bold strokes, 24px grid */
 const ICONS = {
-  flame: '<path d="M12 3c1 3 4 4.5 4 8.5A4 4 0 0 1 8 11.5c0-1.6.8-2.6 1.6-3.4.2 1.5 1 2.2 1.7 2.4C11 8 11 5.5 12 3z"/><path d="M9.5 16.5a2.5 2.5 0 0 0 5 0"/>',
-  people: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.5 19c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5M15 14.6c2.3.2 4 1.6 4.6 4.4"/>',
-  tag: '<path d="M4 4h7l9 9-7 7-9-9z"/><circle cx="8" cy="8" r="1.5"/>',
-  note: '<path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="16" r="2"/>',
+  flame: '<path d="M12 2.8c1.2 3.2 4.6 4.9 4.6 9.3a4.6 4.6 0 0 1-9.2 0c0-1.9.9-3.1 1.8-4 .2 1.7 1.1 2.6 2 2.8C11 8.2 11 5.4 12 2.8z"/><path d="M9.6 16.8a2.4 2.4 0 0 0 4.8 0"/>',
+  heat: '<path d="M8 21c-2.2-1.4-3.5-3.6-3.5-6.2 0-4 3.6-5.6 4.5-9.8 1.6 1.4 2.4 3 2.4 4.8 1.2-.8 1.9-2 2.1-3.4 2.6 2.2 4 4.8 4 8.4 0 2.6-1.3 4.8-3.5 6.2"/><path d="M12 21v-5M9.5 18.5 12 16l2.5 2.5"/>',
+  infinity: '<path d="M7.2 8.4a3.6 3.6 0 1 0 0 7.2c2.6 0 4.2-3.6 4.8-3.6s2.2 3.6 4.8 3.6a3.6 3.6 0 1 0 0-7.2c-2.6 0-4.2 3.6-4.8 3.6S9.8 8.4 7.2 8.4z"/>',
+  group: '<circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9.2" r="2.5"/><path d="M3.2 19.5c.8-3.2 3.1-4.8 5.8-4.8s5 1.6 5.8 4.8M15.2 14.6c2.4.2 4.2 1.7 4.8 4.6"/>',
+  bookmark: '<path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/>',
+  music: '<path d="M9 18V6l10-2.2v12"/><circle cx="6.8" cy="18" r="2.4"/><circle cx="16.8" cy="15.8" r="2.4"/>',
+  sparkle: '<path d="M12 3.5l1.8 5 5 1.8-5 1.8-1.8 5-1.8-5-5-1.8 5-1.8z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>',
   sync: '<path d="M4 12a8 8 0 0 1 13.7-5.6L20 9M20 4v5h-5M20 12a8 8 0 0 1-13.7 5.6L4 15M4 20v-5h5"/>',
   bag: '<path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/>',
+  lock: '<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
   chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
 };
-const icon = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>`;
+const icon = (k) => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>`;
 const perkList = (items) => `<ul class="perk-list">${items.map(([k, t]) => `<li>${icon(k)}<span>${esc(t)}</span></li>`).join('')}</ul>`;
+const GUEST_PERKS = [['flame', 'Free Hot card per game'], ['sync', 'Sync your progress'], ['bag', 'Buy Lite or Premium']];
+// Paywall rows: Lite shows its first three, the fourth (Premium's) dimmed. Premium shows all four of its own.
+const LITE_ROWS = [['flame', 'Flirty and Spicy, unlimited', true], ['heat', '3 Hot cards per game', true], ['music', 'Themes and sounds', true], ['infinity', 'Unlimited Hot', false]];
+const PREMIUM_ROWS = [['infinity', 'Unlimited Hot, every game', true], ['group', 'Unlimited players', true], ['bookmark', 'Saved player names', true], ['sparkle', 'All themes unlocked', true]];
 
 const fmtDate = (iso, time = true) => {
   if (!iso) return '';
@@ -38,6 +47,8 @@ const fmtLeft = (ms) => {
   const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
   return h >= 1 ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}:${String(ss).padStart(2, '0')}`;
 };
+// "42 min left" on the banner: whole minutes, rounded up
+const fmtMin = (ms) => { const m = Math.ceil(Math.max(0, ms) / 60000); return m <= 1 ? (ms > 0 ? '1 min left' : 'ending') : `${m} min left`; };
 const rupees = (v) => '₹' + (Number(v) % 1 ? Number(v).toFixed(2) : String(Number(v)));
 
 const UI = {
@@ -119,7 +130,7 @@ const UI = {
   /* ---------- Sign in: email, then a 6-digit code ---------- */
   signIn({ then, reason } = {}) {
     if (!Cfg.accounts) {
-      return this.sheet(`<h2>Accounts are almost here</h2><p class="muted">Sign-in and Pro are switching on soon. Everything free still works, no account needed.</p>
+      return this.sheet(`<h2>Accounts are almost here</h2><p class="muted">Sign-in, Lite and Premium are switching on soon. Everything free still works, no account needed.</p>
         <button class="btn block ghost" data-close style="margin-top:12px">Got it</button>`);
     }
     if (Auth.signedIn()) { then && then(); return null; }
@@ -208,32 +219,73 @@ const UI = {
     return s;
   },
 
-  /* ---------- Paywall ---------- */
+  /* ---------- Plan cards: Lite (gold) and Premium (icy titanium), side by side ---------- */
+  plans(host, { game = null, reason = null, onDone } = {}) {
+    if (!host) return;
+    const tier = Ent.tier();
+    const lite = Cfg.product('lite'), prem = Cfg.product('premium');
+    if (!Cfg.payments || !lite || !prem) { host.innerHTML = '<p class="pw-soon">Lite and Premium are switching on soon. Everything free still works.</p>'; return; }
+    const rows = (list) => `<ul class="plan-rows">${list.map(([k, t, on]) => `<li class="${on ? '' : 'off'}">${icon(on ? k : 'lock')}<span>${esc(t)}</span></li>`).join('')}</ul>`;
+    const liteActive = tier === 'lite';
+    host.innerHTML = `<div class="plans">
+      <button class="plan lite" data-buy="lite" ${tier === 'premium' ? 'disabled' : ''}>
+        <span class="plan-sheen" aria-hidden="true"></span>
+        <span class="plan-pick ghost" aria-hidden="true">Most picked</span>
+        <span class="plan-name">Lite</span>
+        <span class="plan-price">${esc(lite.display)}</span>
+        <span class="plan-term">${liteActive ? 'adds 1 more hour' : 'for 1 hour'}</span>
+        ${rows(LITE_ROWS)}
+        <span class="plan-cta">${liteActive ? '+1 hour' : 'Get Lite'}</span>
+      </button>
+      <button class="plan premium" data-buy="premium">
+        <span class="plan-sheen" aria-hidden="true"></span>
+        <span class="plan-pick">Most picked</span>
+        <span class="plan-name">Premium</span>
+        <span class="plan-price">${esc(prem.display)}</span>
+        <span class="plan-term">one-time, forever</span>
+        ${rows(PREMIUM_ROWS)}
+        <span class="plan-cta">Get Premium</span>
+      </button>
+    </div><p class="form-err" role="alert" hidden></p>`;
+    const err = $('.form-err', host);
+    $$('[data-buy]', host).forEach((b) => (b.onclick = async () => {
+      const product = b.dataset.buy;
+      SFX.play('tap');
+      if (Ent.tier() === 'premium') return Core.toast('You already have Premium.');
+      if (!Auth.signedIn()) {
+        // Guests sign in with an email code first, then come straight back to the paywall
+        $$('.acct-wrap.pw-wrap').forEach((w) => w.remove());
+        return this.signIn({ reason: 'Sign in first so your purchase stays with your account. No passwords, just a code.', then: () => this.paywall({ game, reason }) });
+      }
+      this.err(err, '');
+      $$('[data-buy]', host).forEach((x) => (x.disabled = true));
+      b.classList.add('loading');
+      try {
+        const r = await Pay.buy(product);
+        if (r.ok) { onDone && onDone(); this.success(product); return; }
+        if (r.paid) this.err(err, 'Payment received. Unlocking can take a minute: check your profile shortly.');
+        else if (r.error) this.err(err, r.error.message);
+      } catch (e) {
+        if (e.code === 'already_premium') { await Auth.refresh(); onDone && onDone(); Core.toast('You already have Premium.'); this.refreshScreens(); return; }
+        this.err(err, e.message);
+      } finally {
+        b.classList.remove('loading');
+        $$('[data-buy]', host).forEach((x) => (x.disabled = x.dataset.buy === 'lite' && Ent.tier() === 'premium'));
+      }
+    }));
+  },
+
+  /* ---------- Paywall (streaming style): wherever a locked thing is tapped ---------- */
   paywall({ game = null, reason = null } = {}) {
-    const plan = Ent.plan();
-    if (plan === 'lifetime') { Core.toast('You’ve already got everything'); return null; }
-    const pass = Cfg.product('pass'), life = Cfg.product('lifetime');
-    const passActive = plan === 'pass';
-    const sub = reason === 'players' ? `Free plays up to ${HC.FREE_PLAYERS} people. Pro brings the whole group.`
-      : game && TEASER[game] ? `${Games[game] ? Games[game].title + ': ' : ''}${TEASER[game]}` : 'Lv1 and Lv2 stay free forever. Pro opens up the rest.';
-    const canBuy = Cfg.payments && pass && life;
+    if (Ent.tier() === 'premium') { Core.toast('You already have Premium. Everything’s open.'); return null; }
+    const sub = reason === 'players' ? `Up to ${HC.FREE_PLAYERS} people on this plan. Premium brings the whole group.`
+      : reason === 'look' ? 'Lite opens Midnight and the Velvet sounds. Premium opens every look.'
+        : game && TEASER[game] ? `${Games[game] ? Games[game].title + ': ' : ''}${TEASER[game]}` : 'Flirty stays free. Lite and Premium open up the rest.';
     const s = this.sheet(`
       <div class="pw">
         <h2>Turn up the heat</h2>
         <p class="muted">${esc(sub)}</p>
-        ${perkList(PRO_PERKS)}
-        ${canBuy ? `<div class="pw-options">
-          <button class="pw-opt" data-buy="pass">
-            <span class="pw-name">${passActive ? '+4 hours' : 'Date Night Pass'}</span>
-            <span class="pw-price">${esc(pass.display)}</span>
-            <span class="pw-desc">${passActive ? 'Adds 4 hours to your pass' : '4 hours of everything'}</span>
-          </button>
-          <button class="pw-opt best" data-buy="lifetime">
-            <span class="pw-name">Pro Lifetime</span>
-            <span class="pw-price">${esc(life.display)}</span>
-            <span class="pw-desc">Pay once. Keep it forever.</span>
-          </button>
-        </div>` : '<p class="pw-soon">Pro is switching on soon. Everything free still works.</p>'}
+        <div id="pwPlans"></div>
         ${game && Taste.canClaim(game) && document.getElementById('stage') ? '<button class="btn block ghost sm" id="pwTaste" style="margin-top:12px">Or use your free Hot card</button>' : ''}
         <p class="form-err" id="pwErr" role="alert" hidden></p>
         <p class="note center pw-foot">${Auth.signedIn() ? '' : '<button class="linkish" id="pwRestore">Already bought? Restore purchase</button><br>'}
@@ -241,59 +293,130 @@ const UI = {
         <button class="btn block ghost sm" data-close>Not now</button>
       </div>`, { cls: 'pw-wrap' });
     const el = s.el, err = $('#pwErr', el);
+    this.plans($('#pwPlans', el), { game, reason, onDone: () => s.close() });
     const tasteBtn = $('#pwTaste', el);
     if (tasteBtn) tasteBtn.onclick = async () => {
       this.busy(tasteBtn, true);
-      try { await Taste.claim(game); s.close(); Core.toast('Your free Hot card is up next'); }
+      try { await Taste.claim(game); s.close(); Core.toast('Your free Hot card is up next'); this.resume(); }
       catch (e) { this.busy(tasteBtn, false); this.err(err, e.message); }
     };
     const restore = $('#pwRestore', el);
     if (restore) restore.onclick = () => { s.close(); this.signIn({ reason: 'Sign in with the email you bought with. Your purchase comes back with it.', then: () => this.afterRestore() }); };
-    $$('[data-buy]', el).forEach((b) => (b.onclick = async () => {
-      const product = b.dataset.buy;
-      SFX.play('tap');
-      if (!Auth.signedIn()) {
-        s.close();
-        return this.signIn({ reason: 'Sign in first so your purchase stays with your account. No passwords, just a code.', then: () => this.paywall({ game, reason }) });
-      }
-      this.err(err, '');
-      $$('[data-buy]', el).forEach((x) => (x.disabled = true));
-      b.classList.add('loading');
-      try {
-        const r = await Pay.buy(product);
-        if (r.ok) { s.close(); this.success(product); return; }
-        if (r.paid) this.err(err, 'Payment received. Unlocking can take a minute: pull up your profile shortly.');
-        else if (r.error) this.err(err, r.error.message);
-      } catch (e) {
-        if (e.code === 'already_lifetime') { await Auth.refresh(); s.close(); Core.toast('You’ve already got Lifetime'); return; }
-        this.err(err, e.message);
-      } finally {
-        b.classList.remove('loading');
-        $$('[data-buy]', el).forEach((x) => (x.disabled = false));
-      }
-    }));
+    return s;
+  },
+
+  /* ---------- A game hit this tier's limit: a soft sheet, never mid-card ---------- */
+  _again: null,
+  resume() { const f = this._again; this._again = null; if (f && document.getElementById('stage')) f(); },
+  limitReached(game, again) {
+    this._again = again || null;
+    const tier = Ent.tier(), title = Games[game] ? Games[game].title : 'This game';
+    const cap = HC.LIMITS[tier] && HC.LIMITS[tier].flirty;
+    // The table under the sheet: a quiet lock panel where the card was
+    const st = document.getElementById('stage');
+    if (st) {
+      st.innerHTML = `<div class="lock-panel">${icon('lock')}<h2>That’s ${cap} Flirty cards</h2>
+        <p class="muted">${esc(title)} is done for today on ${tier === 'guest' ? 'guest play' : 'the free plan'}. More tomorrow, or unlock it now.</p>
+        <button class="btn" data-act="unlockmore">Unlock more</button></div>`;
+      Core.setPrimary(null); Core.onSkip(null);
+      $('[data-act="unlockmore"]', st).onclick = () => this.limitReached(game, again);
+    }
+    const tasteNow = tier === 'base' && Taste.canClaim(game);
+    const s = this.sheet(`
+      <div class="pw lim">
+        <h2>${tasteNow ? 'Use your free Hot card?' : 'Unlock more'}</h2>
+        <p class="muted">${tier === 'guest' ? `That’s ${cap} Flirty cards in ${esc(title)} today. Sign in for a free Hot card, or unlock everything.`
+          : tasteNow ? `That’s ${cap} Flirty cards in ${esc(title)} today. This game’s free Hot card is still waiting.`
+            : `That’s ${cap} Flirty cards and your free Hot card in ${esc(title)} today.`}</p>
+        ${tier === 'guest' ? '<button class="btn block" id="limSignIn">Sign in for a free Hot card</button>' : ''}
+        ${tasteNow ? '<button class="btn block" id="limTaste">Play my free Hot card</button>' : ''}
+        <div id="limPlans"></div>
+        <p class="form-err" id="limErr" role="alert" hidden></p>
+        <button class="btn block ghost sm" data-close>Not now</button>
+      </div>`, { cls: 'pw-wrap' });
+    const el = s.el;
+    this.plans($('#limPlans', el), { game, onDone: () => { s.close(); this.resume(); } });
+    const si = $('#limSignIn', el);
+    if (si) si.onclick = () => { s.close(); this.signIn({ reason: 'Sign in and every game gives you one free Hot card.', then: () => { Intro.refresh(); this.resume(); } }); };
+    const tb = $('#limTaste', el);
+    if (tb) tb.onclick = async () => {
+      this.busy(tb, true);
+      try { await Taste.claim(game); s.close(); this.resume(); }
+      catch (e) { this.busy(tb, false); this.err($('#limErr', el), e.message); }
+    };
+    return s;
+  },
+
+  /* ---------- Lock messages: shared by the home ring and the in-game heat selector ---------- */
+  lockInfo(level, game = Core.game) {
+    const tier = Ent.tier();
+    if (level <= Core.levelCap(game)) return null;
+    if (level === 2) return { text: 'Spicy needs Lite or Premium.', act: 'plans' };
+    if (tier === 'guest') return { text: 'Sign in for a free Hot card', act: 'signin' };
+    if (tier === 'base') {
+      const unused = game ? Taste.canClaim(game) : Taste.unusedAny();
+      return unused ? { text: 'Use your free Hot card?', act: 'taste' } : { text: 'Hot is locked. Lite or Premium unlocks it.', act: 'plans' };
+    }
+    if (tier === 'lite') return { text: `${HC.LIMITS.lite.hot} Hot cards used here. Premium has unlimited.`, act: 'premium' };
+    return null;
+  },
+  lockActions(info) {
+    if (!info) return '';
+    if (info.act === 'signin') return '<button class="linkish" data-lock="signin">Sign in</button>';
+    if (info.act === 'taste') return '<button class="linkish" data-lock="taste">Use it</button>';
+    if (info.act === 'premium') return '<button class="mini-plan premium" data-lock="premium">Premium</button>';
+    return '<button class="mini-plan lite" data-lock="lite">Lite</button><button class="mini-plan premium" data-lock="premium">Premium</button>';
+  },
+  async lockAct(kind, game, done) {
+    if (kind === 'signin') return this.signIn({ reason: 'Sign in and every game gives you one free Hot card.', then: () => { Intro.refresh(); done && done(); } });
+    if (kind === 'taste') {
+      if (game) { try { await Taste.claim(game); Core.toast('Your free Hot card is up next'); done && done(); } catch (e) { Core.toast(e.message); } return; }
+      Taste.armed = true; done && done(); return;
+    }
+    return this.paywall({ game });
+  },
+
+  /* ---------- In-game heat selector (tap the heat chip) ---------- */
+  heatSheet(game) {
+    const cur = Core.heat();
+    const s = this.sheet(`<h2>Heat</h2><p class="muted">Changing it resets the auto-ramp counter.</p>
+      <div class="heat-rows">${[1, 2, 3].map((h) => {
+        const lock = this.lockInfo(h, game);
+        return `<div class="heat-row h${h} ${lock ? 'locked' : ''} ${cur === h ? 'on' : ''}">
+          <button class="hr-main" data-h="${h}" ${lock ? 'aria-disabled="true"' : ''}><b>${HEAT[h].name}</b><span>${ptsWord(pts(h))} penalty</span>${lock ? icon('lock') : ''}</button>
+          ${lock ? `<div class="hr-lock"><span>${esc(lock.text)}</span>${this.lockActions(lock)}</div>` : ''}</div>`;
+      }).join('')}</div>
+      <button class="btn block ghost sm" data-close style="margin-top:12px">Done</button>`, { cls: 'heat-sheet' });
+    s.el.addEventListener('click', (e) => {
+      const lb = e.target.closest('[data-lock]');
+      if (lb) { s.close(); return this.lockAct(lb.dataset.lock, game); }
+      const b = e.target.closest('[data-h]'); if (!b) return;
+      const h = +b.dataset.h;
+      if (this.lockInfo(h, game)) { const row = b.closest('.heat-row'); row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake'); vibrate([30, 30, 30]); return; }
+      SFX.play('tap'); Core.setHeat(h); Core.toast(`${ptsLabel(h)}. Next card.`); s.close();
+    });
     return s;
   },
 
   async afterRestore() {
     await Auth.refresh(); await Premium.load();
-    const plan = Ent.plan();
-    Core.toast(plan === 'lifetime' ? 'Lifetime restored' : plan === 'pass' ? 'Pass restored' : 'No purchase on this account yet');
+    const t = Ent.profileTier();
+    Core.toast(t === 'premium' ? 'Premium restored' : t === 'lite' ? 'Lite restored' : 'No active purchase on this account');
     this.refreshScreens();
   },
 
   success(product) {
     const until = Auth.profile && Auth.profile.premium_until;
     const o = document.createElement('div');
-    o.className = 'pw-success'; o.setAttribute('role', 'status');
+    o.className = 'pw-success ' + product; o.setAttribute('role', 'status');
     o.innerHTML = `<div class="pw-burst"></div><div class="pw-ok"><div class="pw-check" aria-hidden="true"></div>
-      <h2>You’re in.</h2><p>${product === 'lifetime' ? 'Lv3 is open on every game. Forever.' : `Lv3 is open until ${esc(new Date(until).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }))}.`}</p>
+      <h2>You’re in.</h2><p>${product === 'premium' ? 'Premium is yours. Every card, every game. Forever.' : `Lite runs until ${esc(new Date(until).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }))}.`}</p>
       <button class="btn" data-ok>Let’s go</button></div>`;
     document.getElementById('app').appendChild(o);
     vibrate([30, 40, 60, 40, 90]); SFX.play('win');
     const r = o.querySelector('.pw-ok').getBoundingClientRect();
     window.Motion && Motion.embers && Motion.embers(3, r.left + r.width / 2, r.top + 40);
-    const close = () => { o.classList.add('out'); setTimeout(() => o.remove(), 260); };
+    const close = () => { if (o.classList.contains('out')) return; o.classList.add('out'); setTimeout(() => { o.remove(); this.resume(); }, 260); };
     o.addEventListener('click', close);
     setTimeout(close, 4200);
     Prefs.apply();
@@ -306,64 +429,52 @@ const UI = {
     const prof = $('.acct-wrap.profile'); if (prof) this.profile({ replace: prof });
   },
 
-  /* ---------- Pass chip, warnings, expiry ---------- */
+  /* ---------- Home pass banner (exact plan + time left) and the in-game chip ---------- */
+  passState() {
+    if (Admin.active()) return { cls: 'admin', text: `Admin · ${fmtLeft(Admin.exp - Cfg.now())}`, act: 'admin' };
+    const t = Ent.profileTier();
+    if (t === 'premium') return { cls: 'premium', text: 'Premium · Lifetime', act: 'profile' };
+    if (t === 'lite') { const left = Ent.liteLeft(); return { cls: 'lite' + (left <= 5 * 60 * 1000 ? ' warn' : ''), text: `Lite · ${fmtMin(left)}`, act: 'profile' }; }
+    return { cls: 'none', text: 'No pass active', act: 'paywall' };
+  },
   updatePassChip() {
-    const plan = Ent.plan(), admin = Admin.active();
-    const text = admin ? `Admin · ${fmtLeft(Admin.exp - Cfg.now())}` : plan === 'pass' ? `Pass · ${fmtLeft(Ent.passLeft())}` : '';
-    const homeSlot = document.getElementById('passChipSlot');
-    if (homeSlot) {
-      let c = homeSlot.firstElementChild;
-      if (!text) homeSlot.innerHTML = '';
-      else if (!c) homeSlot.innerHTML = `<button class="pass-chip" data-act="${admin ? 'admin' : 'account'}">${esc(text)}</button>`;
-      else c.textContent = text;
+    const st = this.passState();
+    const slot = document.getElementById('passBanner');
+    if (slot) {
+      const html = `<button class="pass-banner ${st.cls}" data-act="${st.act}"><span class="pb-sheen" aria-hidden="true"></span><span class="pb-text">${esc(st.text)}</span>${st.cls === 'none' ? '<span class="pb-go">See plans</span>' : ''}${st.cls.includes('warn') ? '<span class="pb-warn">Ends soon</span>' : ''}</button>`;
+      if (slot.dataset.k !== st.cls + '|' + st.text) { slot.dataset.k = st.cls + '|' + st.text; slot.innerHTML = html; }
     }
+    // In a game: a small chip only while a Lite or admin clock is running
     const hudTop = $('.hud-top');
     if (hudTop) {
+      const show = st.cls.startsWith('lite') || st.cls === 'admin';
       let c = $('#passChipHud');
-      if (!text) { if (c) c.remove(); }
-      else if (!c) { const b = document.createElement('button'); b.id = 'passChipHud'; b.className = 'pass-chip'; b.dataset.act = admin ? 'admin' : 'account'; b.textContent = text; hudTop.insertBefore(b, hudTop.lastElementChild); }
-      else c.textContent = text;
+      if (!show) { if (c) c.remove(); }
+      else if (!c) { const b = document.createElement('button'); b.id = 'passChipHud'; b.className = 'pass-chip ' + st.cls; b.dataset.act = st.act; b.textContent = st.text; hudTop.insertBefore(b, hudTop.lastElementChild); }
+      else { c.textContent = st.text; c.className = 'pass-chip ' + st.cls; }
     }
   },
 
-  account() {
-    if (!Auth.signedIn()) return this.profile();
-    const plan = Ent.plan();
-    const s = this.sheet(`<h2>Your account</h2>
-      <div class="acct-mini">
-        <div><span class="lbl">Email</span><b>${esc(Auth.email())}</b></div>
-        <div><span class="lbl">Plan</span><b>${PLAN_LABEL[plan]}</b></div>
-        ${plan === 'pass' ? `<div><span class="lbl">Time left</span><b id="amLeft">${fmtLeft(Ent.passLeft())}</b></div>` : ''}
-      </div>
-      <div class="col" style="margin-top:14px">
-        ${plan === 'pass' ? '<button class="btn block" id="amMore">+4 hours</button>' : ''}
-        <button class="btn block ghost" id="amProfile">Open profile</button>
-        <button class="btn block ghost" id="amOut">Sign out</button>
-      </div>`);
-    const t = setInterval(() => { const l = $('#amLeft', s.el); if (!l || s.closed) return clearInterval(t); l.textContent = fmtLeft(Ent.passLeft()); }, 1000);
-    const more = $('#amMore', s.el); if (more) more.onclick = () => { s.close(); this.paywall(); };
-    $('#amProfile', s.el).onclick = () => { s.close(); this.profile(); };
-    $('#amOut', s.el).onclick = async () => { s.close(); await Auth.signOut(); Core.toast('Signed out'); this.refreshScreens(); };
+  account() { return this.profile(); },
+
+  // 5 minutes of Lite left: a soft chip, not a sheet
+  liteWarning() {
+    if ($('.lite-warn')) return;
+    const chip = document.createElement('div');
+    chip.className = 'lite-warn'; chip.setAttribute('role', 'status');
+    chip.innerHTML = `<span>5 minutes of Lite left.</span><button class="linkish" data-act="paywall">Keep going</button><button class="hc-x" aria-label="Dismiss">✕</button>`;
+    document.getElementById('app').appendChild(chip);
+    const close = () => { chip.classList.add('out'); setTimeout(() => chip.remove(), 240); };
+    const t = setTimeout(close, 8000);
+    chip.addEventListener('click', (e) => { if (e.target.closest('button')) { clearTimeout(t); close(); } });
   },
 
-  passWarning() {
-    const pass = Cfg.product('pass');
-    const s = this.sheet(`<h2>15 minutes left</h2><p class="muted">Plenty of time to get into trouble. Want 4 more hours?</p>
-      <div class="col" style="margin-top:12px">
-        ${Cfg.payments && pass ? `<button class="btn block" id="pwMore">+4 hours · ${esc(pass.display)}</button>` : ''}
-        <button class="btn block ghost" data-close>Not now</button></div>`);
-    const b = $('#pwMore', s.el); if (b) b.onclick = () => { s.close(); this.paywall(); };
-  },
-
+  // Lite ran out. The card on screen was allowed to finish first.
   expired() {
     if ($('.acct-wrap.expired')) return;
-    const pass = Cfg.product('pass'), life = Cfg.product('lifetime');
-    const s = this.sheet(`<h2>Pass’s up</h2><p class="muted">Lv3 is locked again. Spicy is still very much on the table.</p>
-      <div class="col" style="margin-top:12px">
-        ${Cfg.payments && pass ? `<button class="btn block" data-buy="pass">Another pass · ${esc(pass.display)}</button>` : ''}
-        ${Cfg.payments && life ? `<button class="btn block alt" data-buy="lifetime">Go Lifetime · ${esc(life.display)}</button>` : ''}
-        <button class="btn block ghost" data-close>Stay at Spicy</button></div>`, { cls: 'expired' });
-    $$('[data-buy]', s.el).forEach((b) => (b.onclick = () => { s.close(); this.paywall(); }));
+    const s = this.sheet(`<h2>Lite’s up</h2><p class="muted">Spicy and Hot are locked again. Flirty is still on the table.</p>
+      <div id="exPlans"></div><button class="btn block ghost sm" data-close>Stay at Flirty</button>`, { cls: 'expired pw-wrap' });
+    this.plans($('#exPlans', s.el), { onDone: () => s.close() });
     this.refreshScreens();
   },
 
@@ -386,7 +497,7 @@ const UI = {
     return `<div class="taste-grid">${GAME_IDS.map((g) => {
       const used = Taste.used(g);
       return `<div class="taste ${used ? 'used' : ''}" title="${esc(Games[g].title)}"><span class="ti">${GAME_ICON[g] || '🔥'}</span><span class="tn">${esc(GAME_SHORT[g] || g)}</span><span class="ts">${used ? 'Used' : 'Free'}</span></div>`;
-    }).join('')}</div><p class="note">${Ent.pro() ? 'Pro has every Hot card, so these can wait.' : `${left} of ${GAME_IDS.length} free Hot cards left.`}</p>`;
+    }).join('')}</div><p class="note">${Ent.paid() ? 'Your plan has Hot already, so these can wait.' : `${left} of ${GAME_IDS.length} free Hot cards left.`}</p>`;
   },
 
   profileGuest() {
@@ -406,41 +517,42 @@ const UI = {
   },
 
   profileSignedIn() {
-    const p = Auth.profile, plan = Ent.plan(), prefs = Prefs.get(), st = Stats.get(), pro = Ent.pro();
-    const fav = Stats.favorite();
-    const pass = Cfg.product('pass');
-    const life = Cfg.product('lifetime');
-    const status = plan === 'lifetime'
-      ? `<div class="pro-active"><span class="plan-badge life">Lifetime</span><b>Pro active</b><p class="muted" id="pfLifeDate">Thanks for backing Heat Check.</p></div>`
-      : plan === 'pass'
-        ? `<div class="pro-active"><span class="plan-badge pass">Date Night Pass</span><b>Pro active</b><div class="pf-count" id="pfLeft">${fmtLeft(Ent.passLeft())}</div>
-           <p class="muted">Ends ${esc(fmtDate(p.premium_until))}</p>
-           ${Cfg.payments && pass ? `<button class="btn block ghost sm" id="pfMore">+4 hours · ${esc(pass.display)}</button>` : ''}</div>`
-        : `${perkList(PRO_PERKS)}
-           ${Cfg.payments && pass && life ? `<div class="pf-buy"><button class="btn" data-pfbuy="pass">Pass · ${esc(pass.display)}</button><button class="btn alt best" data-pfbuy="lifetime">Lifetime · ${esc(life.display)}</button></div>` : '<p class="pw-soon">Pro is switching on soon.</p>'}`;
-    const seg = (key, opts, cur, locked) => `<div class="seg ${locked ? 'locked' : ''}" data-pref="${key}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(cur) === String(v) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+    const p = Auth.profile, tier = Ent.profileTier(), prefs = Prefs.get(), st = Stats.get();
+    const fav = Stats.favorite(), lastNight = st.nights[st.nights.length - 1];
+    const plan = tier === 'premium'
+      ? `<div class="pro-active"><span class="plan-badge premium">Premium · Lifetime</span><p class="muted" id="pfPremDate">Every card, every game. No expiry.</p></div>`
+      : tier === 'lite'
+        ? `<div class="pro-active"><span class="plan-badge lite">Lite</span><div class="pf-count" id="pfLeft">${fmtLeft(Ent.liteLeft())}</div>
+           <p class="muted">left · ends ${esc(fmtDate(p.premium_until))}</p>
+           ${Cfg.payments && Cfg.product('premium') ? `<button class="btn block pf-up" data-pfbuy="premium">Upgrade to Premium · ${esc(Cfg.product('premium').display)}</button>` : ''}</div>`
+        : '<div id="pfPlans"></div>';
+    const seg = (key, opts, cur, locked) => `<div class="seg ${locked ? 'locked' : ''}" data-pref="${key}">${opts.map(([v, l, lk]) => `<button data-v="${v}" class="${String(cur) === String(v) ? 'on' : ''} ${lk ? 'lk' : ''}">${l}</button>`).join('')}</div>`;
     const sw = (key, on, label, note) => `<div class="toggle"><div><b>${label}</b>${note ? `<div class="note">${note}</div>` : ''}</div><button class="switch ${on ? 'on' : ''}" data-prefsw="${key}" aria-label="${label}"></button></div>`;
+    const paid = Ent.paid(), prem = Ent.premium();
     return `
       <section class="pf-card pf-hero">
         <div class="pf-ring glow" aria-hidden="true"><span>${esc((Auth.email()[0] || '?').toUpperCase())}</span></div>
         <div class="pf-email">${esc(Auth.email())}</div>
-        <div class="row" style="justify-content:center;gap:8px"><span class="plan-badge ${plan === 'lifetime' ? 'life' : plan === 'pass' ? 'pass' : ''}">${PLAN_LABEL[plan]}</span><span class="note">Member since ${esc(fmtDate(p.created_at, false))}</span></div>
+        <div class="row" style="justify-content:center;gap:8px"><span class="plan-badge ${tier}">${tier === 'premium' ? 'Premium · Lifetime' : PLAN_LABEL[tier]}</span><span class="note">Member since ${esc(fmtDate(p.created_at, false))}</span></div>
       </section>
-      <section class="pf-card"><h3>${pro ? 'Your plan' : 'Go Pro'}</h3>${status}</section>
+      <section class="pf-card"><h3>${tier === 'base' ? 'Plans' : 'Your plan'}</h3>${plan}</section>
       <section class="pf-card"><h3>Free Hot cards</h3>${this.tasteTracker()}</section>
       <section class="pf-card"><h3>Purchase history</h3><div id="pfPurchases"><p class="note">Digging out your receipts…</p></div>
         <p class="note"><a href="/refund">Need a refund?</a></p></section>
       <section class="pf-card"><h3>Preferences</h3>
+        <div class="field"><label>Timer</label>${seg('timer', HC.TIMER_OPTIONS.map((n) => [n, n + 's']), prefs.timer)}</div>
+        ${sw('hollywood', prefs.hollywood, 'Hollywood', 'Movies, shows and famous couples.')}
+        ${sw('bollywood', prefs.bollywood, 'Bollywood', 'Films, songs and famous couples.')}
         ${sw('auto_ramp', prefs.auto_ramp, 'Auto-ramp', 'Heat climbs a level every few cards.')}
         <div class="field"><label>Cards per ramp</label><div class="stepper"><button class="icon-btn" data-cpr="-1" aria-label="Fewer">−</button><b id="pfCpr">${prefs.cards_per_ramp}</b><button class="icon-btn" data-cpr="1" aria-label="More">+</button></div></div>
         <div class="field"><label>Penalties</label>${seg('mode', [['drink', '🍸 Drinks'], ['water', '💧 No alcohol'], ['dare', '🎲 Dares']], prefs.mode)}</div>
         ${sw('sound', !SFX.muted, 'Sound')}
         ${sw('haptics', prefs.haptics, 'Haptics')}
-        <div class="field"><label>Motion</label>${seg('motion', [['system', 'Phone setting'], ['reduce', 'Reduced'], ['full', 'Full']], prefs.motion)}</div>
-        <div class="field"><label>Sound pack ${pro ? '' : '<span class="pro-tag">Pro</span>'}</label>${seg('soundPack', [['classic', 'Classic'], ['velvet', 'Velvet']], pro ? prefs.soundPack : 'classic', !pro)}</div>
-        <div class="field"><label>Home look ${pro ? '' : '<span class="pro-tag">Pro</span>'}</label>${seg('look', [['ember', 'Ember'], ['midnight', 'Midnight'], ['neon', 'Neon']], pro ? prefs.look : 'ember', !pro)}</div>
-        <div class="field"><label>Saved player names ${pro ? '' : '<span class="pro-tag">Pro</span>'}</label>
-          ${pro ? `<div class="chips-row" id="pfNames">${prefs.savedNames.length ? prefs.savedNames.map((n) => `<button class="chip" data-delname="${esc(n)}">${esc(n)} ✕</button>`).join('') : '<span class="note">Names you play with get saved here.</span>'}</div>
+        <div class="field"><label>Reduced motion</label>${seg('motion', [['system', 'Phone setting'], ['reduce', 'On'], ['full', 'Off']], prefs.motion)}</div>
+        <div class="field"><label>Sound pack ${paid ? '' : '<span class="pro-tag">Lite</span>'}</label>${seg('soundPack', [['classic', 'Classic'], ['velvet', 'Velvet', !paid]], paid ? prefs.soundPack : 'classic')}</div>
+        <div class="field"><label>Home look ${prem ? '' : '<span class="pro-tag">Premium</span>'}</label>${seg('look', [['ember', 'Ember'], ['midnight', 'Midnight', !paid], ['neon', 'Neon', !prem]], Prefs.lookOk(prefs.look) ? prefs.look : 'ember')}</div>
+        <div class="field"><label>Saved player names ${prem ? '' : '<span class="pro-tag">Premium</span>'}</label>
+          ${prem ? `<div class="chips-row" id="pfNames">${prefs.savedNames.length ? prefs.savedNames.map((n) => `<button class="chip" data-delname="${esc(n)}">${esc(n)} ✕</button>`).join('') : '<span class="note">Names you play with get saved here.</span>'}</div>
             <div class="row" style="margin-top:8px"><input class="input" id="pfNameIn" maxlength="14" placeholder="Add a name"><button class="btn sm" id="pfNameAdd">Add</button></div>`
             : '<button class="btn ghost sm" data-act="paywall">Unlock saved names</button>'}
         </div>
@@ -448,8 +560,10 @@ const UI = {
       </section>
       <section class="pf-card"><h3>Your stats</h3>
         <div class="pf-stats"><div><b>${st.sessions}</b><span>games played</span></div>
+          <div><b>${st.nights.length}</b><span>nights wrapped</span></div>
           <div><b>${fav ? esc(Games[fav] ? Games[fav].title : fav) : 'None yet'}</b><span>favorite game</span></div>
-          <div><b>${st.topHeat ? `Lv${st.topHeat} ${HEAT[st.topHeat].name}` : 'None yet'}</b><span>highest heat</span></div></div>
+          <div><b>${st.topHeat ? HEAT[st.topHeat].name : 'None yet'}</b><span>highest heat</span></div>
+          ${lastNight ? `<div><b>${lastNight.total}</b><span>points, last night</span></div>` : ''}</div>
       </section>
       <section class="pf-card"><h3>Data and security</h3>
         <div class="col">
@@ -467,16 +581,16 @@ const UI = {
     const el = s.el;
     const on = (sel, fn) => { const b = $(sel, el); if (b) b.onclick = fn; };
     on('#pfSignIn', () => { s.close(); this.signIn({ then: () => this.profile() }); });
+    this.plans($('#pfPlans', el), { onDone: () => this.refreshScreens() });
     $$('[data-pfbuy]', el).forEach((b) => (b.onclick = async () => {
       this.busy(b, true);
       try {
         const r = await Pay.buy(b.dataset.pfbuy);
-        if (r.ok) { s.close(); this.success(b.dataset.pfbuy); return; }
+        if (r.ok) { this.success(b.dataset.pfbuy); return; }
         if (r.error) Core.toast(r.error.message);
-      } catch (e) { Core.toast(e.message); }
+      } catch (e) { Core.toast(e.code === 'already_premium' ? 'You already have Premium.' : e.message); }
       this.busy(b, false);
     }));
-    on('#pfMore', () => this.paywall());
     on('#pfRestore', async () => { await this.afterRestore(); });
     on('#pfOut', async () => { s.close(); await Auth.signOut(); Core.toast('Signed out'); this.refreshScreens(); });
     on('#pfOutAll', async () => {
@@ -496,25 +610,30 @@ const UI = {
     });
     on('#pfDelete', () => this.deleteAccount());
     if (Auth.signedIn() && Auth.profile) {
-      if (Ent.plan() === 'pass') {
-        const t = setInterval(() => { const l = $('#pfLeft', el); if (!l || !el.isConnected) return clearInterval(t); l.textContent = fmtLeft(Ent.passLeft()); }, 1000);
+      if (Ent.profileTier() === 'lite') {
+        const t = setInterval(() => { const l = $('#pfLeft', el); if (!l || !el.isConnected) return clearInterval(t); l.textContent = fmtLeft(Ent.liteLeft()); }, 1000);
       }
       this.loadPurchases(el);
     }
     // preferences
     $$('[data-pref]', el).forEach((g) => g.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
-      if (g.classList.contains('locked')) return this.paywall();
       const k = g.dataset.pref, v = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v;
+      if (b.classList.contains('lk')) return this.paywall({ reason: k === 'look' ? 'look' : null });
       $$('button', g).forEach((x) => x.classList.toggle('on', x === b)); SFX.play('tap');
       Prefs.set({ [k]: v });
-      if (k === 'mode') Prefs.applyNightDefaults();
+      if (k === 'mode' || k === 'timer') Prefs.applyNightDefaults();
     }));
     $$('[data-prefsw]', el).forEach((b) => (b.onclick = () => {
       const k = b.dataset.prefsw;
       if (k === 'sound') { SFX.setMuted(!SFX.muted); b.classList.toggle('on', !SFX.muted); Prefs.set({}); }
       if (k === 'haptics') { const v = !Prefs.get().haptics; Prefs.set({ haptics: v }); b.classList.toggle('on', v); if (v) vibrate(20); }
       if (k === 'auto_ramp') { const v = !Prefs.get().auto_ramp; Prefs.set({ auto_ramp: v }); Prefs.applyNightDefaults(); Core.S.rampCount = 0; Core.save(); b.classList.toggle('on', v); }
+      if (k === 'hollywood' || k === 'bollywood') {
+        const v = !Prefs.get()[k];
+        if (!Core.setOrigin(k, v)) { Core.toast('Keep at least one of Hollywood or Bollywood on'); return; }
+        Prefs.set({ [k]: v }); b.classList.toggle('on', v);
+      }
       SFX.play('tap');
     }));
     $$('[data-cpr]', el).forEach((b) => (b.onclick = () => {
@@ -532,14 +651,14 @@ const UI = {
     try {
       const rows = await Pay.receiptRows();
       const shown = rows.filter((r) => r.status !== 'created');
-      const life = rows.find((r) => r.product === 'lifetime' && r.status === 'paid');
-      const ld = $('#pfLifeDate', el); if (ld && life) ld.textContent = `Bought ${fmtDate(life.paid_at || life.created_at, false)}. Thanks for backing Heat Check.`;
+      const prem = rows.find((r) => r.product === 'premium' && r.status === 'paid');
+      const pd = $('#pfPremDate', el); if (pd && prem) pd.textContent = `Bought ${fmtDate(prem.paid_at || prem.created_at, false)}. Every card, every game. No expiry.`;
       if (!shown.length) { host.innerHTML = '<p class="note">No receipts yet. Suspiciously innocent.</p>'; return; }
       host.innerHTML = `<ul class="pf-purchases">${shown.map((r, i) => `<li>
-        <div><b>${r.product === 'lifetime' ? 'Pro Lifetime' : 'Date Night Pass'}</b><span class="note">${esc(fmtDate(r.paid_at || r.created_at))}</span></div>
+        <div><b>${r.product === 'premium' ? 'Premium' : 'Lite'}</b><span class="note">${esc(fmtDate(r.paid_at || r.created_at))}</span></div>
         <div class="pp-right"><b>${rupees(r.amount_inr)}</b><span class="pp-status ${esc(r.status)}">${r.status === 'paid' ? 'Paid' : 'Failed'}</span>
         ${r.razorpay_payment_id ? `<span class="note">…${esc(r.razorpay_payment_id.slice(-6))}</span>` : ''}</div>
-        ${r.status === 'paid' ? `<button class="btn ghost sm" data-receipt="${i}">Download receipt</button>` : ''}</li>`).join('')}</ul>`;
+        ${r.status === 'paid' ? `<button class="btn ghost sm" data-receipt="${i}">Receipt</button>` : ''}</li>`).join('')}</ul>`;
       $$('[data-receipt]', host).forEach((b) => (b.onclick = () => this.receipt(shown[+b.dataset.receipt])));
     } catch (e) { host.innerHTML = '<p class="note">Couldn’t load purchases. Check your connection.</p>'; }
   },
@@ -553,7 +672,7 @@ const UI = {
         <tr><th>Receipt no.</th><td>HC-${esc(r.id.slice(0, 8).toUpperCase())}</td></tr>
         <tr><th>Date</th><td>${esc(fmtDate(r.paid_at || r.created_at))}</td></tr>
         <tr><th>Billed to</th><td>${esc(Auth.email())}</td></tr>
-        <tr><th>Item</th><td>${r.product === 'lifetime' ? 'Heat Check Pro Lifetime (one-time)' : 'Heat Check Date Night Pass (4 hours)'}</td></tr>
+        <tr><th>Item</th><td>${r.product === 'premium' ? 'Heat Check Premium (one-time, lifetime)' : 'Heat Check Lite (1 hour)'}</td></tr>
         <tr><th>Amount</th><td>${rupees(r.amount_inr)} ${esc(r.currency || 'INR')}</td></tr>
         <tr><th>Status</th><td>Paid</td></tr>
         <tr><th>Payment ID</th><td>${esc(r.razorpay_payment_id || '')}</td></tr>
@@ -575,7 +694,7 @@ const UI = {
   deleteAccount() {
     const s = this.sheet(`
       <div data-step="warn"><h2>Delete your account?</h2>
-        <p class="muted">Your profile, preferences, stats and free hot card history are deleted. Purchase records are kept without your name or email, because the law says we keep payment records. Any Pro access ends.</p>
+        <p class="muted">Your profile, preferences, stats and free hot card history are deleted. Purchase records are kept without your name or email, because the law says we keep payment records. Lite or Premium access ends.</p>
         <p class="form-err" id="daErr" role="alert" hidden></p>
         <div class="col"><button class="btn block danger-solid" id="daStart">Email me a code to confirm</button><button class="btn block ghost" data-close>Keep my account</button></div></div>
       <div data-step="code" hidden><h2>Enter the code</h2><p class="muted">We emailed a 6-digit code to <b>${esc(Auth.email())}</b>.</p>
@@ -635,11 +754,12 @@ const UI = {
         <section class="pf-card"><h3>Numbers</h3><div class="pf-stats ad-stats" id="adStats"><p class="note">Counting…</p></div></section>
         <section class="pf-card"><h3>Grant or revoke</h3>
           <input class="input" id="adEmail" type="email" placeholder="their@email.com" autocapitalize="off">
-          <div class="row ad-row"><button class="btn sm" data-grant="grant_pass">+ Pass</button><button class="btn sm alt" data-grant="grant_lifetime">+ Lifetime</button><button class="btn sm ghost" data-grant="revoke">Revoke</button></div>
+          <div class="row ad-row"><button class="btn sm" data-grant="grant_lite">+ Lite (1 hour)</button><button class="btn sm alt" data-grant="grant_premium">+ Premium</button><button class="btn sm ghost" data-grant="revoke">Revoke</button></div>
           <p class="note" id="adGrantMsg"></p></section>
         <section class="pf-card"><h3>Games</h3><div id="adGames"><p class="note">Loading…</p></div></section>
-        <section class="pf-card"><h3>Lv3 cards</h3>
+        <section class="pf-card"><h3>Paid cards</h3>
           <div class="row ad-row"><select class="input" id="adGame">${GAME_IDS.map((g) => `<option value="${g}">${esc(Games[g].title)}</option>`).join('')}</select>
+            <select class="input" id="adHeat"><option value="3">Hot</option><option value="2">Spicy</option></select>
             <button class="btn sm" id="adNew">+ New</button></div>
           <div id="adForm"></div><div id="adCards"><p class="note">Loading…</p></div></section>
       </div>`, { full: true, cls: 'admin' });
@@ -648,7 +768,7 @@ const UI = {
     const fail = (e) => { Core.toast(e.message); if (e.code === 'admin_locked') s.close(); };
     // stats
     Admin.api('GET', '/api/admin/stats').then((st) => {
-      const tiles = [['signups', 'signups'], ['signups_7d', 'new this week'], ['pass_sales', 'passes sold'], ['lifetime_sales', 'lifetimes sold'], ['revenue_inr', 'revenue'], ['active_passes', 'passes live now']];
+      const tiles = [['signups', 'signups'], ['signups_7d', 'new this week'], ['lite_sales', 'Lite sold'], ['premium_sales', 'Premium sold'], ['revenue_inr', 'revenue'], ['active_lite', 'Lite live now'], ['premium_members', 'Premium members']];
       $('#adStats', el).innerHTML = tiles.map(([k, l]) => `<div><b>${k === 'revenue_inr' ? rupees(st[k] || 0) : esc(String(st[k] ?? 0))}</b><span>${l}</span></div>`).join('');
     }).catch(fail);
     // grants
@@ -658,7 +778,7 @@ const UI = {
       this.busy(b, true, '…');
       try {
         const r = await Admin.api('POST', '/api/admin/grant', { email, action: b.dataset.grant });
-        msg.textContent = `${r.email}: ${r.plan}${r.premium_until && r.plan === 'pass' ? ' until ' + fmtDate(r.premium_until) : ''}`;
+        msg.textContent = `${r.email}: ${r.plan}${r.premium_until && r.plan === 'lite' ? ' until ' + fmtDate(r.premium_until) : ''}`;
       } catch (e) { msg.textContent = e.message; }
       finally { this.busy(b, false); }
     }));
@@ -676,25 +796,29 @@ const UI = {
     const CATS = ['Movie', 'TV Show', 'Song'], ORIGINS = ['Hollywood', 'Bollywood', 'Global'];
     let cards = [];
     const form = (c) => {
-      const g = $('#adGame', el).value, x = (c && c.extra) || {};
+      const g = $('#adGame', el).value, x = (c && c.extra) || {}, heat = c ? c.heat : +$('#adHeat', el).value;
       $('#adForm', el).innerHTML = `<div class="ad-form">
         <textarea class="input" id="cfText" rows="3" maxlength="400" placeholder="Card text">${c ? esc(c.text) : ''}</textarea>
         ${HC.modeOf(g) === 'couples' && g !== 'charades' ? `<textarea class="input" id="cfDare" rows="2" maxlength="400" placeholder="Optional dare">${c && c.optional_dare ? esc(c.optional_dare) : ''}</textarea>` : ''}
         ${g === 'wyr' ? `<input class="input" id="cfA" maxlength="200" placeholder="Option A" value="${esc(x.a || '')}"><input class="input" id="cfB" maxlength="200" placeholder="Option B" value="${esc(x.b || '')}">` : ''}
-        ${g === 'charades' ? `<select class="input" id="cfCat">${CATS.map((z) => `<option ${x.category === z ? 'selected' : ''}>${z}</option>`).join('')}</select><select class="input" id="cfOrigin">${ORIGINS.map((z) => `<option ${x.origin === z ? 'selected' : ''}>${z}</option>`).join('')}</select>` : ''}
-        <div class="toggle"><div><b>Free Hot card (taste)</b><div class="note">Only one per game is used. Served by /api/taste only.</div></div><button class="switch ${c && c.is_taste ? 'on' : ''}" id="cfTaste" aria-label="Taste card"></button></div>
+        ${g === 'charades' ? `<select class="input" id="cfCat">${CATS.map((z) => `<option ${x.category === z ? 'selected' : ''}>${z}</option>`).join('')}</select>` : ''}
+        <select class="input" id="cfOrigin"><option value="">No origin tag</option>${ORIGINS.map((z) => `<option ${x.origin === z ? 'selected' : ''}>${z}</option>`).join('')}</select>
+        ${g === 'redflag' ? `<div class="toggle"><div><b>Trait question</b><div class="note">A normal red or green vote question.</div></div><button class="switch ${x.kind === 'trait' ? 'on' : ''}" id="cfTrait" aria-label="Trait card"></button></div>` : ''}
+        <p class="note">${heat === 2 ? 'Spicy: Lite and Premium.' : 'Hot: Premium, Lite (3 per game), free Hot card.'}</p>
+        ${heat === 3 ? `<div class="toggle"><div><b>Free Hot card (taste)</b><div class="note">Only one per game is used. Served by /api/taste only.</div></div><button class="switch ${c && c.is_taste ? 'on' : ''}" id="cfTaste" aria-label="Taste card"></button></div>` : ''}
         <div class="toggle"><div><b>Active</b></div><button class="switch ${!c || c.active ? 'on' : ''}" id="cfActive" aria-label="Active"></button></div>
         <div class="row ad-row"><button class="btn sm" id="cfSave">${c ? 'Save' : 'Add card'}</button><button class="btn sm ghost" id="cfCancel">Cancel</button></div>
         <p class="note" id="cfMsg"></p></div>`;
       $('#cfActive', el).onclick = (e) => e.currentTarget.classList.toggle('on');
-      $('#cfTaste', el).onclick = (e) => e.currentTarget.classList.toggle('on');
+      $$('#cfTaste, #cfTrait', el).forEach((b) => (b.onclick = (e) => e.currentTarget.classList.toggle('on')));
       $('#cfCancel', el).onclick = () => ($('#adForm', el).innerHTML = '');
       $('#cfSave', el).onclick = async (e) => {
-        const extra = g === 'wyr' ? { a: $('#cfA', el).value, b: $('#cfB', el).value } : g === 'charades' ? { category: $('#cfCat', el).value, origin: $('#cfOrigin', el).value } : {};
+        const origin = $('#cfOrigin', el).value || undefined;
+        const extra = g === 'wyr' ? { a: $('#cfA', el).value, b: $('#cfB', el).value } : g === 'charades' ? { category: $('#cfCat', el).value, origin } : { origin, kind: $('#cfTrait', el) && $('#cfTrait', el).classList.contains('on') ? 'trait' : undefined };
         const dareEl = $('#cfDare', el);
         this.busy(e.currentTarget, true, 'Saving…');
         try {
-          await Admin.api('POST', '/api/admin/cards', { id: c ? c.id : undefined, game: g, text: $('#cfText', el).value, optional_dare: dareEl ? dareEl.value : '', extra, active: $('#cfActive', el).classList.contains('on'), is_taste: $('#cfTaste', el).classList.contains('on') });
+          await Admin.api('POST', '/api/admin/cards', { id: c ? c.id : undefined, game: g, heat, text: $('#cfText', el).value, optional_dare: dareEl ? dareEl.value : '', extra, active: $('#cfActive', el).classList.contains('on'), is_taste: !!($('#cfTaste', el) && $('#cfTaste', el).classList.contains('on')) });
           $('#adForm', el).innerHTML = ''; loadCards(); Premium.loaded = false; Premium.load();
           Core.toast(c ? 'Card saved' : 'Card added');
         } catch (err) { $('#cfMsg', el).textContent = err.message; this.busy($('#cfSave', el), false); }
@@ -703,60 +827,20 @@ const UI = {
     const loadCards = () => {
       const g = $('#adGame', el).value;
       $('#adCards', el).innerHTML = '<p class="note">Loading…</p>';
-      Admin.api('GET', '/api/admin/cards?game=' + encodeURIComponent(g)).then((rows) => {
+      Admin.api('GET', '/api/admin/cards?game=' + encodeURIComponent(g) + '&heat=' + $('#adHeat', el).value).then((rows) => {
         cards = rows;
-        $('#adCards', el).innerHTML = rows.length ? `<ul class="ad-cards">${rows.map((c, i) => `<li class="${c.active ? '' : 'off'}"><span>${c.is_taste ? '<b class="pro-tag">Taste</b> ' : ''}${esc(c.text)}</span><button class="btn ghost sm" data-edit="${i}">Edit</button></li>`).join('')}</ul>` : '<p class="note">No Lv3 cards for this game yet.</p>';
+        $('#adCards', el).innerHTML = rows.length ? `<ul class="ad-cards">${rows.map((c, i) => `<li class="${c.active ? '' : 'off'}"><span>${c.is_taste ? '<b class="pro-tag">Taste</b> ' : ''}${esc(c.text)}</span><button class="btn ghost sm" data-edit="${i}">Edit</button></li>`).join('')}</ul>` : '<p class="note">No cards at this heat for this game yet.</p>';
         $$('[data-edit]', el).forEach((b) => (b.onclick = () => { form(cards[+b.dataset.edit]); $('#adForm', el).scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
       }).catch(fail);
     };
-    $('#adGame', el).onchange = () => { $('#adForm', el).innerHTML = ''; loadCards(); };
+    $('#adGame', el).onchange = $('#adHeat', el).onchange = () => { $('#adForm', el).innerHTML = ''; loadCards(); };
     $('#adNew', el).onclick = () => form(null);
     loadCards();
   },
 };
 
-/* ---------- Hot is locked: a quiet chip, at most once per session. Never nags. ---------- */
-const Lock = {
-  rampLocked(game) {
-    try { if (sessionStorage.getItem('hc_hotchip')) return; sessionStorage.setItem('hc_hotchip', '1'); } catch (e) {}
-    const chip = document.createElement('div');
-    chip.className = 'hot-chip'; chip.setAttribute('role', 'status');
-    const action = !Auth.signedIn() ? '<button class="linkish" data-hc="signin">Sign in to try Hot</button>'
-      : Taste.canClaim(game) ? '<button class="linkish" data-hc="taste">Use your free Hot card?</button>'
-      : '<button class="linkish" data-act="paywall">Unlock</button>';
-    chip.innerHTML = `<span aria-hidden="true">🔒</span> Hot is locked. ${action}<button class="hc-x" aria-label="Dismiss">✕</button>`;
-    document.getElementById('app').appendChild(chip);
-    const close = () => { chip.classList.add('out'); setTimeout(() => chip.remove(), 240); };
-    const t = setTimeout(close, 6000);
-    chip.addEventListener('click', async (e) => {
-      const b = e.target.closest('button'); if (!b) return;
-      clearTimeout(t); close();
-      if (b.dataset.hc === 'signin') UI.signIn({ reason: 'Sign in and every game gives you one free Hot card.' });
-      if (b.dataset.hc === 'taste') { try { await Taste.claim(game); Core.toast('Your free Hot card is up next'); } catch (err) { Core.toast(err.message); } }
-    });
-  },
-};
-
-/* HUD: once this game's free Hot card is spent (and no Pro), say so plainly with a way out */
-(() => {
-  const orig = Core.updateHud.bind(Core);
-  Core.updateHud = function () {
-    orig();
-    const hud = $('.hud'); if (!hud) return;
-    const game = Core.game;
-    let strip = $('.hot-lock', hud);
-    const show = game && !Ent.pro() && Auth.signedIn() && Taste.used(game) && !Taste.showing && !Taste.pendingFor(game);
-    if (!show) { if (strip) strip.remove(); return; }
-    if (!strip) {
-      strip = document.createElement('div');
-      strip.className = 'hot-lock';
-      strip.innerHTML = '<span class="hl-badge" aria-hidden="true">🔒</span><span class="hl-text">Still at Spicy. Hot is locked.</span><button class="linkish" data-act="paywall">Unlock</button>';
-      const heat = $('.heat', hud); heat ? heat.after(strip) : hud.appendChild(strip);
-    }
-  };
-})();
 
 /* Admin pass chip opens the panel */
 document.addEventListener('click', (e) => { const a = e.target.closest('[data-act="admin"]'); if (a) UI.admin(); });
 
-Object.assign(window, { UI, Lock });
+Object.assign(window, { UI });
