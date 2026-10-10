@@ -71,8 +71,7 @@ const App = {
     if (!consented) return this.consent(() => this.choose(id));
     if (Core.players().length < this.minPlayers()) { this.pendingGame = id; return this.setup(); }
     if (window.Taste && Taste.armed) {
-      if (Taste.canClaim(id)) { try { await Taste.claim(id); Core.toast('Your free Hot card is up first'); } catch (e) { Core.toast(e.message); } }
-      else { Taste.armed = false; Core.toast(Taste.used(id) ? 'This game’s free Hot card is used. Still at Spicy.' : 'Hot stays locked'); }
+      if (!Taste.canClaim(id)) { Taste.armed = false; Core.toast(Taste.used(id) ? 'This game’s free Hot card is used. Still at Spicy.' : 'Hot stays locked'); }
     }
     this.play(id);
   },
@@ -81,6 +80,8 @@ const App = {
     if (Core.players().length < this.minPlayers()) { this.pendingGame = id; return this.setup(); }
     SFX.unlock(); SFX.play('tap');
     Core.game = id;
+    Core.dealt = {};
+    gateWait = null;
     window.Stats && Stats.game(id);
     Core.stopTimers();
     Core._wantWake = true; Core.wake(true);
@@ -144,8 +145,8 @@ const App = {
 
       <div class="field"><label>Timer</label>${seg('timer', HC.TIMER_OPTIONS.map((n) => [n, n + 's']))}<p class="note">Every timed game uses this clock.</p></div>
       <div class="spacer"></div>
-      ${sw('hollywood', 'Hollywood', 'Movies, shows and famous couples from Hollywood.')}
-      ${sw('bollywood', 'Bollywood', 'Films, songs and famous couples from Bollywood.')}
+      ${sw('hollywood', 'Hollywood', 'Movies, shows and songs from Hollywood.')}
+      ${sw('bollywood', 'Bollywood', 'Films, shows and songs from Bollywood.')}
       <div class="spacer"></div>
       ${sw('autoRamp', 'Auto-ramp', 'Heat climbs one level every few cards, up to the highest level you have.')}
       <div class="field" id="rpl" ${st.autoRamp ? '' : 'hidden'}><label>Cards per ramp</label>
