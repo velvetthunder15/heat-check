@@ -10,10 +10,15 @@ compatibility_date = "2026-09-01"
 # Change this when the custom .app/.dev domain is live. Everything (CORS, canonical,
 # og tags, manifest, sitemap) follows it.
 SITE_URL = "https://heat-check-a9b.pages.dev"
+# Public values (safe to commit). Secrets live in the Pages dashboard.
+SUPABASE_URL = "https://cpxfmecrqxlfzcldolcj.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNweGZtZWNycXhsZnpjbGRvbGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MzQzNDIsImV4cCI6MjEwNzIxMDM0Mn0.bBOPCeS4IWoz3DvqmyBbeQ5i_L8QFCxZjiTqvja6gW4"
+RAZORPAY_KEY_ID = "rzp_test_TmDRFw0ATreIut"
+TURNSTILE_SITE_KEY = "0x4AAAAAAFTH086q2Amv_Y0F"
 
 # Rate limiting store. Create it once:
 #   npx wrangler kv namespace create RATE_KV
 # then paste the id below and remove the leading # on the three lines.
-# [[kv_namespaces]]
-# binding = "RATE_KV"
-# id = "PASTE_KV_NAMESPACE_ID"
+[[kv_namespaces]]
+binding = "RATE_KV"
+id = "9fff546c2b7c42e48878e09676d71cc9"
