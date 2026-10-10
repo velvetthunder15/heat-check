@@ -21,6 +21,7 @@ const BANNED_SCENARIO = [...BANNED_GROUP, /\byour date\b/i];
 const BANNED_NHIE = [...BANNED_EXTERNAL, ...BANNED_GROUP, /\bwe\b/i];
 const MIN_PER_LEVEL = { redflag: 30, nhie: 30, charades: 30, mostlikely: 30, twotruths: 30 };
 const MIN_TRAITS = 30;
+const MEDIA_RE = /\b(k-?drama|bollywood|hollywood|marvel|dc\b|movie|film|filmy|tv show|sitcom|series|season \d|episode|netflix show)\b/i;
 const CHARADE_CATS = ['Movie', 'TV Show', 'Song'];
 const ORIGINS = ['Hollywood', 'Bollywood', 'Global'];
 
@@ -67,6 +68,9 @@ for (const f of files) {
         for (const re of BANNED_EXTERNAL) if (re.test(c.text)) fail(`${where}: trait card uses ${re}`);
         if (!/\?$/.test(c.text)) fail(`${where}: trait card must be a question`);
       } else for (const re of BANNED_SCENARIO) if (re.test(c.text)) fail(`${where}: scenario uses ${re}`);
+      // No film or TV references in Red Flag (Oct 2026): everyday scenarios only
+      if (c.origin != null) fail(`${where}: Red Flag cards take no Hollywood/Bollywood origin`);
+      if (MEDIA_RE.test(c.text)) fail(`${where}: Red Flag card references a film or show`);
     }
     if (id === 'nhie') {
       for (const re of BANNED_NHIE) if (re.test(c.text)) fail(`${where}: statement uses ${re}`);
