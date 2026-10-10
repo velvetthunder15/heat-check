@@ -139,7 +139,7 @@ select.input { appearance: none; -webkit-appearance: none; }
 .rc-actions { display: flex; gap: 8px; margin-top: 16px; }
 .receipt .btn.ghost { color: #1a1a1a; border-color: #ccc; }
 @media print {
-  body.printing #app > *:not(.receipt-wrap), body.printing #pause, body.printing #splash, body.printing #amb { display: none !important; }
+  body.printing #app > *:not(.receipt-wrap), body.printing #splash, body.printing #amb { display: none !important; }
   body.printing, body.printing #app { background: #fff !important; }
   body.printing .receipt-wrap { position: static; background: none; padding: 0; }
   body.printing .receipt { box-shadow: none; border-radius: 0; max-width: none; }
