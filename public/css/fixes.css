@@ -16,3 +16,7 @@ button.scores { width: 100%; padding: 0; background: none; border: 0; color: inh
 .doc a { color: #ffb03b; }
 .doc ul { padding-left: 20px; }
 .gate .logo.small { font-size: 44px; line-height: 1; }
+
+/* Home wordmark image (replaces the text logo) */
+.home-head .logo.logo-img { margin: 0; padding: 0; font-size: 0; line-height: 0; flex: 0 1 auto; min-width: 0; -webkit-touch-callout: none; user-select: none; }
+.home-head .logo.logo-img img { display: block; width: auto; height: 64px; max-width: 48vw; object-fit: contain; pointer-events: none; }
