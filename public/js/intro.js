@@ -5,7 +5,7 @@
 
 const MICRO = [
   'Phones down. Well, except this one.',
-  'Rule one: the Pass button is not a personality.',
+  'Rule one: Chicken Out is not a personality.',
   'Somebody’s blushing by round four. Place your bets.',
   'Lights low, volume up, dignity optional.',
   'You brought the snacks. We brought the questions.',
@@ -42,10 +42,13 @@ const Intro = {
     } catch (e) {}
     return MICRO[n % MICRO.length];
   },
+  // One shared style for every tile tag (uppercase, bold): see .t-hot in tiers.css
   hotBadge(id) {
-    if (Ent.pro()) return '<span class="t-hot open">Hot open</span>';
-    if (!Taste.available()) return '<span class="t-hot">Hot: Pro</span>';
-    return Taste.used(id) ? '<span class="t-hot">Hot locked</span>' : '<span class="t-hot free">1 free Hot card</span>';
+    const t = Ent.tier();
+    if (t === 'premium') return '<span class="t-hot open">Hot open</span>';
+    if (t === 'lite') { const left = Limits.hotLeft(id); return left > 0 ? `<span class="t-hot open">Hot open · ${left} left</span>` : '<span class="t-hot">Hot used</span>'; }
+    if (t === 'base' && Taste.canClaim(id)) return '<span class="t-hot free">1 free Hot card</span>';
+    return '<span class="t-hot">Hot locked</span>';
   },
   avatar() {
     if (Auth.signedIn()) {
@@ -67,10 +70,11 @@ const Intro = {
     const mode = side === 'group' ? { drink: '🍸 Sips', water: '💧 No alcohol' }[Core.S.group.mode] : { drink: '🍸 Drinks', water: '💧 Water', dare: '🎲 Dares only' }[Core.S.settings.mode];
     return `
       <div class="home-head"><div class="logo logo-img" id="logo"><img src="/logo-wordmark.webp" width="694" height="289" alt="Heat Check" draggable="false" decoding="async" fetchpriority="high" /></div>
-        <div class="row head-actions"><span id="passChipSlot"></span>
+        <div class="row head-actions">
           <button class="icon-btn" data-act="mute" aria-label="Sound">${SFX.muted ? '🔇' : '🔊'}</button>
           <button class="icon-btn" id="cfg" aria-label="Players and settings">⚙️</button>
           <span id="avatarSlot">${this.avatar()}</span></div></div>
+      <div id="passBanner" class="pass-banner-slot"></div>
 
       <div class="side-switch" role="tablist" aria-label="Who's playing">
         <button role="tab" data-side="couples" aria-selected="${side === 'couples'}" class="${side === 'couples' ? 'on' : ''}">Couples</button>
@@ -98,7 +102,8 @@ const Intro = {
       </section>
 
       <div class="home-sub">${who}<br>
-        <span class="heat-badge" style="background:#ffffff14;margin-top:8px">${mode}</span></div>
+        <span class="heat-badge" style="background:#ffffff14;margin-top:8px">${mode}</span>
+        ${App.nightActive() ? '<div><button class="btn sm end-night" id="endNight">End night</button></div>' : ''}</div>
 
       <h2 class="stack-title" id="pick">Pick your poison</h2>
       <section class="stack" id="stack">
@@ -109,7 +114,7 @@ const Intro = {
         ${games.length ? '' : '<p class="note center">Every game here is taking a breather. Check back in a bit.</p>'}
       </section>
 
-      <div class="center" style="padding:0 18px 40px"><button class="btn ghost sm" id="reset">New night: reset heat & scores</button>
+      <div class="center" style="padding:0 18px 40px">
         <nav class="legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/refund">Refunds</a></nav></div>`;
   },
 
@@ -146,7 +151,7 @@ const Intro = {
     if (!btn) return;
     const ROT = HC.ROTATION_MS;
     const fill = $('.ring-fill', btn), base = $('.ring-base', btn), word = $('#holdWord'), sub = $('#holdSub'), line = $('#holdLine');
-    let raf = 0, t0 = 0, holding = false, completed = 0, blocked = false, shown = 0;
+    let raf = 0, t0 = 0, holding = false, completed = 0, blocked = 0, shown = 0;
 
     const paint = (level, frac) => {
       // base ring = the last completed level in full; fill = progress into the next turn
@@ -165,18 +170,18 @@ const Intro = {
         window.Motion && Motion.setHeat && Motion.setHeat(Math.max(0.05, lv / 3));
       }
     };
-    const label = (lv) => { word.textContent = lv ? HEAT[lv].name : 'Hold'; };
-    const lockMessage = () => {
-      if (!Auth.signedIn()) return '<span class="lk" aria-hidden="true">🔒</span> <button class="linkish" data-ring="signin">Sign in to try Hot</button>';
-      if (Taste.unusedAny()) return '<span class="lk" aria-hidden="true">🔒</span> <button class="linkish" data-ring="taste">Use your free Hot card?</button>';
-      return '<span class="lk" aria-hidden="true">🔒</span> Still at Spicy. Hot is locked. <button class="linkish" data-act="paywall">Unlock</button>';
+    // The ring is the heat selector: each level shows its penalty points
+    const label = (lv) => { word.textContent = lv ? HEAT[lv].name : 'Hold'; sub.textContent = !lv ? 'hold to heat check' : Taste.armed && !holding ? 'free Hot card armed' : `${ptsWord(pts(lv))} penalty`; };
+    const lockMessage = (level) => {
+      const info = UI.lockInfo(level, null);
+      return info ? `<span class="lk" aria-hidden="true">${icon('lock')}</span> <span>${esc(info.text)}</span> ${UI.lockActions(info)}` : '';
     };
     const sync = () => {
       if (holding) return;
       const h = Core.heat(); shown = h;
       paint(h, 0); label(h);
-      sub.textContent = Taste.armed ? 'free Hot card armed' : 'hold to heat check';
-      hero.classList.toggle('burning', h === 3 && Ent.pro());
+      if (!Taste.armed) sub.textContent = `${ptsWord(pts(h))} penalty`;
+      hero.classList.toggle('burning', h === 3 && Core.heatCap() === 3);
     };
     // Animate the ring from one level to another (reset, auto-ramp, release)
     const sweep = (from, to) => {
@@ -195,22 +200,24 @@ const Intro = {
       const turns = (t - t0) / ROT;
       let done = Math.min(3, Math.floor(turns)), frac = turns - Math.floor(turns);
       if (done >= 3) frac = 0;
-      if (done >= allowedMax && allowedMax < 3) {
-        // Hot not allowed: the third turn never engages
+      // A locked level never engages: the ring holds at the highest allowed level and shakes.
+      // Holding on into the next turn swaps the message to that level's lock (Spicy, then Hot).
+      if (allowedMax < 3 && turns >= allowedMax + 0.15) {
+        const tried = Math.min(3, Math.floor(turns - 0.15) + 1);
         done = allowedMax; frac = 0;
-        if (!blocked) {
-          blocked = true;
+        if (blocked !== tried) {
+          blocked = tried;
           hero.classList.remove('locked'); void hero.offsetWidth; hero.classList.add('locked');
           vibrate([40, 40, 40]); SFX.play('buzzer');
-          line.innerHTML = lockMessage();
+          line.innerHTML = lockMessage(tried);
         }
-      }
+      } else if (allowedMax < 3 && done >= allowedMax) { done = allowedMax; }
       if (done > completed) {
         completed = done;
         label(done); vibrate(done === 3 ? [30, 30, 60, 30, 90] : 18); SFX.play('softtick');
-        if (done === 1) line.textContent = 'Flirty. Cute. Suspicious, but cute.';
-        if (done === 2 && !blocked) line.textContent = 'Spicy. Somebody open a window.';
-        if (done === 3) { line.textContent = 'Hot. No locks tonight.'; Burn.play(hero); }
+        if (done === 1 && !blocked) line.textContent = `Flirty · ${ptsWord(pts(1))} penalty. Cute. Suspicious, but cute.`;
+        if (done === 2 && !blocked) line.textContent = `Spicy · ${ptsWord(pts(2))} penalty. Somebody open a window.`;
+        if (done === 3) { line.textContent = `Hot · ${ptsWord(pts(3))} penalty. No locks tonight.`; Burn.play(hero); }
       }
       paint(done, frac);
       if (done < 3) raf = requestAnimationFrame(step);
@@ -220,7 +227,7 @@ const Intro = {
       if (e && e.cancelable) e.preventDefault();
       if (e && e.pointerId != null) { try { btn.setPointerCapture(e.pointerId); } catch (err) {} }
       SFX.unlock();
-      holding = true; completed = 0; blocked = false; t0 = performance.now();
+      holding = true; completed = 0; blocked = 0; t0 = performance.now();
       hero.classList.remove('locked', 'burning'); Burn.stop(hero); hero.classList.add('holding'); app.classList.add('warming');
       line.textContent = 'Keep holding…';
       paint(0, 0); label(0);
@@ -234,7 +241,7 @@ const Intro = {
         const set = Core.setHeat(completed);   // clamps to what this account may play, resets the ramp
         shown = set; paint(set, 0); label(set);
         hero.classList.toggle('burning', set === 3);
-        if (!blocked) line.textContent = set === 3 ? 'Hot it is. Behave. Or don’t.' : `Locked in: ${HEAT[set].name}.`;
+        if (!blocked) line.textContent = set === 3 ? `Hot it is · ${ptsWord(pts(3))} penalty. Behave. Or don’t.` : `Locked in: ${ptsLabel(set)}.`;
         const pick = $('#pick');
         if (pick) setTimeout(() => pick.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' }), 160);
       } else {
@@ -249,20 +256,23 @@ const Intro = {
     btn.addEventListener('contextmenu', (e) => e.preventDefault());
     btn.addEventListener('keydown', (e) => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) start(e); });
     btn.addEventListener('keyup', (e) => { if (e.key === ' ' || e.key === 'Enter') end(); });
-    hero.addEventListener('click', async (e) => {
-      const r = e.target.closest('[data-ring]'); if (!r) return;
-      if (r.dataset.ring === 'signin') UI.signIn({ reason: 'Sign in and every game gives you one free Hot card.', then: () => Intro.refresh() });
-      if (r.dataset.ring === 'taste') { Taste.armed = true; sub.textContent = 'free Hot card armed'; line.textContent = 'Armed. Pick a game: its first card is Hot.'; vibrate(20); }
+    hero.addEventListener('click', (e) => {
+      const r = e.target.closest('[data-lock]'); if (!r) return;
+      SFX.play('tap');
+      UI.lockAct(r.dataset.lock, null, () => {
+        if (Taste.armed) { sub.textContent = 'free Hot card armed'; line.textContent = 'Armed. Pick a game: its first card is Hot.'; vibrate(20); }
+        else Intro.refresh();
+      });
     });
     $('#ringReset').onclick = () => {
       const from = Core.heat();
       Core.resetHeat(); Taste.armed = false; shown = 1;
       hero.classList.remove('burning', 'locked'); Burn.stop(hero);
-      line.textContent = 'Back to Flirty. Ramp counter reset.';
+      line.textContent = `Back to Flirty · ${ptsWord(pts(1))} penalty. Ramp counter reset.`;
       sweep(from, 1); vibrate(12); SFX.play('tap');
     };
     this.ring = { sync, sweep };
-    const off = Bus.on((type) => { if (type === 'heat' && !holding) { const to = Core.heat(); if (to !== shown) { sweep(shown, to); shown = to; } hero.classList.toggle('burning', to === 3 && Ent.pro()); } });
+    const off = Bus.on((type) => { if (type === 'heat' && !holding) { const to = Core.heat(); if (to !== shown) { sweep(shown, to); shown = to; } hero.classList.toggle('burning', to === 3 && Core.heatCap() === 3); } });
     sync();
     this._cleanup.push(() => { holding = false; cancelAnimationFrame(raf); off(); app.classList.remove('warming'); Burn.stop(hero); this.ring = null; });
   },
