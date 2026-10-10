@@ -1,0 +1,19 @@
+# Cloudflare Pages project config (Git-based deploys read this file).
+# Build command: node tools/build.mjs     Output directory: dist
+# Secrets (SUPABASE_SERVICE_KEY, RAZORPAY_KEY_SECRET, ...) are set in the
+# Pages dashboard or with `wrangler pages secret put NAME`, never here.
+name = "heat-check"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-09-01"
+
+[vars]
+# Change this when the custom .app/.dev domain is live. Everything (CORS, canonical,
+# og tags, manifest, sitemap) follows it.
+SITE_URL = "https://heat-check.pages.dev"
+
+# Rate limiting store. Create it once:
+#   npx wrangler kv namespace create RATE_KV
+# then paste the id below and remove the leading # on the three lines.
+# [[kv_namespaces]]
+# binding = "RATE_KV"
+# id = "PASTE_KV_NAMESPACE_ID"
