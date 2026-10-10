@@ -22,18 +22,44 @@ const Core = {
   _pass: null,
   root() { return document.getElementById('app'); },
 
+  game: null, // id of the game on screen
   defaults() {
     return {
+      side: 'couples',
       couples: [{ a: '', b: '' }],
-      settings: { mode: 'drink', startHeat: 1, maxHeat: 3, ramp: true, roundsPerLevel: 6, strip: true, layers: 5 },
-      scores: {}, layers: {}, round: 0, turn: 0,
+      group: { players: ['', '', ''], mode: 'drink' },
+      settings: { mode: 'drink', autoRamp: true, cardsPerRamp: HC.RAMP_DEFAULT, layers: 5 },
+      heat: 1, rampCount: 0,
+      scores: {}, layers: {}, named: {}, round: 0, turn: 0,
     };
   },
   load() {
-    try { this.S = Object.assign(this.defaults(), JSON.parse(localStorage.getItem('hc_state') || '{}')); }
-    catch (e) { this.S = this.defaults(); }
-    this.S.settings = Object.assign(this.defaults().settings, this.S.settings);
+    const d = this.defaults();
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem('hc_state') || '{}') || {}; } catch (e) {}
+    this.S = Object.assign(d, saved);
+    const st = saved.settings || {};
+    // Only known settings survive; anything retired from older builds is dropped here
+    this.S.settings = {
+      mode: ['drink', 'water', 'dare'].includes(st.mode) ? st.mode : 'drink',
+      autoRamp: st.autoRamp !== false,
+      cardsPerRamp: Math.min(HC.RAMP_MAX, Math.max(HC.RAMP_MIN, Math.round(+st.cardsPerRamp || HC.RAMP_DEFAULT))),
+      layers: [3, 4, 5, 6].includes(+st.layers) ? +st.layers : 5,
+    };
+    this.S.side = this.S.side === 'group' ? 'group' : 'couples';
+    const g = saved.group || {};
+    this.S.group = { players: Array.isArray(g.players) ? g.players.map((n) => String(n || '').slice(0, 14)).slice(0, HC.GROUP_MAX) : ['', '', ''], mode: g.mode === 'water' ? 'water' : 'drink' };
+    while (this.S.group.players.length < HC.GROUP_MIN) this.S.group.players.push('');
+    this.S.named = this.S.named && typeof this.S.named === 'object' ? this.S.named : {};
+    // Every session starts at Lv1 with a fresh ramp
+    let fresh = true;
+    try { fresh = !sessionStorage.getItem('hc_session'); sessionStorage.setItem('hc_session', '1'); } catch (e) {}
+    if (fresh) { this.S.heat = 1; this.S.rampCount = 0; }
+    this.S.heat = [1, 2, 3].includes(+this.S.heat) ? +this.S.heat : 1;
+    this.S.rampCount = Math.max(0, +this.S.rampCount || 0);
+    this.save();
   },
+  isGroup() { return this.S.side === 'group'; },
   save() { localStorage.setItem('hc_state', JSON.stringify(this.S)); },
 
   async loadCards() {
@@ -42,9 +68,14 @@ const Core = {
   },
 
   /* ---------- players ---------- */
-  /* Free play is up to 4 people (2 couples). Pro: unlimited. */
-  activeCouples() { return window.Ent && Ent.unlimitedPlayers() ? this.S.couples : this.S.couples.slice(0, 2); },
+  /* Free play is up to 4 people (2 couples, or 4 in a group). Pro: unlimited. */
+  activeCouples() { return window.Ent && Ent.unlimitedPlayers() ? this.S.couples : this.S.couples.slice(0, HC.FREE_PLAYERS / 2); },
   players() {
+    if (this.isGroup()) {
+      const cap = window.Ent && Ent.unlimitedPlayers() ? HC.GROUP_MAX : HC.FREE_PLAYERS;
+      // No pairing in groups: everyone gets their own slot
+      return this.S.group.players.map((n) => String(n).trim()).filter(Boolean).slice(0, cap).map((name, i) => ({ name, couple: 1000 + i }));
+    }
     const out = [];
     this.activeCouples().forEach((c, ci) => {
       if (c.a.trim()) out.push({ name: c.a.trim(), couple: ci });
@@ -71,58 +102,75 @@ const Core = {
   },
   nextTurn() { this.S.turn++; this.save(); },
 
-  /* ---------- heat ---------- */
+  /* ---------- heat ----------
+     S.heat is the level the group chose (hold ring) or auto-ramp reached.
+     It can never sit above the highest level this account may play:
+     Lv3 needs Pro. A free Hot card (Taste) makes exactly one card Lv3. */
+  heatCap() { return window.Ent && Ent.pro() ? 3 : 2; },
   heat() {
-    const s = this.S.settings;
-    if (!s.ramp) return Math.min(s.maxHeat, Math.max(1, s.startHeat));
-    return Math.min(s.maxHeat, s.startHeat + Math.floor(this.S.round / s.roundsPerLevel));
+    if (window.Taste && Taste.showing && Taste.showing === this.game) return 3;
+    return Math.max(1, Math.min(this.S.heat || 1, this.heatCap()));
   },
   heatProgress() {
-    const s = this.S.settings, h = this.heat();
-    if (!s.ramp || h >= s.maxHeat) return h / 3;
-    const within = (this.S.round % s.roundsPerLevel) / s.roundsPerLevel;
-    return (h - 1 + within) / 3 + 0.02;
+    const st = this.S.settings, h = this.heat();
+    if (!st.autoRamp || h >= this.heatCap()) return h / 3;
+    return (h - 1 + Math.min(1, this.S.rampCount / st.cardsPerRamp)) / 3 + 0.02;
   },
+  // Manual change (hold ring): clamps to what's allowed and resets the ramp counter
+  setHeat(level) {
+    this.S.heat = Math.max(1, Math.min(+level || 1, this.heatCap()));
+    this.S.rampCount = 0;
+    this.save(); this.updateHud();
+    window.Bus && Bus.emit('heat');
+    return this.S.heat;
+  },
+  resetHeat() { this.S.heat = 1; this.S.rampCount = 0; this.save(); this.updateHud(); window.Bus && Bus.emit('heat'); },
   nextRound() {
-    const before = this.heat();
-    this.S.round++; this.save();
-    const after = this.heat();
-    if (after > before) { this.toast(`Heat rising: Lv${after} ${HEAT[after].name} ${HEAT[after].emoji}`); vibrate([40, 40, 80]); }
+    this.S.round++;
+    const st = this.S.settings;
+    if (st.autoRamp) {
+      this.S.rampCount++;
+      if (this.S.rampCount >= st.cardsPerRamp) {
+        this.S.rampCount = 0;
+        const cur = Math.min(this.S.heat, this.heatCap());
+        if (cur < this.heatCap()) {
+          this.S.heat = cur + 1;
+          this.toast(`Heating up: ${HEAT[cur + 1].name}`);
+          vibrate([40, 40, 80]);
+          this._rampFx = true;
+          window.Bus && Bus.emit('heat');
+        } else if (cur === 2) window.Lock && Lock.rampLocked(this.game);
+      }
+    }
+    this.save();
     this.updateHud();
   },
 
-  /* ---------- decks ---------- */
-  /* Lv1/Lv2 cards are bundled. Lv3 comes from Premium (pro, in memory only),
-     or one free taste per game. Without access, Lv3 plays Lv2 cards. */
-  vibeDraws: 0,
-  draw(game, heat = this.heat()) {
+  /* ---------- decks ----------
+     Lv1/Lv2 cards are bundled. Lv3 only ever comes from the server: Premium (Pro,
+     in memory) or one Taste card from /api/taste. Nothing hot is in the bundle. */
+  draw(game) {
     if (window.Ent) Ent.checkExpiry();
-    const pro = !!(window.Ent && Ent.pro());
-    if (heat >= 3 && !pro) {
-      const g = window.GAME_OF ? GAME_OF(game) : game;
-      if (window.Taste && Taste.pending === g && !Taste.used(g)) {
-        const t = Taste.card(g);
-        if (t && t.game === game) { Taste.pending = null; Taste.markUsed(g); window.Stats && Stats.heat(3); return t; }
-      }
-      window.Lock && Lock.onLockedDraw(g);
-      heat = 2;
+    if (window.Taste) {
+      if (Taste.showing) Taste.finish();               // the free Hot card was the last one: back to Spicy
+      const t = Taste.take(game);
+      if (t) { Taste.showing = game; this.updateHud(); window.Stats && Stats.heat(3); return t; }
     }
-    const vibe = this.vibeDraws < 6 && window.Vibe ? Vibe.regex() : null;
+    const heat = this.heat();
     for (let h = heat; h >= 1; h--) {
       const src = h === 3 ? ((window.Premium && Premium.cards) || []) : this.cards;
-      const pool = src.filter((c) => c.game === game && c.heat === h && !c.taste);
+      const pool = src.filter((c) => c.game === game && c.heat === h);
       if (!pool.length) continue;
       const key = game + h;
       this.used[key] = this.used[key] || new Set();
       let fresh = pool.filter((c) => !this.used[key].has(c.text));
       if (!fresh.length) { this.used[key].clear(); fresh = pool; }
-      if (vibe) { const m = fresh.filter((c) => vibe.test(c.text + ' ' + (c.optionalDare || ''))); if (m.length) fresh = m; this.vibeDraws++; }
       const c = rand(fresh);
       this.used[key].add(c.text);
       window.Stats && Stats.heat(c.heat);
       return c;
     }
-    return { game, heat: 1, text: 'No cards found. Pull to refresh and try again.', optionalDare: 'Give a compliment.' };
+    return { game, heat: 1, text: 'No cards loaded. Close and reopen the app.' };
   },
 
   /* ---------- scoring ---------- */
@@ -141,11 +189,14 @@ const Core = {
   removeLayer(i) { this.S.layers[this.name(i)] = Math.max(0, this.layersLeft(i) - 1); this.save(); this.updateHud(); },
   standings() {
     const rows = this.players().map((p, i) => ({ n: p.name, s: this.score(i) })).sort((a, b) => b.s - a.s);
-    return this.ask('Scoreboard', 'Points taken tonight. Higher means more penalties.', [{ label: 'Close', value: 0, cls: 'ghost' }], `<ol class="standings">${rows.map((r) => `<li><span>${esc(r.n)}</span><b>${r.s}</b></li>`).join('')}</ol>`);
+    const named = this.isGroup() ? (n) => (this.S.named[n] ? ` <small class="muted">· named ${this.S.named[n]}×</small>` : '') : () => '';
+    return this.ask('Scoreboard', 'Points taken tonight. Higher means more penalties.', [{ label: 'Close', value: 0, cls: 'ghost' }], `<ol class="standings">${rows.map((r) => `<li><span>${esc(r.n)}${named(r.n)}</span><b>${r.s}</b></li>`).join('')}</ol>`);
   },
 
+  /* Groups only use sips or water. Couples can also play dares-only. */
+  penMode() { return this.isGroup() ? this.S.group.mode : this.S.settings.mode; },
   penaltyText(heat) {
-    const m = this.S.settings.mode;
+    const m = this.penMode();
     if (m === 'drink') return `Take ${heat} sip${heat > 1 ? 's' : ''} 🍸`;
     if (m === 'water') return `${heat} sip${heat > 1 ? 's' : ''} of water 💧`;
     return `${HEAT[heat].dare} ${HEAT[heat].emoji}`;
@@ -161,7 +212,7 @@ const Core = {
     SFX.play('penalty'); vibrate(120);
     const names = who.map((i) => esc(this.name(i))).join(' & ');
     const dare = card?.optionalDare;
-    const mode = this.S.settings.mode;
+    const mode = this.penMode();
     return new Promise((resolve) => {
       const wrap = document.createElement('div');
       wrap.className = 'modal-wrap';
@@ -213,7 +264,7 @@ const Core = {
         <div class="hud-title">${title}</div>
         <button class="icon-btn" data-act="mute" aria-label="Sound">${SFX.muted ? '🔇' : '🔊'}</button>
       </div>
-      <div class="heat"><div class="heat-bar"><div class="heat-fill"></div></div><div class="heat-label"></div></div>
+      <div class="heat"><div class="heat-bar"><div class="heat-fill"></div></div><div class="heat-label"><span class="hchip"><i class="mring"></i><span class="hchip-t"></span></span></div></div>
       <button class="scores" data-act="standings" aria-label="Open scoreboard"></button>
     </div>`;
   },
@@ -221,11 +272,28 @@ const Core = {
     const fill = $('.heat-fill'); if (!fill) return;
     const h = this.heat();
     fill.style.width = Math.min(100, this.heatProgress() * 100) + '%';
-    $('.heat-label').innerHTML = `Lv${h} ${HEAT[h].name} ${HEAT[h].emoji}`;
-    const showLayers = document.getElementById('app').dataset.theme === 'charades' && this.S.settings.strip;
-    $('.scores').innerHTML = this.players().map((p, i) => `
-      <div class="chip ${i === this.turnHighlight ? 'turn' : ''}" data-i="${i}">${esc(p.name)} <b>${this.score(i)}</b>
-      ${showLayers ? `<span class="layers">${Array.from({ length: this.S.settings.layers }, (_, k) => `<i class="${k < this.layersLeft(i) ? '' : 'off'}"></i>`).join('')}</span>` : ''}</div>`).join('');
+    // Heat chip: a mini ring in the level's colour; pulses when auto-ramp raises the level
+    const chip = $('.hchip');
+    if (chip) {
+      if (chip.dataset.h !== String(h)) { chip.dataset.h = h; $('.hchip-t', chip).textContent = `Lv${h} ${HEAT[h].name}`; }
+      if (this._rampFx) { this._rampFx = false; chip.classList.remove('ramp'); void chip.offsetWidth; chip.classList.add('ramp'); }
+    }
+    const app = document.getElementById('app');
+    app.dataset.heat = h;
+    const showLayers = app.dataset.theme === 'charades';
+    // Stable chips: update in place unless the roster changed, so their animations never restart
+    const sc = $('.scores'), ps = this.players();
+    const key = ps.map((p) => p.name).join('|') + (showLayers ? '#L' + this.S.settings.layers : '');
+    if (sc.dataset.key !== key) {
+      sc.dataset.key = key;
+      sc.innerHTML = ps.map((p, i) => `<div class="chip" data-i="${i}">${esc(p.name)} <b>${this.score(i)}</b>${showLayers ? `<span class="layers">${Array.from({ length: this.S.settings.layers }, () => '<i></i>').join('')}</span>` : ''}</div>`).join('');
+    }
+    $$('.chip', sc).forEach((c) => {
+      const i = +c.dataset.i, b = $('b', c), v = String(this.score(i));
+      if (b.textContent !== v) b.textContent = v;
+      c.classList.toggle('turn', i === this.turnHighlight);
+      if (showLayers) $$('.layers i', c).forEach((x, k) => x.classList.toggle('off', k >= this.layersLeft(i)));
+    });
   },
   setTurn(i) { this.turnHighlight = i; this.updateHud(); },
 
@@ -245,7 +313,7 @@ const Core = {
   onPass(fn) { this._pass = fn; },
 
   /* A card is "intimate" when passing it should be free */
-  isFreePass(card) { return !card || card.heat >= 2 || ['bodypart', 'charades'].includes(card.game); },
+  isFreePass(card) { return !card || card.heat >= 2 || card.game === 'charades'; },
   doPass(card, who = this.current()) {
     if (who < 0 || this.isFreePass(card)) this.toast('Passed — no questions asked');
     else { this.addPts(who, 1); this.toast(`${this.name(who)} passed (+1)`); }
