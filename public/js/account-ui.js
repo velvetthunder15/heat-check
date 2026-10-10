@@ -433,7 +433,7 @@ const UI = {
   passState() {
     if (Admin.active()) return { cls: 'admin', text: `Admin · ${fmtLeft(Admin.exp - Cfg.now())}`, act: 'admin' };
     const t = Ent.profileTier();
-    if (t === 'premium') return { cls: 'premium', text: 'Premium · Lifetime', act: 'profile' };
+    if (t === 'premium') return { cls: 'premium', text: 'Premium • Lifetime • ∞', act: 'profile' };
     if (t === 'lite') { const left = Ent.liteLeft(); return { cls: 'lite' + (left <= 5 * 60 * 1000 ? ' warn' : ''), text: `Lite · ${fmtMin(left)}`, act: 'profile' }; }
     return { cls: 'none', text: 'No pass active', act: 'paywall' };
   },
@@ -441,8 +441,8 @@ const UI = {
     const st = this.passState();
     const slot = document.getElementById('passBanner');
     if (slot) {
-      const html = `<button class="pass-banner ${st.cls}" data-act="${st.act}"><span class="pb-sheen" aria-hidden="true"></span>${st.cls === 'premium' ? `<span class="pb-ico" aria-hidden="true">${icon('infinity')}</span>` : ''}<span class="pb-text">${esc(st.text)}</span>${st.cls === 'premium' ? '<span class="pb-tag">All open</span>' : ''}${st.cls === 'none' ? '<span class="pb-go">See plans</span>' : ''}${st.cls.includes('warn') ? '<span class="pb-warn">Ends soon</span>' : ''}</button>`;
-      if (slot.dataset.k !== st.cls + '|' + st.text) { slot.dataset.k = st.cls + '|' + st.text; slot.innerHTML = html; }
+      const html = `<button class="pass-banner ${st.cls}" data-act="${st.act}"><span class="pb-sheen" aria-hidden="true"></span><span class="pb-text">${esc(st.text)}</span>${st.cls === 'none' ? '<span class="pb-go">See plans</span>' : ''}${st.cls.includes('warn') ? '<span class="pb-warn">Ends soon</span>' : ''}</button>`;
+      if (slot.dataset.k !== st.cls + '|' + st.text) { slot.dataset.k = st.cls + '|' + st.text; slot.innerHTML = html; slot.dataset.pill = /^(lite|premium)/.test(st.cls) ? '1' : ''; }
     }
     // In a game: a small chip only while a Lite or admin clock is running
     const hudTop = $('.hud-top');
@@ -541,8 +541,8 @@ const UI = {
         <p class="note"><a href="/refund">Need a refund?</a></p></section>
       <section class="pf-card"><h3>Preferences</h3>
         <div class="field"><label>Timer</label>${seg('timer', HC.TIMER_OPTIONS.map((n) => [n, n + 's']), prefs.timer)}</div>
-        ${sw('hollywood', prefs.hollywood, 'Hollywood', 'Movies, shows and famous couples.')}
-        ${sw('bollywood', prefs.bollywood, 'Bollywood', 'Films, songs and famous couples.')}
+        ${sw('hollywood', prefs.hollywood, 'Hollywood', 'Movies, shows and songs.')}
+        ${sw('bollywood', prefs.bollywood, 'Bollywood', 'Films, shows and songs.')}
         ${sw('auto_ramp', prefs.auto_ramp, 'Auto-ramp', 'Heat climbs a level every few cards.')}
         <div class="field"><label>Cards per ramp</label><div class="stepper"><button class="icon-btn" data-cpr="-1" aria-label="Fewer">−</button><b id="pfCpr">${prefs.cards_per_ramp}</b><button class="icon-btn" data-cpr="1" aria-label="More">+</button></div></div>
         <div class="field"><label>Penalties</label>${seg('mode', [['drink', '🍸 Drinks'], ['water', '💧 No alcohol'], ['dare', '🎲 Dares']], prefs.mode)}</div>
