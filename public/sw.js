@@ -1,13 +1,13 @@
 /* Heat Check service worker: offline app shell, cache-first assets.
    Never touches /api or other origins (Supabase, Razorpay, Turnstile), so Lv3 cards
    and account data are never cached here. */
-const VERSION = 'hc-v12';
+const VERSION = 'hc-v13';
 const SHELL = [
   '/', '/privacy', '/terms', '/refund', '/cards.json', '/site.webmanifest',
-  '/css/base.css?v=12', '/css/themes.css?v=12', '/css/fixes.css?v=12', '/css/motion.css?v=12', '/css/polish.css?v=12', '/css/intro.css?v=12', '/css/account.css?v=12', '/css/buttons.css?v=12',
-  '/js/config.js?v=12', '/js/audio.js?v=12', '/js/core.js?v=12', '/js/games.js?v=12', '/js/account.js?v=12', '/js/app.js?v=12', '/js/intro.js?v=12', '/js/account-ui.js?v=12', '/js/motion.js?v=12', '/js/boot.js?v=12',
+  '/css/base.css?v=13', '/css/themes.css?v=13', '/css/fixes.css?v=13', '/css/motion.css?v=13', '/css/polish.css?v=13', '/css/intro.css?v=13', '/css/account.css?v=13', '/css/buttons.css?v=13',
+  '/js/config.js?v=13', '/js/audio.js?v=13', '/js/core.js?v=13', '/js/games.js?v=13', '/js/account.js?v=13', '/js/app.js?v=13', '/js/intro.js?v=13', '/js/account-ui.js?v=13', '/js/motion.js?v=13', '/js/boot.js?v=13',
   '/fonts/inter-var-4.woff2', '/fonts/inter-var-italic-4.woff2',
-  '/favicon.ico', '/favicon.svg', '/favicon-96x96.png', '/apple-touch-icon.png', '/web-app-manifest-192x192.png', '/web-app-manifest-512x512.png',
+  '/logo-wordmark.webp', '/favicon.ico', '/favicon.svg', '/favicon-96x96.png', '/apple-touch-icon.png', '/web-app-manifest-192x192.png', '/web-app-manifest-512x512.png',
 ];
 // A redirected response can't be served for a navigation, so store a clean copy
 const clean = async (res) => (res.redirected ? new Response(await res.blob(), { status: res.status, statusText: res.statusText, headers: res.headers }) : res);
