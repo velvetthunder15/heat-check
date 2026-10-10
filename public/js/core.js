@@ -29,7 +29,7 @@ const FLIRTY_DARES = [
 
 const Core = {
   cards: [],          // bundled Flirty deck (Lv1 only)
-  used: {},
+  used: {}, dealt: {},
   recent: {},         // game -> last texts shown (sent as exclude when refilling Hot)
   S: null,
   _timers: new Set(),
@@ -324,10 +324,10 @@ const Core = {
           <h2 style="margin-top:14px">${who.map((i) => esc(this.name(i))).join(' &amp; ')}</h2>
           ${mode !== 'dare' ? `<div class="penalty-big">${this.penaltyText(heat)}</div>` : ''}
           ${dare ? `<div class="dare-box"><span class="lbl">${mode === 'dare' ? 'Your dare' : 'Or swap it for the dare'}</span>${esc(dare)}</div>` : ''}
-          ${!single && chickens.length ? `<div class="ck-row"><span class="note">Chicken Out (once a round):</span>${chickens.map((i) => `<button class="chip ck-chip" data-ck="${i}">${this.chickenIcon} ${esc(this.name(i))}</button>`).join('')}</div>` : ''}
+          ${!single && chickens.length ? `<div class="ck-row">${chickens.map((i) => `<button class="chip ck-chip" data-ck="${i}">${this.chickenIcon} ${esc(this.name(i))}</button>`).join('')}</div>` : ''}
           <div class="col">
             <button class="btn block" data-a="done">Done ✓ <small style="opacity:.7">+${ptsWord(n)}${single ? '' : ' each'}</small></button>
-            ${single ? `<button class="btn block ghost chicken" data-a="chicken" ${chickens.length ? '' : 'disabled'}>${this.chickenIcon} Chicken Out <small>${chickens.length ? 'no penalty' : 'used this round'}</small></button>` : ''}
+            ${single ? `<button class="btn block ghost chicken" data-a="chicken">${this.chickenIcon} Chicken Out</button>` : ''}
           </div>
           ${mode === 'drink' ? '<p class="note center" style="margin:14px 0 0">Drink responsibly. Water counts. Nobody drives.</p>' : ''}
         </div>`;
@@ -337,7 +337,7 @@ const Core = {
         const b = e.target.closest('button'); if (!b || b.disabled) return;
         SFX.play('tap');
         if (b.dataset.ck != null) { const i = +b.dataset.ck; out.has(i) ? out.delete(i) : out.add(i); b.classList.toggle('on', out.has(i)); return; }
-        if (b.dataset.a === 'chicken') { this.useChicken(who[0]); this.toast(`${this.name(who[0])} chickened out 🐔`); close('chicken'); return; }
+        if (b.dataset.a === 'chicken') { if (!this.chickenLeft(who[0])) return this.toast(`${this.name(who[0])} already chickened out this round`); this.useChicken(who[0]); this.toast(`${this.name(who[0])} chickened out 🐔`); close('chicken'); return; }
         if (b.dataset.a === 'done') {
           who.forEach((i) => { if (out.has(i)) this.useChicken(i); else this.addPts(i, n); });
           close(out.size === who.length ? 'chicken' : 'done');
@@ -404,7 +404,7 @@ const Core = {
 
   controls() {
     return `<div class="controls">
-      <button class="btn pass chicken" data-act="chicken">${this.chickenIcon} Chicken Out <small></small></button>
+      <button class="btn pass chicken" data-act="chicken">${this.chickenIcon} Chicken Out</button>
       <button class="btn primary" data-act="primary" hidden></button>
     </div>`;
   },
