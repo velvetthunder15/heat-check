@@ -1,0 +1,174 @@
+/* Heat Check v12: tiers, paywall plan cards, pass banner, limit line, heat selector,
+   Chicken Out, End Night. Palette colours plus two new token families: gold (Lite)
+   and icy titanium silver (Premium). Animations use transform and opacity only. */
+:root {
+  --gold-hi: #fff3c9; --gold-1: #f6d47e; --gold-2: #e2ad48; --gold-3: #a8741f; --gold-ink: #2a1a04;
+  --ice-hi: #f4f9ff; --ice-1: #d9e8f7; --ice-2: #a9c2db; --ice-3: #6f879f; --ice-ink: #0f1a26;
+  --grad-gold: linear-gradient(135deg, var(--gold-hi) 0%, var(--gold-1) 28%, var(--gold-2) 62%, var(--gold-3) 100%);
+  --grad-ice: linear-gradient(135deg, var(--ice-hi) 0%, var(--ice-1) 30%, var(--ice-2) 64%, var(--ice-3) 100%);
+}
+
+/* ---------- Game tile tags: one shared style, uppercase and bold ---------- */
+.tile .t-hot, .t-hot { font-size: 11px; font-weight: 800 !important; font-style: normal !important; letter-spacing: .08em; text-transform: uppercase; line-height: 1; padding: 6px 10px; }
+
+/* ---------- Penalty points on every card ---------- */
+.pts-tag { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; margin: 0 0 8px; padding: 4px 9px; border-radius: 99px;
+  font-size: 11px; font-weight: 700; font-style: normal; letter-spacing: .06em; text-transform: uppercase; line-height: 1.2;
+  background: #0000004d; color: #fff; border: 1px solid #ffffff2e; }
+.pts-tag.h1 { box-shadow: inset 3px 0 0 #ffd166; }
+.pts-tag.h2 { box-shadow: inset 3px 0 0 #ff7a3c; }
+.pts-tag.h3 { box-shadow: inset 3px 0 0 #ff2e63; }
+.stage .inner .pts-tag, .arena .pts-tag { position: relative; z-index: 2; }
+.arena > .pts-tag { grid-column: 1 / -1; justify-self: center; }
+
+/* ---------- Limit counters: a quiet line above the card, never a banner ---------- */
+.limit-line { margin: 6px 2px 0; font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--muted); opacity: .62; text-align: right; font-variant-numeric: tabular-nums; }
+.limit-line[hidden] { display: none; }
+
+/* Heat chip is a button now (opens the heat selector) */
+button.hchip { font: inherit; color: inherit; background: none; border: 0; padding: 4px 0; cursor: pointer; text-transform: uppercase; }
+
+/* ---------- Chicken Out ---------- */
+.ck-ico { display: inline-block; font-style: normal; margin-right: 2px; }
+.controls .chicken { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; gap: 2px; }
+.controls .chicken small { font-size: 11px; font-weight: 600; opacity: .7; white-space: nowrap; max-width: 34vw; overflow: hidden; text-overflow: ellipsis; }
+.btn.chicken small { display: block; font-size: 12px; font-weight: 600; opacity: .7; }
+.ck-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 4px; }
+.ck-chip.on { background: var(--accent); color: #140a10; }
+
+/* ---------- Timers inside cards ---------- */
+.ml-clock, .wyr-clock { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.ml-clock .timer, .wyr-clock .timer { width: 72px; height: 72px; margin: 0; flex: none; }
+.ml-clock .timer::before, .wyr-clock .timer::before { inset: 6px; }
+.ml-clock .timer span, .wyr-clock .timer span { font-size: 24px; }
+.wyr-clock p { margin: 0; text-align: left; }
+
+/* ---------- Home: pass banner ---------- */
+.pass-banner-slot { padding: 0 18px; margin-top: 4px; }
+.pass-banner-slot:empty { display: none; }
+.pass-banner { position: relative; overflow: hidden; width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 0 16px; border-radius: 16px; font-weight: 800; font-size: 15px; letter-spacing: .01em; font-variant-numeric: tabular-nums; text-align: left; }
+.pass-banner .pb-text { position: relative; z-index: 1; }
+.pass-banner .pb-go, .pass-banner .pb-warn { position: relative; z-index: 1; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.pass-banner.lite { background: var(--grad-gold); color: var(--gold-ink); box-shadow: inset 0 1px 0 #fff9, 0 8px 20px -12px #e2ad48aa; }
+.pass-banner.premium { background: var(--grad-ice); color: var(--ice-ink); box-shadow: inset 0 1px 0 #fff, 0 8px 22px -12px #a9c2dbcc; }
+.pass-banner.admin { background: #ffffff14; color: var(--fg); border: 1px solid var(--line); }
+.pass-banner.none { background: #ffffff0a; color: var(--muted); border: 1px dashed var(--line); font-weight: 600; min-height: 40px; }
+.pass-banner.none .pb-go { color: var(--fg); opacity: .8; }
+.pass-banner .pb-warn { padding: 4px 8px; border-radius: 99px; background: #2a1a0420; }
+.pb-sheen, .plan-sheen { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.pass-banner.lite .pb-sheen::after, .pass-banner.premium .pb-sheen::after,
+.plan .plan-sheen::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 40%;
+  background: linear-gradient(100deg, transparent, #ffffffa6 50%, transparent); opacity: .55; transform: translateX(-160%) skewX(-18deg); animation: sheen 4.2s ease-in-out infinite; }
+.pass-banner.premium .pb-sheen::after, .plan.premium .plan-sheen::after { animation-duration: 5.4s; opacity: .7; }
+@keyframes sheen { 0%, 55% { transform: translateX(-160%) skewX(-18deg); } 100% { transform: translateX(360%) skewX(-18deg); } }
+.pass-chip.lite { background: var(--grad-gold); color: var(--gold-ink); border-color: transparent; }
+.pass-chip.lite.warn { box-shadow: 0 0 0 2px #ffffff55; }
+
+/* Lite: 5 minutes left */
+.lite-warn { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 75; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 14px; border-radius: 99px; max-width: calc(100vw - 24px);
+  background: var(--grad-gold); color: var(--gold-ink); font-weight: 700; font-size: 14px; box-shadow: 0 10px 24px -12px #000c; animation: fxUp var(--dur-m, .3s) var(--ease-out, ease-out) both; }
+.lite-warn .linkish { color: var(--gold-ink); }
+.lite-warn .hc-x { width: 32px; height: 32px; border-radius: 50%; color: var(--gold-ink); }
+.lite-warn.out { opacity: 0; transform: translate(-50%, 12px); transition: opacity .2s, transform .2s; }
+
+/* End night */
+.end-night { margin-top: 12px; background: #ffffff10; color: var(--fg); border: 1px solid var(--line); box-shadow: none; }
+
+/* ---------- Paywall: two plan cards, streaming style ---------- */
+.plans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; align-items: stretch; }
+.plan { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 16px 12px 12px; border-radius: 22px; text-align: left; min-width: 0;
+  transition: transform .18s var(--spring, ease); }
+.plan:active:not(:disabled) { transform: scale(.97); }
+.plan:disabled { opacity: .5; }
+.plan > * { position: relative; z-index: 1; }
+.plan .plan-sheen { z-index: 0; }
+.plan.lite { background: var(--grad-gold); color: var(--gold-ink); box-shadow: inset 0 1px 0 #fffc, 0 14px 30px -18px #e2ad48; }
+.plan.premium { background: var(--grad-ice); color: var(--ice-ink); box-shadow: inset 0 1px 0 #fff, 0 0 0 1.5px #ffffffa0, 0 14px 32px -16px #a9c2db; }
+.plan-name { font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.plan-price { font-size: 34px; font-weight: 900; font-style: italic; letter-spacing: -.03em; line-height: 1.05; }
+.plan-term { font-size: 12px; font-weight: 700; opacity: .75; margin-bottom: 8px; }
+.plan-pick { align-self: flex-start; margin: -4px 0 6px; padding: 3px 8px; border-radius: 99px; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; line-height: 1.3;
+  background: var(--ice-ink); color: var(--ice-hi); }
+.plan-pick.ghost { visibility: hidden; }
+.plan-rows { list-style: none; padding: 0; margin: 4px 0 10px; display: grid; gap: 8px; width: 100%; }
+.plan-rows li { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; line-height: 1.2; }
+.plan-rows li.off { opacity: .42; font-weight: 600; }
+.plan-rows .ico { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.plan-cta { margin-top: auto; width: 100%; text-align: center; padding: 10px 0; border-radius: 14px; font-weight: 800; font-size: 14px; }
+.plan.lite .plan-cta { background: var(--gold-ink); color: var(--gold-1); }
+.plan.premium .plan-cta { background: var(--ice-ink); color: var(--ice-hi); }
+.plan.loading .plan-cta { opacity: .6; }
+@media (max-width: 340px) { .plans { grid-template-columns: 1fr; } }
+
+/* One icon set everywhere */
+.ico { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.perk-list .ico { stroke: var(--accent2); }
+
+/* Plan badges (profile) */
+.plan-badge.lite { background: var(--grad-gold); color: var(--gold-ink); border-color: transparent; }
+.plan-badge.premium { background: var(--grad-ice); color: var(--ice-ink); border-color: transparent; }
+.btn.pf-up { margin-top: 12px; background: var(--grad-ice) !important; background-image: var(--grad-ice) !important; color: var(--ice-ink) !important; box-shadow: inset 0 1px 0 #fff, 0 10px 24px -14px #a9c2db !important; }
+.pf-hero .row { flex-wrap: wrap; }
+.plan-badge { white-space: nowrap; }
+
+/* ---------- Limit reached: quiet lock panel where the card was ---------- */
+.lock-panel { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 32px 16px; border-radius: 24px; background: #ffffff0a; border: 1px solid var(--line); }
+.lock-panel .ico { width: 36px; height: 36px; color: var(--muted); }
+.lock-panel h2 { margin: 4px 0 0; }
+
+/* ---------- Ring lock line + mini plan buttons ---------- */
+.hold-line .lk .ico { width: 16px; height: 16px; vertical-align: -3px; }
+.mini-plan { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; margin-left: 6px; border-radius: 99px; font-size: 12px; font-weight: 800; letter-spacing: .04em; }
+.mini-plan.lite { background: var(--grad-gold); color: var(--gold-ink); }
+.mini-plan.premium { background: var(--grad-ice); color: var(--ice-ink); }
+
+/* ---------- In-game heat selector ---------- */
+.heat-rows { display: grid; gap: 8px; margin-top: 12px; }
+.heat-row { border-radius: 16px; border: 1px solid var(--line); background: #ffffff08; overflow: hidden; }
+.heat-row.on { border-color: var(--accent); }
+.heat-row .hr-main { width: 100%; display: flex; align-items: center; gap: 12px; padding: 14px 16px; text-align: left; color: inherit; }
+.heat-row .hr-main b { font-size: 18px; font-style: italic; font-weight: 900; }
+.heat-row .hr-main span { font-size: 13px; color: var(--muted); font-weight: 600; }
+.heat-row .hr-main .ico { margin-left: auto; width: 18px; height: 18px; color: var(--muted); }
+.heat-row.h1 b { color: #ffd166; } .heat-row.h2 b { color: #ff7a3c; } .heat-row.h3 b { color: #ff2e63; }
+.heat-row.locked .hr-main { opacity: .55; }
+.heat-row .hr-lock { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 0 16px 12px; font-size: 13px; color: var(--fg); }
+.heat-row.shake { animation: lockShake .45s cubic-bezier(.36,.07,.19,.97); }
+
+/* Hollywood / Bollywood: at least one stays on */
+.switch.nope { animation: lockShake .4s cubic-bezier(.36,.07,.19,.97); }
+
+/* ---------- End Night summary ---------- */
+.night { padding-bottom: 48px; }
+.night-kicker { margin: 8px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.night-title { font-size: 40px; margin: 4px 0 16px; }
+.night-taunt { padding: 18px 16px; border-radius: 22px; background: linear-gradient(135deg, #ff2e6326, #ff7a3c14); border: 1px solid #ff2e6340; margin-bottom: 16px; }
+.night-taunt p { margin: 0 0 6px; font-size: 20px; font-weight: 800; font-style: italic; line-height: 1.3; }
+.night-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.night-grid div { padding: 14px; border-radius: 18px; background: #ffffff0a; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.night-grid b { font-size: 26px; font-weight: 900; font-style: italic; }
+.night-grid b.h1 { color: #ffd166; } .night-grid b.h2 { color: #ff7a3c; } .night-grid b.h3 { color: #ff2e63; }
+.night-grid span { font-size: 12px; color: var(--muted); font-weight: 600; }
+.night-card { padding: 16px; border-radius: 20px; background: #ffffff08; border: 1px solid var(--line); margin-bottom: 12px; }
+.night-card h3 { margin: 0 0 8px; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.night-list { list-style: none; margin: 0; padding: 0; }
+.night-list li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+.night-list li:last-child { border-bottom: 0; }
+.night-actions { margin-top: 16px; gap: 8px; }
+.standings b small { font-size: 12px; font-weight: 600; opacity: .7; }
+
+/* Purchase success tint per plan */
+.pw-success.lite .pw-check { background: var(--grad-gold); box-shadow: 0 0 40px #e2ad4880; }
+.pw-success.premium .pw-check { background: var(--grad-ice); box-shadow: 0 0 40px #a9c2db90; }
+
+/* Profile: locked look/sound options */
+.seg button.lk { opacity: .5; }
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .pb-sheen::after, html:not([data-motion="full"]) .plan-sheen::after { animation: none; opacity: 0; }
+  html:not([data-motion="full"]) .heat-row.shake, html:not([data-motion="full"]) .switch.nope { animation: none; }
+}
+html[data-motion="reduce"] .pb-sheen::after, html[data-motion="reduce"] .plan-sheen::after { animation: none; opacity: 0; }
+html[data-motion="reduce"] .heat-row.shake, html[data-motion="reduce"] .switch.nope { animation: none; }
