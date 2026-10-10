@@ -7,7 +7,7 @@ const SFX = window.SFX = (() => {
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
   };
-  let pack = 'classic'; // Pro sound pack: 'velvet' is softer and lower
+  let pack = 'classic'; // Lite and Premium sound pack: 'velvet' is softer and lower
   function tone(freq, dur = 0.15, type = 'sine', vol = 0.18, when = 0, slideTo = null) {
     if (muted) return;
     if (pack === 'velvet') { freq *= 0.84; if (slideTo) slideTo *= 0.84; type = type === 'square' || type === 'sawtooth' ? 'triangle' : type; vol *= 0.8; dur *= 1.15; }
