@@ -1,0 +1,68 @@
+/* Heat Check v12.2: home layout additions and the 60 fps pass.
+   Loaded last. Rule: nothing animates forever on a scrolling screen unless it is
+   transform/opacity on a small layer; no background-position, filter or blur animations. */
+
+/* ---------- "How hot is tonight?" : the word hot in amber ---------- */
+.hero-title .hot-word {
+  background: linear-gradient(180deg, #fff1b8 0%, #ffd166 30%, #ffb020 58%, #ff8a00 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  padding: 0 .08em 0 .02em; margin: 0 -.04em 0 0; }
+
+/* ---------- Session bar: players, mode and End night under the header icons ---------- */
+.home-head { padding-bottom: 6px; }
+.session-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; padding: 0 18px; margin: 2px 0 12px; }
+.sb-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 99px; max-width: 58vw;
+  background: #ffffff12; border: 1px solid var(--line); color: var(--fg); font-size: 13px; font-weight: 600; letter-spacing: .01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+button.sb-chip { cursor: pointer; transition: transform var(--dur-xs, .12s) ease; }
+button.sb-chip:active { transform: scale(.96); }
+.session-bar .end-night { height: 32px; min-height: 32px; padding: 0 14px; font-size: 13px; border-radius: 99px; margin: 0; }
+.pass-banner-slot { margin-bottom: 12px; }
+
+/* ---------- Heat level chips under the ring: every level visible, locked ones say so ---------- */
+.heat-steps { display: flex; justify-content: center; gap: 8px; margin-top: 4px; }
+.heat-steps .hs { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 99px;
+  background: #ffffff0f; border: 1px solid var(--line); color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .02em;
+  transition: transform .14s ease, opacity .2s ease; }
+.heat-steps .hs:active { transform: scale(.95); }
+.heat-steps .hs i { width: 8px; height: 8px; border-radius: 50%; background: #ffd166; }
+.heat-steps .hs[data-step="2"] i { background: #ff7a3c; }
+.heat-steps .hs[data-step="3"] i { background: #ff2e63; }
+.heat-steps .hs .hs-lk { display: none; font-size: 12px; }
+.heat-steps .hs.locked { opacity: .72; }
+.heat-steps .hs.locked .hs-lk { display: inline; }
+.heat-steps .hs.locked i { display: none; }
+.heat-steps .hs.on { color: var(--fg); background: #ffffff1f; border-color: #ffffff40; }
+
+/* ---------- Settings section titles ---------- */
+.setup .set-h { margin: 0 0 10px; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.setup .set-h.first { margin-top: -4px; }
+.setup .set-sec { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+.setup .set-sec .field { margin: 0; }
+.setup .set-sec .note { margin: 6px 0 0; }
+.setup .set-sec .field .note { margin-top: 10px; }
+.setup .set-sec + .btn, .setup #save { margin-top: 28px; }
+
+/* =========================================================
+   60 fps pass
+   ========================================================= */
+/* Ambience: static, painted once. No will-change on full-screen layers (GPU memory). */
+#amb .blob, #amb .glow { will-change: auto; }
+#amb .grain { animation: none; will-change: auto; }
+/* Blurred modal backdrops are the most expensive thing a phone can composite */
+.modal-wrap { -webkit-backdrop-filter: none; backdrop-filter: none; background: #000000c4; }
+/* Tiles: no repainting animations while scrolling. Chrome shimmer froze on a good frame. */
+.tile.swap { animation: none; background-position: 40% 50%; }
+.mirror { animation: none; background-position: 40% 50%; }
+.spotlight { animation: none; }
+/* Each tile repaints on its own and never invalidates its neighbours */
+.stack .tile { contain: layout paint style; }
+.stack .tile .t-art::before, .stack .tile .t-art::after, .tile .onair { will-change: transform; }
+/* Only the tiles in view keep their little idle loops running */
+.stack .tile.offscreen, .stack .tile.offscreen * , .stack .tile.offscreen::before, .stack .tile.offscreen::after,
+.stack .tile.offscreen .t-art::before, .stack .tile.offscreen .t-art::after { animation-play-state: paused !important; }
+/* Scrolling: let the browser scroll on the compositor */
+html, body { overscroll-behavior-y: none; }
+.screen { -webkit-overflow-scrolling: touch; }
+/* The pass sheen pauses while the page is scrolling (class set by intro.js) */
+html.is-scrolling .pb-sheen::before, html.is-scrolling .pb-sheen::after { animation-play-state: paused; }
