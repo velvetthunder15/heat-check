@@ -441,7 +441,7 @@ const UI = {
     const st = this.passState();
     const slot = document.getElementById('passBanner');
     if (slot) {
-      const html = `<button class="pass-banner ${st.cls}" data-act="${st.act}"><span class="pb-sheen" aria-hidden="true"></span><span class="pb-text">${esc(st.text)}</span>${st.cls === 'none' ? '<span class="pb-go">See plans</span>' : ''}${st.cls.includes('warn') ? '<span class="pb-warn">Ends soon</span>' : ''}</button>`;
+      const html = `<button class="pass-banner ${st.cls}" data-act="${st.act}"><span class="pb-sheen" aria-hidden="true"></span>${st.cls === 'premium' ? `<span class="pb-ico" aria-hidden="true">${icon('infinity')}</span>` : ''}<span class="pb-text">${esc(st.text)}</span>${st.cls === 'premium' ? '<span class="pb-tag">All open</span>' : ''}${st.cls === 'none' ? '<span class="pb-go">See plans</span>' : ''}${st.cls.includes('warn') ? '<span class="pb-warn">Ends soon</span>' : ''}</button>`;
       if (slot.dataset.k !== st.cls + '|' + st.text) { slot.dataset.k = st.cls + '|' + st.text; slot.innerHTML = html; }
     }
     // In a game: a small chip only while a Lite or admin clock is running
