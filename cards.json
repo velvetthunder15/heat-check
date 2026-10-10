@@ -1,0 +1,4802 @@
+[
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your date holds your hand under the table the whole first dinner.",
+"optionalDare": "Hold your partner's hand and trace slow circles on their palm for fifteen seconds."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They compliment your smile three times before the appetizers arrive.",
+"optionalDare": "Kiss your partner on the cheek and tell them one thing you love about their smile."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your date rests a hand on your knee during the movie. No words, just vibes.",
+"optionalDare": "Rest your hand on your partner's knee for twenty seconds while holding eye contact."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They text 'good morning gorgeous' every single day, rain or shine.",
+"optionalDare": "Whisper 'good morning gorgeous' into your partner's ear, then kiss their cheek."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your partner fixes your collar before you walk into a party.",
+"optionalDare": "Straighten your partner's collar slowly, letting your fingers brush their neck."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They insist on walking on the street side of the sidewalk, every time.",
+"optionalDare": "Link arms with your partner and walk them across the room like it's a red carpet."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your date steals your hoodie on date two and refuses to give it back.",
+"optionalDare": "Wrap your arms around your partner's shoulders from behind for fifteen seconds."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They wink at you across a crowded room at a family function.",
+"optionalDare": "Wink at your partner, then cross the room and kiss the back of their hand."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your partner tucks your hair behind your ear mid-conversation.",
+"optionalDare": "Tuck your partner's hair behind their ear and rest your hand on their jaw for five seconds."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They call you 'trouble' as a pet name from day one.",
+"optionalDare": "Poke your partner's waist playfully until they laugh, then kiss their cheek."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your date orders for you without asking, and gets it exactly right.",
+"optionalDare": "Kiss each of your partner's knuckles on one hand, one at a time."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They hold eye contact so long on date one you forget your own name.",
+"optionalDare": "Hold eye contact with your partner for thirty seconds with your foreheads touching."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your partner plays with your fingers whenever you sit side by side.",
+"optionalDare": "Interlace fingers with your partner and squeeze their hand three times, slowly."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They tell your friends you're the best-looking person in any room.",
+"optionalDare": "Tell your partner which part of their body you'd brag about, then kiss their cheek."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your date asks for a slow dance in the kitchen with no music playing.",
+"optionalDare": "Slow dance with your partner for twenty seconds, hands resting on their shoulders."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They send a selfie wearing your shirt with zero context.",
+"optionalDare": "Hug your partner and rest your chin on their shoulder for fifteen seconds."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your partner bumps your knee under the table all through dinner.",
+"optionalDare": "Press your knee against your partner's for thirty seconds without looking away."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They say 'you look good today' and mean it every single time.",
+"optionalDare": "Look your partner up and down slowly, then compliment their best feature out loud."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your date gives you their jacket and adjusts it on your shoulders.",
+"optionalDare": "Place your hands on your partner's shoulders and give them a slow ten-second squeeze."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They kiss your forehead in public like it's no big deal.",
+"optionalDare": "Kiss your partner's forehead and hold it there for five seconds."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your partner runs their fingers through your hair while you watch TV.",
+"optionalDare": "Run your fingers through your partner's hair for twenty seconds."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They give you a nickname based on the way you laugh.",
+"optionalDare": "Make your partner laugh, then kiss their cheek right next to their smile."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your date holds the door and gives you a slow once-over as you walk through.",
+"optionalDare": "Walk past your partner slowly and let your hand trail across their shoulder."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "They ask to hold your hand on the very first date.",
+"optionalDare": "Hold your partner's hand and kiss the back of it, slowly."
+},
+{
+"game": "redflag",
+"heat": 1,
+"text": "Your partner flirts harder after a year than they did in month one.",
+"optionalDare": "Flirt with your partner using one line about their eyes, then kiss their cheek."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Kisses your neck in the grocery queue while you're checking out.",
+"optionalDare": "Kiss the side of your partner's neck slowly for ten seconds."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They pull you onto their lap at a house party in front of everyone.",
+"optionalDare": "Sit on your partner's lap for thirty seconds and keep eye contact the whole time."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your partner gets jealous when someone else compliments your outfit.",
+"optionalDare": "Whisper in your partner's ear exactly who you dressed up for tonight."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They whisper something flirty in your ear during a work dinner.",
+"optionalDare": "Whisper something flirty into your partner's ear, close enough for your lips to brush it."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your date gives you a shoulder massage after a long day, unasked.",
+"optionalDare": "Massage your partner's shoulders for thirty seconds."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They kiss your hand, then your wrist, then pretend nothing happened.",
+"optionalDare": "Kiss the back of your partner's hand, then their wrist, slowly, then act innocent."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your partner keeps a hand on your lower back in every crowd.",
+"optionalDare": "Rest your hand on your partner's lower back and pull them close for fifteen seconds."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They text you what they like about your body while you're at work.",
+"optionalDare": "Name three things you love about your partner's body, kissing their cheek after each."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your partner kisses you hello like it's been a month, every single day.",
+"optionalDare": "Give your partner a slow ten-second kiss on the lips."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They flirt with the waiter to make you jealous, then laugh about it.",
+"optionalDare": "Take your partner's chin in your hand and kiss their jaw once, slowly."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your date nibbles your ear during a slow song at a wedding.",
+"optionalDare": "Gently nibble your partner's earlobe for three seconds."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They insist on spooning all night but complain you're too warm.",
+"optionalDare": "Hug your partner from behind, arms around their waist, for twenty seconds."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your partner rubs the back of your neck at every red light.",
+"optionalDare": "Massage the back of your partner's neck for twenty seconds."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They admit they still think about your first kiss. Often.",
+"optionalDare": "Recreate your first kiss with your partner as closely as you can remember it."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your partner grabs your hand and kisses your knuckles mid-argument.",
+"optionalDare": "Kiss each of your partner's knuckles slowly, holding eye contact."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They play with your hair the entire time they're kissing you.",
+"optionalDare": "Kiss your partner for ten seconds with your fingers in their hair."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your date sits so close on the couch your thighs touch all night.",
+"optionalDare": "Sit thigh to thigh with your partner and hold their hand for thirty seconds."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They get quiet and pouty when your ex likes your photo.",
+"optionalDare": "Kiss your partner's cheek and whisper in their ear why they have nothing to worry about."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your partner massages your lower back the second you say it's sore.",
+"optionalDare": "Massage your partner's lower back over their clothes for thirty seconds."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They kiss your shoulder out of nowhere while you're cooking.",
+"optionalDare": "Kiss your partner's shoulder three times, slowly."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your date confesses in your ear they've been staring at you all night.",
+"optionalDare": "Whisper into your partner's ear what part of them you've been staring at tonight."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They cuddle you in the park like nobody else exists.",
+"optionalDare": "Cuddle your partner with your head on their chest for twenty seconds."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your partner traces your collarbone with one finger while you talk.",
+"optionalDare": "Trace your partner's collarbone with one fingertip for ten seconds."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "They kiss the tip of your nose whenever you're annoyed with them.",
+"optionalDare": "Kiss the tip of your partner's nose, then their forehead, then their lips."
+},
+{
+"game": "redflag",
+"heat": 2,
+"text": "Your partner pulls your legs across their lap on every movie night.",
+"optionalDare": "Drape your legs over your partner's lap and let them hold your knees for thirty seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They leave a slow trail of kisses down your neck in the elevator.",
+"optionalDare": "Kiss slowly from your partner's jaw down to their collarbone, taking ten seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your partner pins your hands during a pillow fight, then just stares.",
+"optionalDare": "Gently pin your partner's wrists against the couch and hold eye contact for fifteen seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They whisper exactly what they want to do later, at a family dinner.",
+"optionalDare": "Whisper in your partner's ear what you want to do with them later tonight."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your date grabs your hips and pulls you closer on the dance floor.",
+"optionalDare": "Put your hands on your partner's hips and pull them flush against you for twenty seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They kiss your inner wrist while holding eye contact across the table.",
+"optionalDare": "Kiss your partner's inner wrist slowly while holding eye contact for ten seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your partner squeezes your thigh under the table at a fancy restaurant.",
+"optionalDare": "Rest your hand on your partner's thigh over their clothes and squeeze slowly for fifteen seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They sit on your lap facing you at a friend's party.",
+"optionalDare": "Sit on your partner's lap facing them and hold eye contact for thirty seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your partner slides off your watch and says 'you won't need this tonight.'",
+"optionalDare": "Slowly remove one accessory from your partner and kiss the skin underneath."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They kiss along your jaw while you're trying to finish a sentence.",
+"optionalDare": "Kiss along your partner's jawline while they try to recite the alphabet."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your date gently bites your lower lip during the goodnight kiss.",
+"optionalDare": "Kiss your partner and gently bite their lower lip for two seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They slip a hand under your jacket just to hold your waist.",
+"optionalDare": "Slide your hands around your partner's waist under their outer layer, over their shirt, for twenty seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your partner kisses the nape of your neck while you brush your teeth.",
+"optionalDare": "Kiss the nape of your partner's neck slowly, three times."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They breathe against your ear and say nothing, just to watch you react.",
+"optionalDare": "Breathe slowly against your partner's ear for ten seconds without saying a word."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your partner tugs you in by your belt loops in public.",
+"optionalDare": "Pull your partner in by their belt loops or waistband and kiss them for five seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They kiss you against a wall outside the restaurant like a movie scene.",
+"optionalDare": "Back your partner gently against a wall and kiss them for ten seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your date slowly takes your jacket off before you've even sat down.",
+"optionalDare": "Slowly remove your partner's outer layer, then kiss their shoulder once it's off."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They run a hand up your back and grip your nape during a kiss.",
+"optionalDare": "Kiss your partner while holding the nape of their neck for ten seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your partner straddles your lap at a party to 'fix your hair.'",
+"optionalDare": "Straddle your partner's lap and run your fingers through their hair for twenty seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They slow-kiss your shoulder and just keep going toward your neck.",
+"optionalDare": "Kiss from your partner's shoulder up to their ear, one slow kiss at a time."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your partner texts 'wear the thing I like' before every date.",
+"optionalDare": "With your lips against your partner's ear, tell them which outfit of theirs drives you crazy."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They hold your waist with both hands every time they kiss you hello.",
+"optionalDare": "Hold your partner's waist with both hands and kiss them for ten seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your date kisses the back of your knee while you're lying on the couch.",
+"optionalDare": "Kiss the back of your partner's knee, then their kneecap, slowly."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They trace slow lines up your thigh during a movie, over your jeans.",
+"optionalDare": "Trace a slow line from your partner's knee up to mid-thigh over their clothes for ten seconds."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "Your partner whispers that they can't wait to get you home.",
+"optionalDare": "Hold your partner close, hands on their lower back, and whisper how tonight ends."
+},
+{
+"game": "redflag",
+"heat": 3,
+"text": "They hold your jaw and stare at your lips before kissing you.",
+"optionalDare": "Hold your partner's jaw, stare at their lips for five seconds, then kiss them slowly."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's smile when they first see you.",
+"optionalDare": "Make your partner smile, then kiss their cheek right beside it."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's hand-holding technique.",
+"optionalDare": "Hold your partner's hand and run your thumb over their knuckles for fifteen seconds."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's eyes, honestly, out of ten.",
+"optionalDare": "Stare into your partner's eyes for twenty seconds without laughing."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's hugs on a scale of handshake to bear.",
+"optionalDare": "Give your partner a full-body hug for fifteen seconds."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's laugh and how often they use it on you.",
+"optionalDare": "Gently tickle your partner's waist until they laugh."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's cheek kisses.",
+"optionalDare": "Kiss both of your partner's cheeks, slowly."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate how good your partner looks wearing your clothes.",
+"optionalDare": "Put one piece of your clothing on your partner, like a scarf or hoodie, and admire them out loud."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's flirting game when they're trying to impress you.",
+"optionalDare": "Use your best pickup line on your partner while holding their hand."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's dance moves at a wedding.",
+"optionalDare": "Slow dance with your partner for twenty seconds, hands on their waist."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's arms.",
+"optionalDare": "Squeeze your partner's upper arm and give it an honest compliment."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's just-woke-up face.",
+"optionalDare": "Kiss your partner's forehead and tell them they look good right now."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's compliment game.",
+"optionalDare": "Compliment three features on your partner's face, lightly touching each one."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate how your partner's hand feels resting on your knee.",
+"optionalDare": "Rest your hand on your partner's knee for twenty seconds."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's hair, and how much you like touching it.",
+"optionalDare": "Run your fingers through your partner's hair for fifteen seconds."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's 'come here' look.",
+"optionalDare": "Give your partner your best come-here look, then kiss their cheek when they do."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's style on your first date.",
+"optionalDare": "Fix your partner's sleeve, letting your fingers linger on their wrist for five seconds."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's voice when they say your name.",
+"optionalDare": "Say your partner's name softly in their ear, then kiss their cheek."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's shoulders, purely for leaning on.",
+"optionalDare": "Rest your head on your partner's shoulder for twenty seconds."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate how cute your partner looks when they're concentrating.",
+"optionalDare": "Boop your partner's nose, then kiss it."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's ability to make you blush.",
+"optionalDare": "Make your partner blush with one compliment about their body."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's cuddle warmth.",
+"optionalDare": "Cuddle side by side with your arm around your partner's shoulders for thirty seconds."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's goodbye kisses.",
+"optionalDare": "Give your partner a quick kiss on the lips like you're leaving for work."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate how your partner looks when they're dressed up.",
+"optionalDare": "Walk a slow circle around your partner, looking them over, then kiss their hand."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's hands.",
+"optionalDare": "Kiss the palm of your partner's hand and hold it to your cheek for five seconds."
+},
+{
+"game": "rate",
+"heat": 1,
+"text": "Rate your partner's wink.",
+"optionalDare": "Wink at your partner, then hold their face in your hands for five seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's neck kisses.",
+"optionalDare": "Kiss the side of your partner's neck slowly for ten seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's shoulder massage skills.",
+"optionalDare": "Massage your partner's shoulders for thirty seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate how it feels when your partner whispers in your ear.",
+"optionalDare": "Whisper a confession into your partner's ear, lips brushing it."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner as a lap to sit on.",
+"optionalDare": "Sit on your partner's lap for thirty seconds with your arms around their neck."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's lips.",
+"optionalDare": "Give your partner a slow five-second kiss on the lips."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's lower back massage.",
+"optionalDare": "Massage your partner's lower back over their clothes for thirty seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate how your partner's hand feels on your lower back in public.",
+"optionalDare": "Hold your partner's lower back and pull them close for fifteen seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's ear nibbling.",
+"optionalDare": "Gently nibble your partner's earlobe for three seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's collarbones.",
+"optionalDare": "Kiss your partner's collarbone once, slowly."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's spooning.",
+"optionalDare": "Spoon your partner for thirty seconds with your arm around their waist."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's kisses when they've missed you.",
+"optionalDare": "Kiss your partner like you haven't seen them in a week, for ten seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's jawline.",
+"optionalDare": "Trace your partner's jawline with a fingertip, then kiss where it ends."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's neck massage.",
+"optionalDare": "Massage the back of your partner's neck for twenty seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate how your partner smells up close.",
+"optionalDare": "Breathe in at the side of your partner's neck and tell them what they smell like."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's forehead-to-forehead moments.",
+"optionalDare": "Press your forehead to your partner's and hold their waist for twenty seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's back hugs.",
+"optionalDare": "Hug your partner from behind and kiss their shoulder."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate how well your partner kisses your hand.",
+"optionalDare": "Kiss your partner's hand, then their inner wrist."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's waist, strictly for holding purposes.",
+"optionalDare": "Hold your partner's waist with both hands for fifteen seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate how your partner looks at you when they want a kiss.",
+"optionalDare": "Give your partner that look, then wait for them to kiss you."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's thigh as a pillow.",
+"optionalDare": "Lay your head on your partner's thigh for thirty seconds while they play with your hair."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's slow-dance hold.",
+"optionalDare": "Slow dance with your partner, hands on their lower back, for thirty seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's shoulder kisses.",
+"optionalDare": "Kiss your partner's shoulder three times, moving closer to their neck each time."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate how your partner holds your face when kissing you.",
+"optionalDare": "Hold your partner's face in both hands and kiss them for five seconds."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate your partner's cheek-to-cheek whispering.",
+"optionalDare": "Press your cheek to your partner's and whisper what you like most about their body."
+},
+{
+"game": "rate",
+"heat": 2,
+"text": "Rate how your partner's legs feel tangled with yours on the couch.",
+"optionalDare": "Tangle your legs with your partner's and hold their hand for thirty seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate how your partner's hands feel on your waist.",
+"optionalDare": "Grip your partner's waist and pull them close for twenty seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's slow kisses along your neck.",
+"optionalDare": "Kiss slowly from your partner's ear down to their collarbone, taking ten seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's grip on your hips when they pull you in.",
+"optionalDare": "Hold your partner's hips and pull them flush against you for fifteen seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate how your partner kisses your inner wrist.",
+"optionalDare": "Kiss your partner's inner wrist slowly, holding eye contact for ten seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's 'I'll tell you later' whisper.",
+"optionalDare": "Whisper in your partner's ear what you plan to do with them later."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's jaw kisses.",
+"optionalDare": "Kiss along your partner's jawline from ear to chin, slowly."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate how your partner looks sitting on your lap, facing you.",
+"optionalDare": "Sit on your partner's lap facing them and hold eye contact for thirty seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate how your partner pins your hands during a kiss.",
+"optionalDare": "Gently pin your partner's wrists and kiss them for ten seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's hand on your thigh under the table.",
+"optionalDare": "Rest your hand on your partner's thigh over their clothes and squeeze slowly for fifteen seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate how slowly your partner takes your jacket off.",
+"optionalDare": "Slowly remove one outer layer or accessory from your partner, then kiss their shoulder."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's kisses on the nape of your neck.",
+"optionalDare": "Kiss the nape of your partner's neck slowly, three times."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's lip-biting during a kiss.",
+"optionalDare": "Kiss your partner and gently bite their lower lip for two seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's breath against your ear.",
+"optionalDare": "Breathe slowly against your partner's ear for ten seconds without speaking."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate how your partner kisses you against a wall.",
+"optionalDare": "Back your partner gently against a wall and kiss them for ten seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's hands on your lower back during a long kiss.",
+"optionalDare": "Kiss your partner for fifteen seconds with both hands on their lower back."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's collarbone kisses.",
+"optionalDare": "Leave three slow kisses along your partner's collarbone."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate the way your partner looks at your lips before a kiss.",
+"optionalDare": "Stare at your partner's lips for five seconds, then kiss them slowly."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's grip on your nape when they kiss you.",
+"optionalDare": "Hold the nape of your partner's neck and kiss them for ten seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's ability to make you forget where you are.",
+"optionalDare": "Kiss your partner for fifteen seconds with your hands on their hips."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's hands sliding up your back.",
+"optionalDare": "Slide your hands slowly up your partner's back over their shirt, from waist to shoulders."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's knee-to-thigh trail over your jeans.",
+"optionalDare": "Trace a slow line from your partner's knee to mid-thigh over their clothes for ten seconds."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's 'come home now' texts.",
+"optionalDare": "Whisper the exact text you'd send your partner to get them home early."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate your partner's shoulder-to-ear kiss trail.",
+"optionalDare": "Kiss from your partner's shoulder up to their ear, one slow kiss at a time."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate the tension when your partner sits behind you holding your waist.",
+"optionalDare": "Sit behind your partner, arms around their waist, and kiss their neck once."
+},
+{
+"game": "rate",
+"heat": 3,
+"text": "Rate how your partner says your name when they want you.",
+"optionalDare": "Say your partner's name low in their ear, then kiss just below it."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever held my partner's hand under the table so no one would notice.",
+"optionalDare": "Hold your partner's hand and trace slow circles on their palm with your thumb for twenty seconds."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever stared at my partner's lips while they were talking.",
+"optionalDare": "Kiss your partner softly on the cheek, right beside their lips, and hold it for three seconds."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever complimented my partner's arms just to get them to flex.",
+"optionalDare": "Squeeze your partner's upper arm and tell them one thing you love about their body."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever rested my hand on my partner's knee during a movie.",
+"optionalDare": "Rest your hand on your partner's knee until your next turn."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever played with my partner's hair while they fell asleep.",
+"optionalDare": "Run your fingers slowly through your partner's hair for thirty seconds."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever picked an outfit purely because I knew my partner would stare.",
+"optionalDare": "Tell your partner which part of their body you notice first, then kiss their cheek."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever sneaked a kiss on my partner's forehead when they weren't looking.",
+"optionalDare": "Kiss your partner's forehead and hold it there for five seconds."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever played footsie with my partner in public.",
+"optionalDare": "Hook your foot around your partner's ankle and keep it there for one minute."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever slow danced with my partner in the kitchen with no music.",
+"optionalDare": "Slow dance with your partner for thirty seconds, hands on their waist."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever bitten my lip on purpose to get my partner's attention.",
+"optionalDare": "Bite your lip and hold eye contact with your partner for ten seconds without laughing."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever traced my partner's knuckles just because I liked their hands.",
+"optionalDare": "Kiss the back of your partner's hand, then each of their knuckles."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever told my partner they smell good and meant it a little too much.",
+"optionalDare": "Breathe in near your partner's neck for five seconds, then tell them how they smell."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever hugged my partner from behind while they were cooking.",
+"optionalDare": "Hug your partner from behind and rest your chin on their shoulder for twenty seconds."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever winked at my partner across a crowded room.",
+"optionalDare": "Wink at your partner, then walk over and kiss their cheek."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever fixed my partner's collar just to get closer to them.",
+"optionalDare": "Straighten your partner's collar slowly, letting your fingers brush their neck."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever fallen asleep with my head on my partner's chest.",
+"optionalDare": "Rest your head on your partner's shoulder for thirty seconds while they stroke your hair."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever held my partner's face in my hands before a kiss.",
+"optionalDare": "Cup your partner's face in both hands and kiss the tip of their nose."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever sent my partner a flirty text from the same room.",
+"optionalDare": "Whisper a compliment about your partner's smile right next to their ear."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever rubbed my partner's shoulders without being asked.",
+"optionalDare": "Give your partner a slow twenty second shoulder squeeze."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever checked out my partner as they walked away.",
+"optionalDare": "Tell your partner your favourite thing about how they walk, then rest a hand on their lower back."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever kissed my partner's cheek in front of their friends.",
+"optionalDare": "Kiss both of your partner's cheeks slowly, one after the other."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever laced my fingers through my partner's on a walk.",
+"optionalDare": "Lace your fingers through your partner's and keep them there until your next turn."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever told my partner out loud that they have a great jawline.",
+"optionalDare": "Run one finger along your partner's jawline from ear to chin."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever leaned on my partner's shoulder just to be closer to them.",
+"optionalDare": "Press into your partner's side and stay there for one full minute."
+},
+{
+"game": "nhie",
+"heat": 1,
+"text": "Never have I ever blushed when my partner touched my lower back.",
+"optionalDare": "Place your hand on your partner's lower back and leave it there for thirty seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever kissed my partner's neck to win an argument.",
+"optionalDare": "Kiss the side of your partner's neck slowly for ten seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever whispered something bold in my partner's ear in public.",
+"optionalDare": "Whisper in your partner's ear what you want to do with them later tonight."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever made out with my partner in a parked car.",
+"optionalDare": "Make out with your partner for fifteen seconds like you're in a parked car."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever sat on my partner's lap at a party.",
+"optionalDare": "Sit on your partner's lap until your next turn."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever given my partner a massage that turned into something else.",
+"optionalDare": "Massage your partner's shoulders and the nape of their neck for one minute."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever kissed my partner's earlobe and felt them shiver.",
+"optionalDare": "Kiss your partner's earlobe gently, then whisper their name."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever kissed the inside of my partner's wrist.",
+"optionalDare": "Kiss the inside of your partner's wrist and slowly work your way up to their elbow."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever pulled my partner in by their belt loops.",
+"optionalDare": "Pull your partner in by the waist and kiss them for five seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever kissed my partner in an elevator right before the doors opened.",
+"optionalDare": "Kiss your partner for as long as it takes them to count to ten out loud."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever traced my partner's collarbone with my fingertips.",
+"optionalDare": "Trace your partner's collarbone with one fingertip, then kiss the middle of it."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever massaged my partner's thighs after a long day.",
+"optionalDare": "Massage your partner's thighs just above the knee for thirty seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever confessed a fantasy to my partner in a whisper.",
+"optionalDare": "Whisper one thing you've imagined doing with your partner into their ear."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever kissed my partner's shoulder while they were getting dressed.",
+"optionalDare": "Kiss a slow line across your partner's shoulder for ten seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever made out with my partner in a movie theatre.",
+"optionalDare": "Kiss your partner like the lights just went down, for fifteen seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever gently tugged my partner's bottom lip during a kiss.",
+"optionalDare": "Gently tug your partner's bottom lip with yours, then kiss them properly."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever given my partner a leg rub hoping for a reward.",
+"optionalDare": "Rub your partner's calves for thirty seconds, then ask for your reward."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever kissed the back of my partner's neck while hugging them.",
+"optionalDare": "Hug your partner from behind and kiss the nape of their neck for five seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever sat facing my partner on their lap on the couch.",
+"optionalDare": "Sit facing your partner on their lap for thirty seconds without kissing them."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever kissed my partner so long we missed our stop.",
+"optionalDare": "Kiss your partner without stopping for twenty seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever let my hand wander to my partner's hip in public.",
+"optionalDare": "Rest both hands on your partner's hips and pull them close for ten seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever kissed along my partner's jaw all the way to their ear.",
+"optionalDare": "Kiss a trail along your partner's jaw from chin to ear."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever held my partner's waist with both hands while kissing them.",
+"optionalDare": "Hold your partner's waist with both hands and kiss them for ten seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever massaged my partner's lower back until they melted.",
+"optionalDare": "Massage your partner's lower back with your thumbs for forty five seconds."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever blown softly on my partner's neck to tease them.",
+"optionalDare": "Blow softly along your partner's neck from ear to shoulder."
+},
+{
+"game": "nhie",
+"heat": 2,
+"text": "Never have I ever leaned across a restaurant table to steal a kiss from my partner.",
+"optionalDare": "Kiss your partner with one hand on their cheek for five seconds."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever left a hickey on my partner's neck.",
+"optionalDare": "Press a slow, lingering kiss to the side of your partner's neck for ten seconds, just short of a hickey."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever pinned my partner against a wall to kiss them.",
+"optionalDare": "Back your partner against the nearest wall and kiss them for fifteen seconds."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever been caught making out with my partner.",
+"optionalDare": "Kiss your partner for ten seconds as if someone might walk in."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever kissed my partner somewhere we definitely could have been caught.",
+"optionalDare": "Kiss your partner's neck for ten seconds while they try to keep a straight face."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever taken off a layer of clothing just to tease my partner.",
+"optionalDare": "Remove one layer, like a jacket or socks, slowly while your partner watches."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever slid my hand up my partner's thigh under the table.",
+"optionalDare": "Slide your hand slowly from your partner's knee to mid thigh and hold it there for ten seconds."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever made out with my partner in a changing room.",
+"optionalDare": "Make out with your partner for twenty seconds with your hands on their hips."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever grabbed my partner's hips and pulled them against me.",
+"optionalDare": "Grab your partner's hips and pull them flush against you for ten seconds."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever kissed my partner's thigh just above the knee.",
+"optionalDare": "Kiss your partner's thigh just above the knee, over their clothes, three times."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever ditched a party early because we couldn't keep our hands off each other.",
+"optionalDare": "Whisper exactly why you'd leave this party early, then kiss your partner's ear."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever made out with my partner in a bathroom at someone else's house.",
+"optionalDare": "Kiss your partner like you have thirty seconds before someone knocks."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever lifted my partner onto a counter while kissing them.",
+"optionalDare": "Pull your partner onto your lap and kiss them for fifteen seconds."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever slid my hands under my partner's shirt onto their lower back.",
+"optionalDare": "Slide your hands under the hem of your partner's shirt to their lower back for ten seconds."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever gently bitten my partner's neck and loved their reaction.",
+"optionalDare": "Gently graze your teeth along your partner's neck for five seconds."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever fogged up car windows with my partner.",
+"optionalDare": "Kiss your partner for thirty seconds without breaking contact."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever had to fix my hair after a kiss before walking into a room.",
+"optionalDare": "Run both hands into your partner's hair and kiss them until it's messy."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever undone my partner's top button just to kiss their collarbone.",
+"optionalDare": "Undo your partner's top button and kiss their collarbone for five seconds."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever kissed my partner in the rain until we were soaked.",
+"optionalDare": "Hold your partner's jaw and kiss them for fifteen seconds like it's pouring."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever been told to get a room.",
+"optionalDare": "Kiss your partner for twenty seconds like you're about to hear \"get a room.\""
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever traced my partner's spine with my lips.",
+"optionalDare": "Kiss slowly down your partner's spine over their shirt, from the nape to the lower back."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever made out with my partner on a balcony or rooftop.",
+"optionalDare": "Stand behind your partner, hands on their waist, and kiss their neck for fifteen seconds."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever hidden a hickey from my partner under a scarf or collar.",
+"optionalDare": "Kiss your partner's collarbone slowly for ten seconds, right where a collar would cover it."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever wrapped my legs around my partner's waist while kissing.",
+"optionalDare": "Wrap one leg around your partner's and pull them close for a ten second kiss."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever kissed my partner breathless in a quiet corner of a crowded place.",
+"optionalDare": "Kiss your partner until one of you has to come up for air."
+},
+{
+"game": "nhie",
+"heat": 3,
+"text": "Never have I ever whispered something so bold that my partner and I had to leave right away.",
+"optionalDare": "Press your lips to your partner's ear and whisper your boldest thought about them."
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Brush the hair off their forehead with two fingertips. Slow, like you're reading a secret.",
+"optionalDare": "Kiss the center of their forehead and hold it for 3 seconds.",
+"zone": "forehead"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Close their eyes with your fingertips. Trace each eyelid once, feather light.",
+"optionalDare": "Blow softly across their closed eyelids for 5 seconds.",
+"zone": "eyelids"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Trace the curve of their ear with one fingertip, top to lobe. Take your sweet time.",
+"optionalDare": "Whisper their name into that ear, lips almost touching, for 3 seconds.",
+"zone": "ear"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Lay one kiss on their cheek. Soft, slow, like you mean every bit of it.",
+"optionalDare": "Cup their cheek in your palm and hold eye contact for 10 seconds.",
+"zone": "cheek"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Run one knuckle along their jawline, ear to chin, slow as a confession.",
+"optionalDare": "Tilt their chin up with one fingertip and hold it there for 5 seconds.",
+"zone": "jaw"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Trace their bottom lip with your thumb. No kiss. Not yet.",
+"optionalDare": "Kiss the corner of their mouth for 2 seconds, then pull away.",
+"zone": "lips"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Draw one fingertip down the side of their neck and stop at the collar. Leave them wondering.",
+"optionalDare": "Rest two fingertips on the pulse in their neck for 10 seconds.",
+"zone": "neck"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Slide your fingers into the hair at the nape of their neck. Rest there. Say nothing.",
+"optionalDare": "Scratch the nape of their neck lightly with your fingertips for 10 seconds.",
+"zone": "nape"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Trace their collarbone end to end with one fingertip, slow, like a map to buried treasure.",
+"optionalDare": "Tap their collarbone three times with a fingertip, then kiss their cheek.",
+"zone": "collarbone"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Rest your hand on their shoulder and draw a tiny slow circle with your thumb.",
+"optionalDare": "Squeeze both their shoulders gently for 15 seconds.",
+"zone": "shoulder"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Trace a slow line up their upper arm with your fingertips, elbow to shoulder.",
+"optionalDare": "Give their upper arm a slow squeeze and hold it for 5 seconds.",
+"zone": "upperarm"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Tap the inside of their elbow three times with a fingertip. Make it a code only you two know.",
+"optionalDare": "Trace a circle in the crook of their elbow for 10 seconds.",
+"zone": "elbow"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Turn their hand over. Trace the inside of their wrist with one fingertip, slow.",
+"optionalDare": "Kiss the back of their wrist once, eyes locked on theirs.",
+"zone": "wrist"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Write your initial on their palm with a fingertip. Let them guess what it means.",
+"optionalDare": "Press a kiss into their palm and hold it for 2 seconds.",
+"zone": "palm"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Lace your fingers through theirs, one finger at a time, like you're closing a deal.",
+"optionalDare": "Hold their hand, fingers laced, for 30 seconds without letting go.",
+"zone": "fingers"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Lift their hand and kiss their knuckles, one by one. Slow and courteous.",
+"optionalDare": "Kiss their fingertips one at a time, all five.",
+"zone": "fingers"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Draw a slow heart between their shoulder blades with one fingertip. Don't tell them.",
+"optionalDare": "Rub small circles on their upper back with your palm for 15 seconds.",
+"zone": "upperback"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Rest your palm flat on their lower back, like you're guiding them through a crowded bar.",
+"optionalDare": "Keep your hand on their lower back for the next 30 seconds.",
+"zone": "lowerback"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Hook one finger in their belt loop and give a gentle tug toward you.",
+"optionalDare": "Rest both hands on their waist for 10 seconds, eyes on theirs.",
+"zone": "waist"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Rest your hand on their hip. Light. Like you've got every right to be there.",
+"optionalDare": "Tap a slow rhythm on their hip with your fingertips for 10 seconds.",
+"zone": "hip"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Rest your hand just above their knee, over clothes, and leave it there. Say nothing.",
+"optionalDare": "Leave your hand resting on their thigh, over clothes, for 20 seconds.",
+"zone": "thigh"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Tap a slow rhythm on their knee with your fingertips. Your song. They guess.",
+"optionalDare": "Draw a slow circle on their kneecap with one fingertip for 10 seconds.",
+"zone": "knee"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Brush your foot against their calf under the table. Once. Deniable.",
+"optionalDare": "Stroke their calf with your foot for 10 seconds.",
+"zone": "calf"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Trace one slow circle around their ankle bone with a fingertip.",
+"optionalDare": "Wrap your hand around their ankle and hold it for 10 seconds.",
+"zone": "ankle"
+},
+{
+"game": "bodypart",
+"heat": 1,
+"text": "Press both thumbs into the arch of their foot. Ten slow seconds. Count them out loud.",
+"optionalDare": "Give their foot a 30 second rub, heel to toes.",
+"zone": "foot"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Nibble their earlobe. Gently. Once. Then breathe out slow against it.",
+"optionalDare": "Kiss the spot just below their ear for 3 seconds.",
+"zone": "ear"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Kiss the side of their neck, just below the ear. Linger for three seconds.",
+"optionalDare": "Trail three slow kisses down the side of their neck.",
+"zone": "neck"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Plant one slow kiss on their collarbone, right where it dips.",
+"optionalDare": "Kiss along their collarbone, three kisses, end to end.",
+"zone": "collarbone"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Kiss the top of their shoulder through the fabric. Slow. Then once more.",
+"optionalDare": "Rest your chin on their shoulder and breathe slow against their neck for 5 seconds.",
+"zone": "shoulder"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Kiss along their jawline. Three kisses, ear to chin, no hurry.",
+"optionalDare": "Hold their jaw in your hand and kiss their cheek for 3 seconds.",
+"zone": "jaw"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Kiss them softly, then pull back half an inch and wait. Make them close the gap.",
+"optionalDare": "Give them a 5 second kiss on the lips, slow.",
+"zone": "lips"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Drag your lips slowly across their cheek toward their ear. No kiss till you get there.",
+"optionalDare": "Kiss their cheek, then their earlobe, 2 seconds each.",
+"zone": "cheek"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Breathe slow and warm on the nape of their neck for five seconds. Then one kiss.",
+"optionalDare": "Kiss the nape of their neck three times, slow.",
+"zone": "nape"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Kiss the inside of their wrist, right where the pulse is doing all the talking.",
+"optionalDare": "Kiss your way from their wrist to their palm, three kisses.",
+"zone": "wrist"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Kiss the center of their palm, then fold their fingers closed over it.",
+"optionalDare": "Press their palm to your cheek and hold it there for 10 seconds.",
+"zone": "palm"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Take one of their fingertips and press it to your lips. Hold it there, eyes on theirs.",
+"optionalDare": "Kiss each of their fingertips, slow, one second each.",
+"zone": "fingers"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Press your lips to their forehead and stay there for five slow breaths.",
+"optionalDare": "Kiss their forehead, then the tip of their nose, then their cheek.",
+"zone": "forehead"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Kiss each closed eyelid. Left, then right. Soft as rain on a window.",
+"optionalDare": "Keep their eyes closed and kiss their cheek, then their jaw, 2 seconds each.",
+"zone": "eyelids"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Kiss your way up their upper arm. Four slow kisses, elbow to shoulder.",
+"optionalDare": "Run your fingernails lightly down their upper arm for 10 seconds.",
+"zone": "upperarm"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Stroke the crook of their elbow with your thumb. Slow. Back and forth.",
+"optionalDare": "Kiss the inside of their elbow and hold it for 2 seconds.",
+"zone": "elbow"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Drag your fingernails slowly across their upper back, shoulder blade to shoulder blade.",
+"optionalDare": "Stand behind them and stroke their upper back with both palms for 15 seconds.",
+"zone": "upperback"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Slide your hand to the small of their back and pull them in. Slow and close.",
+"optionalDare": "Hold them by the lower back and sway together for 20 seconds.",
+"zone": "lowerback"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Wrap both hands around their waist. Stroke your thumbs slowly along their sides.",
+"optionalDare": "Pull them in by the waist and kiss their cheek for 3 seconds.",
+"zone": "waist"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Stroke your thumb slowly along the top of their hip bone, over clothes.",
+"optionalDare": "Hold both their hips for 10 seconds and sway them side to side.",
+"zone": "hip"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Run your palm slowly along the top of their thigh, over clothes, knee to mid-thigh.",
+"optionalDare": "Draw a slow figure eight on their thigh, over clothes, for 10 seconds.",
+"zone": "thigh"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Trace slow figure eights on their kneecap with one fingertip.",
+"optionalDare": "Kiss their knee, over clothes, and hold it for 2 seconds.",
+"zone": "knee"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Stroke the back of their calf, slow, ankle to knee, over clothes.",
+"optionalDare": "Squeeze and stroke their calf with both hands for 15 seconds.",
+"zone": "calf"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Wrap your hand around their ankle and stroke the bone with your thumb. Slow.",
+"optionalDare": "Kiss the top of their ankle and hold it for 2 seconds.",
+"zone": "ankle"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Lift their foot into your hands. Stroke the arch slowly with both thumbs.",
+"optionalDare": "Give their foot a slow 30 second rub, then kiss the top of it.",
+"zone": "foot"
+},
+{
+"game": "bodypart",
+"heat": 2,
+"text": "Trail your lips down their neck without kissing. Just breath, ear to collar.",
+"optionalDare": "Finish with one 3 second kiss at the base of their neck.",
+"zone": "neck"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss the side of their neck, slow and open-mouthed. Stay there ten seconds.",
+"optionalDare": "Graze your teeth gently along their neck for 3 seconds, then kiss it.",
+"zone": "neck"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Sweep their hair aside and kiss the nape of their neck. Slow. Then slower.",
+"optionalDare": "Kiss the nape of their neck five times, a little lower each time.",
+"zone": "nape"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss slowly along their jaw to just under the ear. Stop. Breathe. Do it again.",
+"optionalDare": "Hold their jaw in both hands and kiss them on the lips for 10 seconds.",
+"zone": "jaw"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss the hollow at the base of their throat, then follow their collarbone out.",
+"optionalDare": "Leave three lingering kisses on their collarbone, 3 seconds each.",
+"zone": "collarbone"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss the inside of their wrist and let your lips drag slowly toward the elbow.",
+"optionalDare": "Pin their wrist gently to the wall above them for 10 seconds while you kiss their neck.",
+"zone": "wrist"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Slip your fingertips just under the hem at their lower back. Rest them on bare skin.",
+"optionalDare": "Trace slow circles on their lower back with your fingertips for 20 seconds.",
+"zone": "lowerback"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Grip their waist with both hands and pull them flush against you. Hold it.",
+"optionalDare": "Hold them by the waist and kiss them on the lips for 10 seconds.",
+"zone": "waist"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Hold their hips with both hands and pull them close. Slow and deliberate.",
+"optionalDare": "Press your thumbs into their hip bones, over clothes, while you kiss their neck for 5 seconds.",
+"zone": "hip"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Slide your palm up their thigh, over clothes, slow. Stop halfway. Leave it there.",
+"optionalDare": "Keep your hand on their thigh, over clothes, and kiss their neck for 10 seconds.",
+"zone": "thigh"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss the back of their knee. Slow. Let them feel your breath before your lips.",
+"optionalDare": "Stroke behind their knee with your fingertips for 15 seconds.",
+"zone": "knee"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss them slow and deep, one hand on their jaw. Do not rush. Ten seconds minimum.",
+"optionalDare": "Kiss them for a full 20 seconds without letting go.",
+"zone": "lips"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Catch their bottom lip gently between yours and hold it. Then let go, slow.",
+"optionalDare": "Kiss them on the lips three times, each one longer than the last.",
+"zone": "lips"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss the spot just behind their ear, then whisper exactly what you want next.",
+"optionalDare": "Nibble their earlobe gently for 3 seconds, then kiss their neck.",
+"zone": "ear"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Ease their collar aside and kiss the bare curve of their shoulder.",
+"optionalDare": "Kiss from their shoulder to their neck, five slow kisses.",
+"zone": "shoulder"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Stand behind them and kiss down the top of their spine. Three slow kisses.",
+"optionalDare": "Wrap your arms around them from behind and kiss their shoulder for 5 seconds.",
+"zone": "upperback"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss their thigh just above the knee, over clothes, and hold it three seconds.",
+"optionalDare": "Trace a slow line up their thigh with your fingertips, over clothes, for 10 seconds.",
+"zone": "thigh"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss your way up their calf, ankle to knee. Five slow kisses.",
+"optionalDare": "Stroke both calves with your palms for 20 seconds.",
+"zone": "calf"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss their neck, then graze it with your teeth. Gently. Just once.",
+"optionalDare": "Kiss their neck for 15 seconds while holding their waist.",
+"zone": "neck"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Hook your thumbs in their belt loops at the hip, pull them in, and kiss them.",
+"optionalDare": "Keep your hands on their hips and kiss them for 10 seconds.",
+"zone": "hip"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Wrap your arms around their waist from behind and kiss their neck. Slow.",
+"optionalDare": "Sway with them from behind, arms around their waist, for 30 seconds.",
+"zone": "waist"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Press your palm firm at the small of their back and kiss them like the night depends on it.",
+"optionalDare": "Back them gently against a wall, hand on their lower back, and kiss them for 10 seconds.",
+"zone": "lowerback"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss from their cheek to their jaw to their neck without once lifting your lips.",
+"optionalDare": "Repeat it on the other side, cheek to neck, slow.",
+"zone": "cheek"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Kiss the top of their foot, then the ankle. Slow. Look up at them while you do.",
+"optionalDare": "Kiss from their ankle to their knee, five slow kisses.",
+"zone": "foot"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Drag your fingernails down their upper arm, shoulder to elbow. Then kiss the trail.",
+"optionalDare": "Kiss their upper arm three times, then their shoulder for 3 seconds.",
+"zone": "upperarm"
+},
+{
+"game": "bodypart",
+"heat": 3,
+"text": "Press your forehead to theirs, lips an inch apart. Hold ten seconds. No kiss.",
+"optionalDare": "After the ten seconds, kiss them on the lips for 5 seconds.",
+"zone": "forehead"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Titanic: the 'I'm flying' pose at the front of the ship",
+"optionalDare": "Hold them from behind by the waist for 10 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "The Lion King: holding baby Simba up over Pride Rock",
+"optionalDare": "Kiss their cheek if they guess it in under 30 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Mission Impossible: dangling from the ceiling on wires",
+"optionalDare": "Hold their hand for 30 seconds while you take the next turn.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Home Alone: hands on cheeks, mouth wide open",
+"optionalDare": "Cup their cheeks in both hands for 5 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Jaws: the shark closing in on a swimmer",
+"optionalDare": "Trace a fin on their forearm with your fingertip for 5 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Spider-Man: shooting webs and swinging across the city",
+"optionalDare": "Lace your fingers with theirs for 20 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Top Gun: the beach volleyball high five",
+"optionalDare": "High five, then hold the hand for 10 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Let It Go from Frozen, full ice queen",
+"optionalDare": "Kiss the back of their hand when they guess.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Baby Shark, the full family",
+"optionalDare": "Give their shoulders a 15 second squeeze.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Uptown Funk, with the strut",
+"optionalDare": "Kiss their knuckles once they guess it.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Single Ladies, with the hand flip",
+"optionalDare": "Hold their hand and twirl them once.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "YMCA, letters and all",
+"optionalDare": "Rest your hand on their knee for 15 seconds.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "The Macarena",
+"optionalDare": "Kiss their cheek, left then right.",
+"category": "Dance Move"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "The Moonwalk",
+"optionalDare": "Brush their hair behind their ear with your fingertips.",
+"category": "Dance Move"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "The Robot",
+"optionalDare": "Trace a slow circle on their palm for 10 seconds.",
+"category": "Dance Move"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Gangnam Style",
+"optionalDare": "Hug them for 10 seconds.",
+"category": "Dance Move"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "The Floss",
+"optionalDare": "Hold their hand for the rest of the round.",
+"category": "Dance Move"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Thriller zombie dance",
+"optionalDare": "Kiss their forehead for 3 seconds.",
+"category": "Dance Move"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Shah Rukh Khan's open arms pose",
+"optionalDare": "Open your arms and hug them for 10 seconds.",
+"category": "Celebrity"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Beyonce in front of a wind machine",
+"optionalDare": "Run your fingers through their hair for 10 seconds.",
+"category": "Celebrity"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Elvis doing the hip shake",
+"optionalDare": "Rest your hand on their hip for 10 seconds.",
+"category": "Celebrity"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Marilyn Monroe over the subway grate",
+"optionalDare": "Kiss their cheek and hold it for 2 seconds.",
+"category": "Celebrity"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "First date nerves: knocking over your drink",
+"optionalDare": "Hold their hand under the table for 30 seconds.",
+"category": "Scenario"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Trying to look cool when your crush walks in",
+"optionalDare": "Wink, then kiss the back of their hand.",
+"category": "Scenario"
+},
+{
+"game": "charades",
+"heat": 1,
+"text": "Waiting by the phone for them to text back",
+"optionalDare": "Tap your number on their wrist with a fingertip, slow.",
+"category": "Scenario"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Spider-Man: the upside-down kiss in the rain",
+"optionalDare": "Kiss them for 5 seconds once they guess it.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "The Notebook: the kiss in the pouring rain",
+"optionalDare": "Hold their face in both hands and kiss them for 5 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Titanic: the hand sliding down the steamy car window",
+"optionalDare": "Press your palm to theirs and slide it down slowly.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Dirty Dancing: the lift",
+"optionalDare": "Hold them by the waist for 10 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Ghost: the pottery wheel scene",
+"optionalDare": "Sit behind them and hold their hands for 15 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Lady and the Tramp: the spaghetti kiss",
+"optionalDare": "Kiss them on the lips for 3 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Pretty Woman: snapping the necklace box shut",
+"optionalDare": "Kiss the side of their neck for 3 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Mr. and Mrs. Smith: the tango with hidden weapons",
+"optionalDare": "Dip them and kiss their neck for 3 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Scent of a Woman: the tango",
+"optionalDare": "Slow dance with them for 20 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "A slow, sultry salsa hip roll",
+"optionalDare": "Put your hands on their hips and roll them with you for 10 seconds.",
+"category": "Dance Move"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "The slow body roll",
+"optionalDare": "Kiss their collarbone once they guess.",
+"category": "Dance Move"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "A tango dip with a rose in your teeth",
+"optionalDare": "Dip them and kiss their jaw for 3 seconds.",
+"category": "Dance Move"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "A slow chair dance, fully clothed",
+"optionalDare": "Kiss the inside of their wrist for 3 seconds.",
+"category": "Dance Move"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Careless Whisper, with the sax solo",
+"optionalDare": "Whisper something flirty in their ear, lips touching the lobe.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Hips Don't Lie",
+"optionalDare": "Hold their hips and sway together for 15 seconds.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Let's Get It On",
+"optionalDare": "Kiss them slowly for 5 seconds.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Crazy in Love, with the strut",
+"optionalDare": "Strut over and kiss their cheek, then their neck.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Shakira's hip shake",
+"optionalDare": "Stroke their waist with both thumbs for 10 seconds.",
+"category": "Celebrity"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Jessica Rabbit making her entrance",
+"optionalDare": "Trail one fingertip down their arm, shoulder to wrist.",
+"category": "Celebrity"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Catching their eye across a bar and sending a drink",
+"optionalDare": "Kiss the back of their neck for 3 seconds.",
+"category": "Scenario"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Slow dancing at a wedding and stepping on their toes",
+"optionalDare": "Slow dance for 20 seconds, cheek to cheek.",
+"category": "Scenario"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Putting on lip balm very slowly while holding eye contact",
+"optionalDare": "Trace their bottom lip with your thumb, then kiss them for 3 seconds.",
+"category": "Scenario"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Fixing their tie as an excuse to get close",
+"optionalDare": "Pull them in by the collar and kiss their jaw.",
+"category": "Scenario"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Sharing one tiny umbrella in the rain, way too close",
+"optionalDare": "Stand forehead to forehead for 10 seconds.",
+"category": "Scenario"
+},
+{
+"game": "charades",
+"heat": 2,
+"text": "Getting caught kissing at the drive-in by a flashlight",
+"optionalDare": "Kiss their earlobe for 2 seconds.",
+"category": "Scenario"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Unzipping a dress with your teeth... failing",
+"optionalDare": "Kiss the nape of their neck for 5 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Pinned against the door after date night",
+"optionalDare": "Back them gently against a wall and kiss them for 10 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Peeling off skinny jeans gracefully. Not gracefully.",
+"optionalDare": "Run your palm up their thigh, over clothes, for 5 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Ripping a shirt open, buttons flying everywhere",
+"optionalDare": "Kiss their collarbone for 5 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Carrying them to bed and hitting every wall",
+"optionalDare": "Hold them by the waist and kiss them for 10 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Seductively pulling off a tie... and choking yourself",
+"optionalDare": "Pull them in by the collar and kiss their neck for 5 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Sliding into bed with a rose in your teeth",
+"optionalDare": "Kiss the inside of their wrist, then up to the elbow.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Trying to be sexy when your leg cramps",
+"optionalDare": "Rub their calf slowly for 20 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Kissing all the way up the stairs, tripping on every step",
+"optionalDare": "Kiss them on the lips for 10 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Making out in a car and honking the horn by accident",
+"optionalDare": "Kiss their jaw, ear to chin, slow.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Blindfolded, guessing where the next kiss lands",
+"optionalDare": "Close their eyes and kiss three spots: wrist, neck, shoulder.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Massage oil bottle exploding mid massage",
+"optionalDare": "Massage their shoulders for 30 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Hotel key card won't work and you can't stop kissing",
+"optionalDare": "Kiss their neck for 10 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Pulling them in by the belt for a kiss",
+"optionalDare": "Hook your finger in their belt loop, pull them close, kiss for 5 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Lighting mood candles and setting off the smoke alarm",
+"optionalDare": "Kiss their earlobe, then the spot behind their ear.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Throwing your shirt across the room. It lands on the fan.",
+"optionalDare": "Kiss the top of their shoulder for 3 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Breakfast in bed that turns into skipping breakfast",
+"optionalDare": "Kiss them slowly for 10 seconds.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Sneaking into bed at 2 a.m. and accidentally waking them",
+"optionalDare": "Kiss their forehead, cheek, then lips, 2 seconds each.",
+"category": "Bedroom Charade"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Hiding under the covers when the doorbell rings",
+"optionalDare": "Hold their hips and kiss their neck for 5 seconds.",
+"category": "Scenario"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Fifty Shades: the 'Laters, baby' elevator moment",
+"optionalDare": "Pin their wrists gently to the wall and kiss them for 5 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Mr. and Mrs. Smith: the fight that turns into kissing",
+"optionalDare": "Grab them by the waist and kiss them for 10 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Magic Mike: the rain dance, fully clothed",
+"optionalDare": "Slow dance with them, hands on their hips, for 20 seconds.",
+"category": "Movie"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Pony by Ginuwine, full routine",
+"optionalDare": "Kiss behind their knee or their inner wrist, your choice, 3 seconds.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Earned It by The Weeknd",
+"optionalDare": "Trace slow circles on their lower back for 15 seconds.",
+"category": "Song"
+},
+{
+"game": "charades",
+"heat": 3,
+"text": "Marilyn singing 'Happy Birthday, Mr. President'",
+"optionalDare": "Whisper in their ear, then kiss their neck for 5 seconds.",
+"category": "Celebrity"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather hold hands under the table all night or play footsie through an entire dinner?",
+"optionalDare": "Hold your partner's hand and trace slow circles on their palm for 30 seconds.",
+"a": "Hold hands under the table all night",
+"b": "Play footsie through an entire dinner"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather get a surprise kiss on the cheek or get a surprise squeeze around the waist?",
+"optionalDare": "Sneak up, kiss your partner's cheek, and hold the hug around their waist for 10 seconds.",
+"a": "Get a surprise kiss on the cheek",
+"b": "Get a surprise squeeze around the waist"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather slow dance in the kitchen or cuddle on the couch for a whole movie?",
+"optionalDare": "Pull your partner in by the waist and slow dance for 30 seconds, no music needed.",
+"a": "Slow dance in the kitchen",
+"b": "Cuddle on the couch for a whole movie"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather have your hair played with for ten minutes or get a five minute hand massage?",
+"optionalDare": "Run your fingers through your partner's hair for one full minute.",
+"a": "Have your hair played with for ten minutes",
+"b": "Get a five minute hand massage"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather be winked at across a crowded room or have your hand held in a crowded room?",
+"optionalDare": "Hold eye contact with your partner for 20 seconds, then wink and kiss their knuckles.",
+"a": "Be winked at across a crowded room",
+"b": "Have your hand held in a crowded room"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather get a lingering forehead kiss or get a playful nose kiss?",
+"optionalDare": "Kiss your partner's forehead and hold it there for 5 seconds.",
+"a": "Get a lingering forehead kiss",
+"b": "Get a playful nose kiss"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather share one hoodie or share one blanket on a cold night?",
+"optionalDare": "Wrap your arms around your partner's waist from behind and hold for 30 seconds.",
+"a": "Share one hoodie",
+"b": "Share one blanket on a cold night"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather be fed dessert by your partner or feed your partner dessert?",
+"optionalDare": "Feed your partner one slow bite of something sweet, then kiss the corner of their lips.",
+"a": "Be fed dessert by your partner",
+"b": "Feed your partner dessert"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather have your partner rest their head on your shoulder or rest your head in your partner's lap?",
+"optionalDare": "Rest your head on your partner's shoulder for one minute while they stroke your hair.",
+"a": "Have your partner rest their head on your shoulder",
+"b": "Rest your head in your partner's lap"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather get a compliment whispered in your ear or get a compliment written on your hand?",
+"optionalDare": "Whisper one honest compliment into your partner's ear, lips close enough to tickle.",
+"a": "Get a compliment whispered in your ear",
+"b": "Get a compliment written on your hand"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather have your shoulders rubbed for a minute or have your feet rubbed for a minute?",
+"optionalDare": "Rub your partner's shoulders for one full minute.",
+"a": "Have your shoulders rubbed for a minute",
+"b": "Have your feet rubbed for a minute"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather be pulled close by your belt loops or be pulled close by your hand?",
+"optionalDare": "Hook a finger in your partner's belt loop and pull them close for 10 seconds.",
+"a": "Be pulled close by your belt loops",
+"b": "Be pulled close by your hand"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather get a quick kiss on the knuckles or get a quick kiss on the inner wrist?",
+"optionalDare": "Kiss the back of your partner's hand, then their inner wrist, 3 seconds each.",
+"a": "Get a quick kiss on the knuckles",
+"b": "Get a quick kiss on the inner wrist"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather spoon as the big spoon or spoon as the little spoon?",
+"optionalDare": "Spoon your partner for one minute, arm around their waist.",
+"a": "Spoon as the big spoon",
+"b": "Spoon as the little spoon"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather have your jaw cupped during a kiss or have your waist held during a kiss?",
+"optionalDare": "Cup your partner's jaw in both hands and give them one soft 5 second kiss on the lips.",
+"a": "Have your jaw cupped during a kiss",
+"b": "Have your waist held during a kiss"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather sit with your legs over your partner's lap or have your partner's legs over your lap?",
+"optionalDare": "Drape your legs across your partner's lap for one minute while they rest a hand on your knee.",
+"a": "Sit with your legs over your partner's lap",
+"b": "Have your partner's legs over your lap"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather get a peck every time you laugh tonight or get a hug every time you blush tonight?",
+"optionalDare": "Make your partner laugh, then kiss their cheek.",
+"a": "Get a peck every time you laugh tonight",
+"b": "Get a hug every time you blush tonight"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather have your fingers interlaced for a whole walk or have an arm around your shoulders for a whole walk?",
+"optionalDare": "Interlace fingers and walk one slow lap of the room together, shoulders touching.",
+"a": "Have your fingers interlaced for a whole walk",
+"b": "Have an arm around your shoulders for a whole walk"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather be tickled for ten seconds or be held still in a tight hug for a minute?",
+"optionalDare": "Hug your partner tight for one full minute without letting go.",
+"a": "Be tickled for ten seconds",
+"b": "Be held still in a tight hug for a minute"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather get a kiss on the temple or get a kiss on the top of your head?",
+"optionalDare": "Kiss your partner's temple and stay there for 3 seconds.",
+"a": "Get a kiss on the temple",
+"b": "Get a kiss on the top of your head"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather draw a heart on your partner's back or have a word traced on your back to guess?",
+"optionalDare": "Trace a word on your partner's back with one finger. They get three guesses.",
+"a": "Draw a heart on your partner's back",
+"b": "Have a word traced on your back to guess"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather be kissed hello like you've been gone a week or be kissed goodbye like you're leaving for a week?",
+"optionalDare": "Kiss your partner hello on the lips like you haven't seen them in a week, 5 seconds.",
+"a": "Be kissed hello like you've been gone a week",
+"b": "Be kissed goodbye like you're leaving for a week"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather have your cheek stroked with a thumb or have your neck brushed by fingertips?",
+"optionalDare": "Brush your thumb slowly along your partner's cheekbone for 10 seconds.",
+"a": "Have your cheek stroked with a thumb",
+"b": "Have your neck brushed by fingertips"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather squeeze into one chair together or share one pillow together?",
+"optionalDare": "Squeeze into one chair together, your arm around their waist, for one minute.",
+"a": "Squeeze into one chair together",
+"b": "Share one pillow together"
+},
+{
+"game": "wyr",
+"heat": 1,
+"text": "Would you rather get a slow kiss on the back of your hand or get a quick kiss on the corner of your mouth?",
+"optionalDare": "Kiss the corner of your partner's mouth, slow and soft, for 3 seconds.",
+"a": "Get a slow kiss on the back of your hand",
+"b": "Get a quick kiss on the corner of your mouth"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather have your neck kissed for thirty seconds or have your ear whispered into for a minute?",
+"optionalDare": "Kiss the side of your partner's neck slowly for 30 seconds.",
+"a": "Have your neck kissed for thirty seconds",
+"b": "Have your ear whispered into for a minute"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather sit on your partner's lap for five minutes or have your partner sit on your lap for five minutes?",
+"optionalDare": "Sit sideways on your partner's lap with your arms around their neck for one minute.",
+"a": "Sit on your partner's lap for five minutes",
+"b": "Have your partner sit on your lap for five minutes"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather make out for one minute standing up or make out for one minute on the couch?",
+"optionalDare": "Make out with your partner for one minute, right where you're sitting.",
+"a": "Make out for one minute standing up",
+"b": "Make out for one minute on the couch"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather get a slow kiss on your collarbone or get a slow kiss behind your ear?",
+"optionalDare": "Kiss along your partner's collarbone, one side to the other, taking 15 seconds.",
+"a": "Get a slow kiss on your collarbone",
+"b": "Get a slow kiss behind your ear"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather get a ten minute back massage or get a ten minute neck and shoulder massage?",
+"optionalDare": "Massage your partner's neck and shoulders for two minutes.",
+"a": "Get a ten minute back massage",
+"b": "Get a ten minute neck and shoulder massage"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather hear a whispered secret wish or hear what your partner wants to do later?",
+"optionalDare": "Whisper into your partner's ear exactly how you want to kiss them later tonight.",
+"a": "Hear a whispered secret wish",
+"b": "Hear what your partner wants to do later"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather have your inner wrist kissed slowly or have your palm kissed slowly?",
+"optionalDare": "Kiss your partner's inner wrist three times, slower each time.",
+"a": "Have your inner wrist kissed slowly",
+"b": "Have your palm kissed slowly"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather have your earlobe gently nibbled or have your lower lip gently nibbled?",
+"optionalDare": "Gently nibble your partner's earlobe for 5 seconds.",
+"a": "Have your earlobe gently nibbled",
+"b": "Have your lower lip gently nibbled"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather be kissed against a wall or be kissed against a kitchen counter?",
+"optionalDare": "Back your partner against the nearest wall and kiss them for 20 seconds.",
+"a": "Be kissed against a wall",
+"b": "Be kissed against a kitchen counter"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather get your lower back massaged or get your calves massaged?",
+"optionalDare": "Massage your partner's lower back with both hands for one minute.",
+"a": "Get your lower back massaged",
+"b": "Get your calves massaged"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather have kisses trailed along your jaw or have kisses trailed down your neck?",
+"optionalDare": "Trail five slow kisses along your partner's jawline, ear to chin.",
+"a": "Have kisses trailed along your jaw",
+"b": "Have kisses trailed down your neck"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather straddle your partner's lap for a kiss or be straddled for a kiss?",
+"optionalDare": "Straddle your partner's lap, fully clothed, and kiss them for 30 seconds.",
+"a": "Straddle your partner's lap for a kiss",
+"b": "Be straddled for a kiss"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather have breath on your neck for ten seconds or have lips hovering over yours for ten seconds?",
+"optionalDare": "Hover your lips an inch from your partner's for 10 seconds without touching. Then kiss them.",
+"a": "Have breath on your neck for ten seconds",
+"b": "Have lips hovering over yours for ten seconds"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather get a kiss on the nape of your neck or get a kiss on the hollow of your throat?",
+"optionalDare": "Move your partner's hair aside and kiss the nape of their neck for 10 seconds.",
+"a": "Get a kiss on the nape of your neck",
+"b": "Get a kiss on the hollow of your throat"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather have fingertips trace your spine over your shirt or have fingertips trace your collarbone?",
+"optionalDare": "Trace your partner's spine with your fingertips, nape to lower back, twice.",
+"a": "Have fingertips trace your spine over your shirt",
+"b": "Have fingertips trace your collarbone"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather be told your best feature in a whisper or be told your sexiest habit in a whisper?",
+"optionalDare": "Whisper your partner's sexiest feature into their ear, then kiss just below that ear.",
+"a": "Be told your best feature in a whisper",
+"b": "Be told your sexiest habit in a whisper"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather make out with no hands allowed or make out with hands only on the waist?",
+"optionalDare": "Kiss your partner for 30 seconds with your hands clasped behind your back.",
+"a": "Make out with no hands allowed",
+"b": "Make out with hands only on the waist"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather get a kiss on each shoulder or get a kiss on each wrist?",
+"optionalDare": "Slide your partner's collar aside and kiss their shoulder for 10 seconds.",
+"a": "Get a kiss on each shoulder",
+"b": "Get a kiss on each wrist"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather sit between your partner's knees for a massage or massage your partner while they sit between yours?",
+"optionalDare": "Sit your partner between your knees and rub their shoulders for one minute.",
+"a": "Sit between your partner's knees for a massage",
+"b": "Massage your partner while they sit between yours"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather get kissed slowly with eyes open or get kissed fast with eyes closed?",
+"optionalDare": "Kiss your partner on the lips for 15 seconds, eyes open the whole time.",
+"a": "Get kissed slowly with eyes open",
+"b": "Get kissed fast with eyes closed"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather have your waist held while you kiss or have your face held while you kiss?",
+"optionalDare": "Hold your partner's waist with both hands and kiss them for 20 seconds.",
+"a": "Have your waist held while you kiss",
+"b": "Have your face held while you kiss"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather hear your name whispered slowly or hear a bold compliment whispered?",
+"optionalDare": "Whisper your partner's name slowly into their ear, then kiss their neck for 5 seconds.",
+"a": "Hear your name whispered slowly",
+"b": "Hear a bold compliment whispered"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather get a hand massage with kisses after or get a foot rub with a kiss on the ankle?",
+"optionalDare": "Massage your partner's hand for one minute, then kiss each fingertip.",
+"a": "Get a hand massage with kisses after",
+"b": "Get a foot rub with a kiss on the ankle"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather be kissed in the car before going inside or be kissed in an elevator between floors?",
+"optionalDare": "Kiss your partner like you have 10 seconds before the elevator doors open.",
+"a": "Be kissed in the car before going inside",
+"b": "Be kissed in an elevator between floors"
+},
+{
+"game": "wyr",
+"heat": 2,
+"text": "Would you rather have your hair gently pulled during a kiss or have your chin tilted up for a kiss?",
+"optionalDare": "Tilt your partner's chin up with one finger and kiss them for 10 seconds.",
+"a": "Have your hair gently pulled during a kiss",
+"b": "Have your chin tilted up for a kiss"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have your neck kissed for a minute or have your thighs traced for a minute?",
+"optionalDare": "Trace slow lines along your partner's thighs, over clothes, for one minute.",
+"a": "Have your neck kissed for a minute",
+"b": "Have your thighs traced for a minute"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather be pinned to the bed by your wrists or pin your partner down by their wrists?",
+"optionalDare": "Gently pin your partner's wrists above their head and kiss their neck for 30 seconds.",
+"a": "Be pinned to the bed by your wrists",
+"b": "Pin your partner down by their wrists"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather be blindfolded and kissed somewhere new or blindfold your partner and choose the spot?",
+"optionalDare": "Cover your partner's eyes and kiss three surprise spots: inner wrist, collarbone, nape. 5 seconds each.",
+"a": "Be blindfolded and kissed somewhere new",
+"b": "Blindfold your partner and choose the spot"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have your wrists tied with a soft scarf or tie your partner's wrists with a soft scarf?",
+"optionalDare": "Loosely loop a scarf around your partner's wrists and kiss along their jaw for 30 seconds.",
+"a": "Have your wrists tied with a soft scarf",
+"b": "Tie your partner's wrists with a soft scarf"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have your jacket slowly taken off you or slowly take off your partner's hoodie?",
+"optionalDare": "Slowly remove one outer layer from your partner, like a jacket or hoodie, kissing their neck as you go.",
+"a": "Have your jacket slowly taken off you",
+"b": "Slowly take off your partner's hoodie"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have your hips gripped while you kiss or have your thighs squeezed while you kiss?",
+"optionalDare": "Hold your partner's hips firmly and kiss them for 30 seconds.",
+"a": "Have your hips gripped while you kiss",
+"b": "Have your thighs squeezed while you kiss"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather whisper your boldest fantasy or hear your partner's boldest fantasy whispered?",
+"optionalDare": "Whisper one fantasy into your partner's ear, then kiss behind that ear for 5 seconds.",
+"a": "Whisper your boldest fantasy",
+"b": "Hear your partner's boldest fantasy whispered"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have kisses trailed from ear to collarbone or have kisses trailed from wrist to shoulder?",
+"optionalDare": "Trail slow kisses from your partner's ear down to their collarbone, taking 20 seconds.",
+"a": "Have kisses trailed from ear to collarbone",
+"b": "Have kisses trailed from wrist to shoulder"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather be in total control for five minutes or give up total control for five minutes?",
+"optionalDare": "Take the lead for 2 minutes: you decide where your partner's hands rest, waist, hips, or thighs.",
+"a": "Be in total control for five minutes",
+"b": "Give up total control for five minutes"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have a hand slide slowly up your thigh or have a hand slide around your lower back?",
+"optionalDare": "Slide your hand slowly up your partner's thigh, over clothes, and rest it at mid thigh for 10 seconds.",
+"a": "Have a hand slide slowly up your thigh",
+"b": "Have a hand slide around your lower back"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather be kissed blindfolded with no warning or be kissed with your hands held behind you?",
+"optionalDare": "Hold your partner's hands behind their back and kiss them for 30 seconds.",
+"a": "Be kissed blindfolded with no warning",
+"b": "Be kissed with your hands held behind you"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have your hip bones kissed over your clothes or have your lower back kissed over your clothes?",
+"optionalDare": "Kneel and kiss your partner's hip bone over their clothes for 10 seconds.",
+"a": "Have your hip bones kissed over your clothes",
+"b": "Have your lower back kissed over your clothes"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather be pressed against a door and kissed or be pulled onto a lap and kissed?",
+"optionalDare": "Press your partner against a door and kiss their neck for 30 seconds.",
+"a": "Be pressed against a door and kissed",
+"b": "Be pulled onto a lap and kissed"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather act out a fantasy tonight or hear a fantasy described tonight?",
+"optionalDare": "Describe a fantasy setting in your partner's ear for 30 seconds, then kiss their lips.",
+"a": "Act out a fantasy tonight",
+"b": "Hear a fantasy described tonight"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have your waist grabbed and pulled close or have your hips guided onto a lap?",
+"optionalDare": "Grab your partner's waist, pull them flush against you, and hold for 20 seconds.",
+"a": "Have your waist grabbed and pulled close",
+"b": "Have your hips guided onto a lap"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather be told exactly where you'll be kissed or never know where the next kiss lands?",
+"optionalDare": "Tell your partner three places you'll kiss them, then kiss each for 5 seconds.",
+"a": "Be told exactly where you'll be kissed",
+"b": "Never know where the next kiss lands"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather get a full body massage with oil or get a slow thigh and hip massage?",
+"optionalDare": "Massage your partner's thighs and hips, over clothes, for two minutes.",
+"a": "Get a full body massage with oil",
+"b": "Get a slow thigh and hip massage"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather make out until someone has to stop or kiss for one minute without breaking?",
+"optionalDare": "Make out for 90 seconds. First to pull away owes a 10 second kiss on the neck.",
+"a": "Make out until someone has to stop",
+"b": "Kiss for one minute without breaking"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather be blindfolded for ten minutes or have your hands tied for ten minutes?",
+"optionalDare": "Blindfold your partner for one minute and kiss their lips, jaw, and neck in any order.",
+"a": "Be blindfolded for ten minutes",
+"b": "Have your hands tied for ten minutes"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have your nape kissed while held from behind or have your jaw kissed while pinned to a wall?",
+"optionalDare": "Hold your partner from behind and kiss the nape of their neck for 30 seconds.",
+"a": "Have your nape kissed while held from behind",
+"b": "Have your jaw kissed while pinned to a wall"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather take off one outer layer while being watched or watch your partner take off one outer layer?",
+"optionalDare": "Slowly take off one outer layer, like a jacket or hoodie, while holding eye contact with your partner.",
+"a": "Take off one outer layer while being watched",
+"b": "Watch your partner take off one outer layer"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have teeth graze your neck or have teeth graze your shoulder?",
+"optionalDare": "Lightly graze your teeth along your partner's neck for 5 seconds, then kiss the spot.",
+"a": "Have teeth graze your neck",
+"b": "Have teeth graze your shoulder"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather be pinned to the couch for a kiss or be lifted onto a counter for a kiss?",
+"optionalDare": "Lean your partner back onto the couch and kiss them for 30 seconds.",
+"a": "Be pinned to the couch for a kiss",
+"b": "Be lifted onto a counter for a kiss"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather be whispered to while pinned in place or be kissed while you can't use your hands?",
+"optionalDare": "Hold your partner's wrists at their sides and whisper what you want into their ear for 20 seconds.",
+"a": "Be whispered to while pinned in place",
+"b": "Be kissed while you can't use your hands"
+},
+{
+"game": "wyr",
+"heat": 3,
+"text": "Would you rather have your waist kissed through your shirt or have your thighs kissed through your jeans?",
+"optionalDare": "Kiss your partner's waist through their shirt, side to side, for 20 seconds.",
+"a": "Have your waist kissed through your shirt",
+"b": "Have your thighs kissed through your jeans"
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to hold hands under the table at a family dinner?",
+"optionalDare": "Hold your partner's hand under the table and stroke their knuckles for twenty seconds."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to stare at their partner's lips mid conversation?",
+"optionalDare": "Stare at your partner's lips for ten seconds, then kiss their cheek."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to compliment their partner's legs out of nowhere?",
+"optionalDare": "Give your partner a specific compliment about their legs and squeeze their knee."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to steal their partner's hoodie because it smells like them?",
+"optionalDare": "Bury your face in your partner's shoulder and breathe them in for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to start a slow dance in a grocery aisle?",
+"optionalDare": "Slow dance with your partner for thirty seconds with your hands on their waist."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to rest a hand on their partner's knee while driving?",
+"optionalDare": "Rest your hand on your partner's knee until your next turn."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to blush when their partner flirts with them in public?",
+"optionalDare": "Hold eye contact with your partner for fifteen seconds without blushing."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to play with their partner's fingers during a movie?",
+"optionalDare": "Play with your partner's fingers slowly for thirty seconds."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to sneak a cheek kiss into a selfie?",
+"optionalDare": "Kiss your partner's cheek and hold it while you count to five."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to fall asleep cuddled into their partner's shoulder?",
+"optionalDare": "Cuddle into your partner's shoulder for one minute."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to notice their partner's new haircut first and touch it?",
+"optionalDare": "Run your fingers through your partner's hair from forehead to nape."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to wink at their partner during a serious moment?",
+"optionalDare": "Wink at your partner, then blow a kiss toward their lips."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to hug their partner from behind for no reason?",
+"optionalDare": "Hug your partner from behind and kiss their shoulder once."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to say their partner has the best smile in the room?",
+"optionalDare": "Trace your partner's smile with a fingertip, then kiss the corner of their mouth."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to walk with an arm wrapped around their partner's waist?",
+"optionalDare": "Keep your arm around your partner's waist for the next round."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to fix their partner's hair just to touch them?",
+"optionalDare": "Tuck a strand of hair behind your partner's ear and let your fingers linger on their neck."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to flirt with their partner using only eye contact?",
+"optionalDare": "Flirt with your partner using only your eyes for fifteen seconds."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to kiss their partner's hand like it's an old movie?",
+"optionalDare": "Kiss the back of your partner's hand and hold it there for three seconds."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to brush their partner's knee \"by accident\" on purpose?",
+"optionalDare": "Brush your fingertips over your partner's knee three times, slowly."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to rub their partner's shoulders without being asked?",
+"optionalDare": "Give your partner a thirty second shoulder rub."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to tell their partner they look good in that outfit, twice?",
+"optionalDare": "Tug your partner closer by their sleeve and tell them exactly why that outfit works."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to nuzzle into their partner's neck during a hug?",
+"optionalDare": "Hug your partner and nuzzle into their neck for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to kiss their partner's forehead goodbye every time?",
+"optionalDare": "Kiss your partner's forehead, then each of their temples."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to drape their legs over their partner's lap on the couch?",
+"optionalDare": "Drape your legs across your partner's lap for one minute."
+},
+{
+"game": "mostlikely",
+"heat": 1,
+"text": "Who's most likely to touch their partner's jaw while they're talking?",
+"optionalDare": "Cup your partner's jaw and hold eye contact for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to kiss their partner's neck just to distract them?",
+"optionalDare": "Kiss the side of your partner's neck slowly for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to whisper something outrageous in their partner's ear at dinner?",
+"optionalDare": "Whisper the boldest thing you can think of into your partner's ear."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to start a make out session in public?",
+"optionalDare": "Kiss your partner for fifteen seconds like nobody is watching."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to pull their partner onto their lap?",
+"optionalDare": "Pull your partner onto your lap and keep them there until your next turn."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to give a massage that ends in a kiss?",
+"optionalDare": "Massage your partner's neck and shoulders for one minute, then kiss them."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to kiss their partner's ear just to hear them gasp?",
+"optionalDare": "Kiss the spot just behind your partner's ear for five seconds."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to kiss up their partner's arm from wrist to shoulder?",
+"optionalDare": "Kiss from your partner's inner wrist all the way up to their shoulder."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to grab their partner by the waist mid sentence and kiss them?",
+"optionalDare": "Grab your partner's waist and kiss them while they're mid sentence."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to make out in the back of a taxi?",
+"optionalDare": "Make out with your partner for ten seconds like the driver can't see."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to nibble their partner's earlobe?",
+"optionalDare": "Gently nibble your partner's earlobe, then whisper a compliment."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to sit on the kitchen counter waiting to be kissed?",
+"optionalDare": "Hold your partner's face and kiss them for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to have a secret thing for their partner's collarbones?",
+"optionalDare": "Kiss your partner's collarbone from one end to the other."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to give a thigh massage under a blanket?",
+"optionalDare": "Massage your partner's thighs just above the knee for thirty seconds."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to kiss their partner's shoulder blades while they're on the phone?",
+"optionalDare": "Kiss your partner's shoulder blade three times through their shirt."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to catch their partner's lip between their teeth during a kiss?",
+"optionalDare": "Kiss your partner and gently catch their bottom lip between yours."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to kiss the nape of their partner's neck in line at a cafe?",
+"optionalDare": "Kiss the nape of your partner's neck for five seconds."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to curl up sideways on their partner's lap on the couch?",
+"optionalDare": "Sit sideways on your partner's lap with your arms around their neck for thirty seconds."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to kiss their partner's jawline slowly just to tease them?",
+"optionalDare": "Kiss along your partner's jawline from ear to chin, as slowly as you can."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to keep a hand on their partner's hip in a crowd?",
+"optionalDare": "Keep a hand on your partner's hip for the next two rounds."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to make out with their partner at a concert?",
+"optionalDare": "Kiss your partner for twenty seconds with your hands in their hair."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to give the best lower back massage?",
+"optionalDare": "Massage your partner's lower back with your palms for forty five seconds."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to whisper \"later\" in their partner's ear and mean it?",
+"optionalDare": "Whisper exactly what \"later\" means into your partner's ear."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to kiss their partner's knees when they're sitting on the floor?",
+"optionalDare": "Kiss each of your partner's knees, then the inside of their wrist."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to trace their partner's waist with one finger while kissing?",
+"optionalDare": "Trace your partner's waist with one finger while you kiss them for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 2,
+"text": "Who's most likely to kiss their partner's inner wrist before letting go of their hand?",
+"optionalDare": "Kiss your partner's inner wrist and hold your lips there for five seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to leave a hickey somewhere visible?",
+"optionalDare": "Kiss your partner's neck slowly for ten seconds, right where a hickey would show."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to push their partner up against a wall for a kiss?",
+"optionalDare": "Back your partner against a wall and kiss them for fifteen seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to get caught kissing in the bathroom at a party?",
+"optionalDare": "Kiss your partner for twenty seconds like someone is about to knock."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to suggest kissing somewhere risky?",
+"optionalDare": "Kiss your partner in the spot in this room where you'd most likely get caught, for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to take off a layer just to see their partner's reaction?",
+"optionalDare": "Remove one layer slowly, like a jacket or socks, while holding eye contact."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to slide a hand up their partner's thigh at dinner?",
+"optionalDare": "Slide your hand from your partner's knee to mid thigh and leave it there for fifteen seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to fog up the car windows?",
+"optionalDare": "Kiss your partner without breaking for thirty seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to pull their partner in by the hips without warning?",
+"optionalDare": "Pull your partner in by the hips and hold them flush against you for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to sneak into a changing room together?",
+"optionalDare": "Kiss your partner for fifteen seconds with your hands on their lower back."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to make the party end early for both of them?",
+"optionalDare": "Whisper into your partner's ear the reason you'd leave right now."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to kiss their partner breathless in a stairwell?",
+"optionalDare": "Kiss your partner until one of you needs to breathe."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to lift their partner onto a table mid kiss?",
+"optionalDare": "Pull your partner onto your lap facing you and kiss them for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to slip their hands under their partner's shirt onto their back?",
+"optionalDare": "Slide your hands under the hem of your partner's shirt onto their lower back for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to graze their teeth along their partner's neck?",
+"optionalDare": "Gently graze your teeth along your partner's neck from ear to shoulder."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to get told to get a room by their friends?",
+"optionalDare": "Kiss your partner the way that would get you told to get a room, for fifteen seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to ruin their partner's hair with one kiss?",
+"optionalDare": "Slide your hands into your partner's hair and kiss them until it's a mess."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to unbutton their partner's collar to kiss their collarbone?",
+"optionalDare": "Undo your partner's top button and kiss their collarbone for five seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to kiss all the way down their partner's spine?",
+"optionalDare": "Kiss down your partner's spine over their shirt, from the nape to the lower back."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to make out on a rooftop at midnight?",
+"optionalDare": "Stand behind your partner, hands on their hips, and kiss their neck for fifteen seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to wear a hickey proudly the next day?",
+"optionalDare": "Kiss your partner's collarbone slowly for ten seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to wrap their legs around their partner's waist?",
+"optionalDare": "Sit on your partner's lap and wrap your legs around their waist for twenty seconds."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to whisper something that makes their partner want to leave immediately?",
+"optionalDare": "Press your lips to your partner's ear and whisper your boldest thought about them."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to kiss their partner in a hotel hallway before reaching the room?",
+"optionalDare": "Kiss your partner against a door for fifteen seconds like you can't find the key."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to keep kissing after the elevator doors open?",
+"optionalDare": "Kiss your partner for ten seconds, then five more after they start laughing."
+},
+{
+"game": "mostlikely",
+"heat": 3,
+"text": "Who's most likely to sit facing their partner on their lap during a movie?",
+"optionalDare": "Sit facing your partner on their lap, hands on their shoulders, for thirty seconds."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What's my favorite way to be greeted by you?",
+"optionalDare": "Greet your partner that way, then hold the hug around their waist for 10 seconds."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Do I prefer holding hands or an arm around my waist?",
+"optionalDare": "Hold your partner's hand or waist, whichever they guessed, for one minute."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Which of your features do I notice first?",
+"optionalDare": "Kiss your partner's cheek and tell them which feature you noticed first."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What compliment from you makes me blush the most?",
+"optionalDare": "Whisper that compliment into your partner's ear."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Am I a big spoon or a little spoon?",
+"optionalDare": "Spoon for one minute in the position your partner guessed."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What song would I pick for us to slow dance to?",
+"optionalDare": "Slow dance for 30 seconds, hands on each other's waist."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Do I like being hugged from behind or face to face?",
+"optionalDare": "Hug your partner that way for 20 seconds."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What's the first thing I noticed about you?",
+"optionalDare": "Kiss your partner's knuckles while they answer."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Do I like forehead kisses or cheek kisses more?",
+"optionalDare": "Give your partner three of whichever kiss they guessed."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Which of your outfits do I find most attractive?",
+"optionalDare": "Run one finger along your partner's collar for 10 seconds."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What tiny gesture from you makes my whole day?",
+"optionalDare": "Do that gesture now, then hold your partner's hand for 30 seconds."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Where would I plan our dream date night?",
+"optionalDare": "Hold hands and describe that date in 30 seconds, fingers interlaced."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Would I rather cuddle you or be cuddled?",
+"optionalDare": "Cuddle in the role your partner guessed for one minute."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What do I do when I'm trying to flirt with you?",
+"optionalDare": "Flirt with your eyes only for 15 seconds, then kiss your partner's cheek."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "How long can I hold eye contact with you before I smile?",
+"optionalDare": "Hold eye contact and both hands for 30 seconds."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What's my favorite part of your face?",
+"optionalDare": "Kiss that part of your partner's face for 3 seconds."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Would I rather have my hair played with or my back scratched?",
+"optionalDare": "Play with your partner's hair or scratch their back, whichever they guessed, for one minute."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What's my go-to move to get your attention?",
+"optionalDare": "Do that move now, then hug your partner for 10 seconds."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Which scent on you do I love the most?",
+"optionalDare": "Breathe in at your partner's neck for 5 seconds, then kiss their cheek."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What moment from our early days do I still replay?",
+"optionalDare": "Recreate your first kiss, 5 seconds on the lips."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Which nickname from you secretly makes me melt?",
+"optionalDare": "Whisper that nickname into your partner's ear."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Do I like kisses with a warning or as a surprise?",
+"optionalDare": "Kiss your partner's temple the way they guessed."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "Where do I like your hand to rest when we sit together?",
+"optionalDare": "Rest your hand there for one minute."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What's my favorite way to fall asleep next to you?",
+"optionalDare": "Lie down in that position together for one minute."
+},
+{
+"game": "hotseat",
+"heat": 1,
+"text": "What do you do with your hands that I find attractive?",
+"optionalDare": "Run your hands down your partner's arms, shoulders to wrists, slowly."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Where on my neck do I most like being kissed: front, side, or nape?",
+"optionalDare": "Kiss that exact spot for 15 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Would I rather get a back massage or a neck massage right now?",
+"optionalDare": "Give your partner that massage for two minutes."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "What's one thing I'd love you to whisper in my ear?",
+"optionalDare": "Whisper it with your lips against their ear."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "How long do I think our longest make out session lasted?",
+"optionalDare": "Make out for one minute."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Do I prefer sitting on your lap or you sitting on mine?",
+"optionalDare": "Sit that way for one minute, arms around each other."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Which is more sensitive on me: my ears or my neck?",
+"optionalDare": "Kiss behind your partner's ear, then their neck, 5 seconds each, and find out."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Where do I want your hands when we make out?",
+"optionalDare": "Put your hands there and kiss your partner for 30 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "What's the most attractive thing you do without realizing it?",
+"optionalDare": "Do it on purpose, then kiss your partner's jaw."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Do I like slow, soft kisses or deep, intense ones more?",
+"optionalDare": "Kiss your partner that way for 20 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Which spot is my secret weak spot: inner wrist, collarbone, or nape?",
+"optionalDare": "Kiss the spot your partner names for 10 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Would I rather be kissed on the collarbone or the jaw?",
+"optionalDare": "Kiss the guessed spot for 10 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Where outside home have I wanted to make out with you?",
+"optionalDare": "Make out for 30 seconds like you're there right now."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "What do I want more right now: a kiss or a whisper?",
+"optionalDare": "Give your partner both: a whisper in the ear, then a kiss on the lips."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Which part of my body do I love most when you massage it?",
+"optionalDare": "Massage that part for one minute."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Would I rather have my earlobe nibbled or kissed?",
+"optionalDare": "Do whichever they guessed for 5 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "What do I think about when you kiss my neck?",
+"optionalDare": "Kiss your partner's neck for 15 seconds while they think about it."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "What would I want you to do if we were alone right now?",
+"optionalDare": "Pull your partner onto your lap and kiss them for 20 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "How do I like being pulled in for a kiss: by the waist, hand, or collar?",
+"optionalDare": "Pull your partner in that way and kiss them for 10 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Which of your outfits do I think is the sexiest?",
+"optionalDare": "Run your hands down your partner's sides, shoulders to hips, once."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "What sound do I make when you kiss behind my ear?",
+"optionalDare": "Kiss behind your partner's ear for 10 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Would I rather make out in the rain or by a fireplace?",
+"optionalDare": "Make out for 30 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "What part of you do I most like to touch when we kiss?",
+"optionalDare": "Guide your partner's hand there and kiss them for 20 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "Do I want my lower back or my shoulders rubbed more?",
+"optionalDare": "Rub the guessed spot for one minute."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "What do you do that instantly makes me want to kiss you?",
+"optionalDare": "Do it now, then let your partner kiss you for 10 seconds."
+},
+{
+"game": "hotseat",
+"heat": 2,
+"text": "How many neck kisses before I pull you in for a real kiss?",
+"optionalDare": "Kiss your partner's neck that many times, slowly."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Where on my body do I most want to be kissed right now?",
+"optionalDare": "Kiss that spot, over clothes, for 20 seconds. Keep it to neck, jaw, collarbone, waist, hips, or thighs."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Would I rather pin you down or be pinned down?",
+"optionalDare": "Gently pin your partner's wrists and kiss their neck for 30 seconds."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "What's a fantasy I've never fully told you about?",
+"optionalDare": "Whisper the first line of it, then kiss your partner's ear."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "How would I react if you blindfolded me right now?",
+"optionalDare": "Cover your partner's eyes for one minute and kiss three spots: jaw, nape, inner wrist."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Do I want your hands on my hips or my thighs when we kiss?",
+"optionalDare": "Grip your partner's hips or thighs, whichever they guessed, over clothes, and kiss them for 30 seconds."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Which outer layer of yours would I most like to take off you?",
+"optionalDare": "Let your partner slowly remove it while kissing your neck."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Would I like having my wrists tied with something soft?",
+"optionalDare": "Loosely loop a scarf around your partner's wrists and kiss their jaw for 30 seconds."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Where would I most want you to leave a slow trail of kisses?",
+"optionalDare": "Trail kisses there, over clothes, for 30 seconds."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "What's the boldest place I'd want to kiss you in public?",
+"optionalDare": "Kiss your partner's neck for 10 seconds like someone might walk in."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Do I like it more when you take control or when I do?",
+"optionalDare": "Whoever is in control places the other's hands on their hips for one minute."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "What's one thing I want you to do to me tonight that I haven't asked for?",
+"optionalDare": "Whisper your answer, then kiss your partner's collarbone."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "How high up my thigh would I let your hand go under the dinner table?",
+"optionalDare": "Rest your hand on your partner's thigh, over clothes, for one minute."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "What's my favorite way for you to hold me while we make out?",
+"optionalDare": "Hold your partner that way and make out for 30 seconds."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Would I rather be kissed slowly blindfolded or fast with my hands held?",
+"optionalDare": "Do whichever they guessed for 20 seconds."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Which room have I most imagined pinning you against a wall in?",
+"optionalDare": "Back your partner against the nearest wall and kiss them for 30 seconds."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "What's the one spot that makes me lose focus when you kiss it?",
+"optionalDare": "Kiss your partner's neck, jaw, and ear, 5 seconds each, until you find it."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "How long could I last blindfolded before I'd reach for you?",
+"optionalDare": "Blindfold your partner for one minute and trace their jaw and neck with your fingertips."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "What would I want you to say while you pin me against the wall?",
+"optionalDare": "Pin your partner to the wall and say it into their ear."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Would I want my jacket taken off slowly or pulled off fast?",
+"optionalDare": "Remove one outer layer from your partner the way they guessed."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "What role would I want to play in a fantasy date with you?",
+"optionalDare": "Play that role for 30 seconds and end it with a kiss on your partner's neck."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Where would I want your lips if my hands were tied?",
+"optionalDare": "Hold your partner's hands behind their back and kiss their neck or collarbone for 20 seconds."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "What's the hottest thing you've ever done to me, in my opinion?",
+"optionalDare": "Recreate it as a 20 second kiss on your partner's neck."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "Do I like my hips pulled into you or my lower back held?",
+"optionalDare": "Do whichever they guessed while kissing them for 20 seconds."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "What do I picture when I imagine you pinning me down?",
+"optionalDare": "Gently pin your partner's hips and kiss their jaw for 20 seconds."
+},
+{
+"game": "hotseat",
+"heat": 3,
+"text": "What would I do if you gave me total control for ten minutes?",
+"optionalDare": "Give your partner control for 2 minutes. They direct where your lips go, neck and up."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about your first kiss and where it happened.",
+"optionalDare": "Kiss your partner's cheek, then their jaw, slowly."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about the first time you held hands with someone you liked.",
+"optionalDare": "Hold your partner's hand and trace their palm with your thumb for ten seconds."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about the moment you first noticed your partner's lips.",
+"optionalDare": "Brush your thumb across your partner's lower lip, once, slowly."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about your best flirting move.",
+"optionalDare": "Use your best flirting move on your partner right now, eyes locked."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about the outfit that makes you feel most attractive.",
+"optionalDare": "Run your fingers along your partner's collar for five seconds."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about a crush you had on a teacher, boss, or coworker.",
+"optionalDare": "Tuck your partner's hair behind their ear and hold eye contact for five seconds."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about the first thing you noticed about your partner's body.",
+"optionalDare": "Kiss your partner's knuckles, one by one."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about your most awkward kiss ever.",
+"optionalDare": "Give your partner the opposite of that kiss: a soft one on the forehead."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about a time you flirted your way out of trouble.",
+"optionalDare": "Whisper a compliment into your partner's ear."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about the cheesiest pickup line you've ever used.",
+"optionalDare": "Say a pickup line to your partner while holding their waist."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about your first slow dance.",
+"optionalDare": "Slow dance with your partner for twenty seconds, hands on their waist."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about a time someone caught you checking them out.",
+"optionalDare": "Check your partner out from head to toe, slowly and obviously."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about the sexiest voice you've ever heard.",
+"optionalDare": "Say your partner's name in your lowest, slowest voice, right by their ear."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about a celebrity you'd blush in front of.",
+"optionalDare": "Kiss the inside of your partner's wrist."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about your first date with your partner.",
+"optionalDare": "Recreate your first-date goodbye, with an extra kiss on the cheek."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about a time you got butterflies from a single touch.",
+"optionalDare": "Trace a slow line down your partner's forearm with one fingertip."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about the last time you got flustered by your partner.",
+"optionalDare": "Lean in until your noses almost touch and hold it for five seconds."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about your favorite feature on your partner's face.",
+"optionalDare": "Kiss your favorite feature on your partner's face."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about a time you sent a flirty text you regretted.",
+"optionalDare": "Text your partner something flirty while sitting next to them, then watch them read it."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about your most romantic moment in public.",
+"optionalDare": "Hold your partner's face in both hands for five seconds."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about a time you wanted to kiss someone but didn't.",
+"optionalDare": "Kiss your partner's temple and let your lips linger for three seconds."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about your secret flirting tell.",
+"optionalDare": "Play with your partner's fingers for ten seconds without breaking eye contact."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about what you'd wear to seduce your partner.",
+"optionalDare": "Fix your partner's collar, then run your hands down to their shoulders."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about the hug that felt way too good.",
+"optionalDare": "Hug your partner from behind and rest your chin on their shoulder for ten seconds."
+},
+{
+"game": "twotruths",
+"heat": 1,
+"text": "Two truths and a spicy lie about a time you made the first move.",
+"optionalDare": "Make the first move: pull your partner close by their waist."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about your best makeout session.",
+"optionalDare": "Kiss your partner for ten seconds without using your hands."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about where you love being kissed most.",
+"optionalDare": "Show your partner exactly where you love being kissed, then let them do it."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about your favorite place to be touched.",
+"optionalDare": "Guide your partner's hand to your favorite spot on your neck or shoulders."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about the best massage you've ever had.",
+"optionalDare": "Massage your partner's shoulders for thirty seconds."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about the most daring place you've made out.",
+"optionalDare": "Kiss your partner like you're hiding somewhere you shouldn't be."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about a whisper that once gave you chills.",
+"optionalDare": "Whisper something you want to do later into your partner's ear."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about your neck and how sensitive it is.",
+"optionalDare": "Kiss the side of your partner's neck three times, slowly."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about the longest kiss you've ever had.",
+"optionalDare": "Kiss your partner for fifteen seconds straight."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about a time a kiss made your knees weak.",
+"optionalDare": "Kiss your partner while holding the back of their neck."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about your ears and what they do to you.",
+"optionalDare": "Nibble your partner's earlobe gently, just once."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about a kiss that left you completely speechless.",
+"optionalDare": "Kiss your partner, pull back an inch, then kiss them again."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about the touch that instantly melts you.",
+"optionalDare": "Run your fingers slowly along your partner's lower back for ten seconds."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about your favorite way to be woken up.",
+"optionalDare": "Kiss your partner's shoulder like you're waking them up."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about a time you couldn't keep your hands off someone.",
+"optionalDare": "Keep one hand on your partner's thigh for the next two rounds."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about the spot on your back that drives you crazy.",
+"optionalDare": "Trace your partner's spine from the nape down with one finger."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about a makeout that got interrupted.",
+"optionalDare": "Kiss your partner, stop suddenly, and make them wait five seconds for the next one."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about your favorite kind of kiss.",
+"optionalDare": "Give your partner your favorite kind of kiss and tell them what it's called."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about how your partner kisses when they're in the mood.",
+"optionalDare": "Kiss your partner exactly the way they kiss you when they're in the mood."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about the most sensual dance you've ever done.",
+"optionalDare": "Sway with your partner for twenty seconds, hands on their hips."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about a time you got kissed somewhere unexpected.",
+"optionalDare": "Kiss your partner somewhere unexpected above the shoulders."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about your collarbone and who's kissed it.",
+"optionalDare": "Kiss along your partner's collarbone from one side to the other."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about what your partner's hands do to you.",
+"optionalDare": "Let your partner hold your waist while you kiss them for ten seconds."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about the best kiss you've had in the rain or snow.",
+"optionalDare": "Kiss your partner's jaw, slowly, from ear to chin."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about a time you gave someone a massage that went further.",
+"optionalDare": "Massage your partner's hands for twenty seconds, then kiss each palm."
+},
+{
+"game": "twotruths",
+"heat": 2,
+"text": "Two truths and a spicy lie about the nape of your neck and how it reacts.",
+"optionalDare": "Breathe softly on your partner's nape, then kiss it once."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the steamiest kiss of your life.",
+"optionalDare": "Give your partner the steamiest kiss you've got, twenty seconds."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the best place you've ever been kissed on your body.",
+"optionalDare": "Kiss your partner on the body part you'd most like kissed tonight, above the waist and not the chest."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the riskiest place you've ever kissed someone.",
+"optionalDare": "Kiss your partner's neck while they try to stay completely still."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about a fantasy you've never said out loud.",
+"optionalDare": "Whisper one detail of a fantasy into your partner's ear, lips touching it."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about what drives you absolutely wild.",
+"optionalDare": "Do the thing that drives your partner wild for ten seconds."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the most public place you've gotten handsy.",
+"optionalDare": "Run your hands from your partner's waist to their hips and hold them there for ten seconds."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about your inner thighs and how ticklish they are.",
+"optionalDare": "Rest your hand on your partner's inner knee and slide it up two inches. Stop there."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about a time you almost got caught.",
+"optionalDare": "Kiss your partner like you might get caught any second, fifteen seconds."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the boldest thing you've ever whispered to someone.",
+"optionalDare": "Whisper the boldest thing you can think of to your partner, then kiss their ear."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about a role you'd love to play for one night.",
+"optionalDare": "Stay in character as that role and kiss your partner's hand like you mean it."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the hottest text you've ever sent.",
+"optionalDare": "Say your hottest text out loud, slowly, inches from your partner's lips."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about your lower back and what happens when it's touched.",
+"optionalDare": "Slide your hand under the hem of your partner's shirt to rest on their lower back for ten seconds."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the most intense eye contact you've ever had.",
+"optionalDare": "Hold eye contact with your partner for thirty seconds, then kiss them."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about a place you'd love to be kissed but never have been.",
+"optionalDare": "Kiss your partner's hip bone through their clothes."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the most turned-on you've been in public.",
+"optionalDare": "Kiss your partner's neck while your hand rests on their thigh, ten seconds."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about your hips and how you like them held.",
+"optionalDare": "Pull your partner in by their hips and kiss them for ten seconds."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about a dream about your partner you never told them.",
+"optionalDare": "Recreate one innocent moment from that dream, ending with a kiss on the neck."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the best kiss you've had in a car.",
+"optionalDare": "Kiss your partner while holding their jaw, fifteen seconds."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about what your partner does that makes you lose focus.",
+"optionalDare": "Kiss a slow trail from your partner's jaw down to their collarbone."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the longest you've ever gone without a kiss and how it ended.",
+"optionalDare": "Make your partner wait ten seconds with your lips almost on theirs, then kiss them."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about your wildest kiss in the dark.",
+"optionalDare": "Close your eyes and find your partner's lips using only your hands on their face."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the most electric touch you've ever felt.",
+"optionalDare": "Trace your partner's inner wrist up to their elbow with your lips."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the spot that makes you forget your own name.",
+"optionalDare": "Kiss that spot on your partner, as long as they let you, up to twenty seconds."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about the boldest move you've made on a first night together.",
+"optionalDare": "Pull your partner onto your lap for the next round, fully clothed."
+},
+{
+"game": "twotruths",
+"heat": 3,
+"text": "Two truths and a spicy lie about a time you were seduced and loved it.",
+"optionalDare": "Seduce your partner using only kisses on the neck and ears, twenty seconds."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: describe the first moment you found me attractive.",
+"optionalDare": "Kiss your partner's cheek exactly where you'd kiss them on a first date."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: say your favorite thing about my smile.",
+"optionalDare": "Brush your thumb along your partner's lips while they smile."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: tell everyone your go-to move to flirt with me.",
+"optionalDare": "Do that flirting move on your partner right now."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: describe my laugh and what it does to you.",
+"optionalDare": "Make your partner laugh, then kiss their jaw."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: name the outfit of mine you love most.",
+"optionalDare": "Run your hands down your partner's arms from shoulders to wrists."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: tell me what you notice first when I walk in.",
+"optionalDare": "Walk to your partner and greet them with a kiss on the temple."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: describe how I hold your hand.",
+"optionalDare": "Hold your partner's hand the way they hold yours, for ten seconds."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: say what you'd text me right now.",
+"optionalDare": "Whisper that text into your partner's ear instead."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: name the feature of mine you'd kiss first.",
+"optionalDare": "Kiss that feature on your partner, slowly."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: describe our best hug.",
+"optionalDare": "Recreate that hug for ten seconds."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: tell me how I make you blush.",
+"optionalDare": "Hold your partner's face and stare until one of you blushes."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: say the nickname you secretly want to call me.",
+"optionalDare": "Call your partner that nickname while kissing their hand."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: describe how I look when I'm flirting.",
+"optionalDare": "Flirt with your partner using only your eyes for ten seconds."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: name your favorite photo of me and why.",
+"optionalDare": "Strike that pose and let your partner kiss your cheek."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: tell me what my voice does to you.",
+"optionalDare": "Say your partner's name softly against their neck."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: describe the perfect date night with me.",
+"optionalDare": "Slow dance with your partner for fifteen seconds, hands on their waist."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: say what you love about my hands.",
+"optionalDare": "Kiss each of your partner's fingertips."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: describe the moment you knew you liked me.",
+"optionalDare": "Lean your forehead against your partner's for five seconds."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: tell me how I kiss you goodbye.",
+"optionalDare": "Kiss your partner goodbye like you're leaving for a week."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: name the cologne or perfume of mine you love.",
+"optionalDare": "Breathe in at your partner's neck for three seconds."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: describe how I act when I'm jealous.",
+"optionalDare": "Pull your partner close by the waist like nobody else exists."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: say what you'd whisper to me at a party.",
+"optionalDare": "Whisper it now, lips brushing their ear."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: describe my best feature from behind.",
+"optionalDare": "Hug your partner from behind and kiss their shoulder."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: tell me what I do that makes you smile instantly.",
+"optionalDare": "Kiss your partner's inner wrist and smile against it."
+},
+{
+"game": "swap",
+"heat": 1,
+"text": "As your partner: describe our first kiss from your side.",
+"optionalDare": "Recreate your first kiss with your partner, five seconds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe where you love being kissed by me.",
+"optionalDare": "Kiss your partner exactly there, three times."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: tell me the spot on your neck that gets you every time.",
+"optionalDare": "Kiss that spot on your partner's neck for five seconds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe the best makeout we've ever had.",
+"optionalDare": "Kiss your partner for fifteen seconds like it's that night."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: say what you want me to whisper to you tonight.",
+"optionalDare": "Whisper it into your partner's ear, slowly."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe how you like your shoulders massaged.",
+"optionalDare": "Massage your partner's shoulders that way for thirty seconds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: tell me what my lips do to you.",
+"optionalDare": "Kiss your partner's lower lip, slowly, then their upper lip."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: name the place on your body you want my hands most.",
+"optionalDare": "Rest your hands on your partner's waist and hold them there for ten seconds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe how I kiss when I want more.",
+"optionalDare": "Kiss your partner that way for ten seconds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: say how you feel when I kiss your ears.",
+"optionalDare": "Kiss your partner's ear and whisper their name."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe your favorite way I touch your back.",
+"optionalDare": "Trace slow circles on your partner's lower back for fifteen seconds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: tell me what happens when I kiss your collarbone.",
+"optionalDare": "Kiss your partner's collarbone three times, slowly."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe the kiss you think about when we're apart.",
+"optionalDare": "Give your partner that kiss right now."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: say where you want me to sit tonight.",
+"optionalDare": "Sit as close to your partner as possible, thigh to thigh, for two rounds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: tell me the massage you'd beg me for.",
+"optionalDare": "Massage your partner's neck and nape for twenty seconds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe how my hands feel on your waist.",
+"optionalDare": "Hold your partner's waist and pull them in for a kiss."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: say the sound I make when you kiss my neck.",
+"optionalDare": "Kiss your partner's neck until they make that sound, or ten seconds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe what my breath on your skin does to you.",
+"optionalDare": "Breathe slowly along your partner's jaw from ear to chin."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: name my best kissing skill.",
+"optionalDare": "Use that skill on your partner for ten seconds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe your ideal slow, lazy morning with me.",
+"optionalDare": "Kiss your partner's shoulder and up their neck, slowly."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: tell me what you want me to do with my hands right now.",
+"optionalDare": "Let your partner place your hands wherever they want, above the waist and off the chest."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe the best way I've ever pulled you in.",
+"optionalDare": "Pull your partner in by their hips and kiss them."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: say what you love about my jawline.",
+"optionalDare": "Kiss along your partner's jawline from one ear to the other."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: tell me how long you'd want to make out tonight.",
+"optionalDare": "Kiss your partner for that long, up to twenty seconds."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: describe how I look right after a kiss.",
+"optionalDare": "Kiss your partner, then describe how they look."
+},
+{
+"game": "swap",
+"heat": 2,
+"text": "As your partner: say where on your arm my touch gives you goosebumps.",
+"optionalDare": "Trace that spot on your partner's arm with your lips."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe the steamiest kiss we've ever shared.",
+"optionalDare": "Recreate it now, twenty seconds."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: tell me the best place I've ever kissed you on your body.",
+"optionalDare": "Kiss your partner there, if it's above the waist and off the chest. Otherwise their neck."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe what drives you absolutely wild about me.",
+"optionalDare": "Do that to your partner for ten seconds."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: name the riskiest place you'd let me kiss you.",
+"optionalDare": "Kiss your partner like you're in that place, fifteen seconds."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe a fantasy you have about us, keep it PG-13.",
+"optionalDare": "Whisper one more detail into your partner's ear."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: tell me how you want me to kiss you tonight.",
+"optionalDare": "Kiss your partner that way, twenty seconds."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe what you'd do if we were alone right now.",
+"optionalDare": "Do the PG-13 version of it for ten seconds."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: say the spot that makes you lose control.",
+"optionalDare": "Kiss that spot on your partner, if it's off-limits here, kiss their neck instead."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe how my hands feel on your thighs.",
+"optionalDare": "Rest your hand on your partner's thigh and squeeze gently for ten seconds."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: tell me the most public place you'd want to kiss me.",
+"optionalDare": "Kiss your partner like the whole room is watching."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe the hottest moment we've had in public.",
+"optionalDare": "Kiss your partner's neck while holding their hips, ten seconds."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: say what you think about when you look at my lips.",
+"optionalDare": "Kiss your partner, slow, then fast, then slow again."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe what my kisses on your lower back do to you.",
+"optionalDare": "Slide your hand under the hem of your partner's shirt to their lower back for ten seconds."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: tell me the outfit you'd love to take off me, piece by piece.",
+"optionalDare": "Remove one accessory from your partner, slowly, with your teeth or hands."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe the moment you get turned on by me.",
+"optionalDare": "Recreate that moment with a kiss on your partner's neck."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: say the boldest thing you've wanted to say to me.",
+"optionalDare": "Say it now, lips against your partner's ear."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe how you'd seduce me in three moves.",
+"optionalDare": "Do all three moves on your partner, PG-13."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: tell me where you want my lips next.",
+"optionalDare": "Kiss your partner there, above the waist and off the chest."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe what you'd whisper to me in the dark.",
+"optionalDare": "Whisper it with your lips on your partner's neck."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: name the role you'd want me to play for one night.",
+"optionalDare": "Play that role for ten seconds and kiss your partner's hand."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe the kiss that would win any argument.",
+"optionalDare": "Win an imaginary argument with your partner using one long kiss on the lips, ten seconds."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: tell me how close you want me right now.",
+"optionalDare": "Pull your partner onto your lap, fully clothed, for one round."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe how you'd tease me if I couldn't touch you.",
+"optionalDare": "Kiss your partner's neck and jaw while they keep their hands behind their back, fifteen seconds."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: say the moment you realized I could drive you crazy.",
+"optionalDare": "Trail kisses from your partner's inner wrist to their shoulder."
+},
+{
+"game": "swap",
+"heat": 3,
+"text": "As your partner: describe how you'd want tonight to end, keep it PG-13.",
+"optionalDare": "Kiss your partner like it's already ending that way, fifteen seconds."
+}
+]
