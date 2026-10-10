@@ -1,107 +1,63 @@
-# Heat Check 🔥
+# Heat Check
 
-A mobile-first, offline-capable 18+ party game PWA for couples and groups of couples.
-Pure HTML / CSS / JS. No backend, no build step, no dependencies.
+Flirty party games for couples, 18+. Nine pass-the-phone games, three heat levels, one phone.
+An installable PWA on Cloudflare Pages, with Pages Functions for the API, Supabase for accounts
+and Postgres, and Razorpay for payments.
 
-## Folder structure
+Setup, environment variables and test steps: **[SETUP.md](SETUP.md)**.
 
-```
-heat-check/
-├── index.html            # App shell + neutral "Pause" page
-├── cards.json            # ALL game content (750 cards) — edit freely
-├── manifest.webmanifest  # PWA install metadata
-├── sw.js                 # Service worker: offline cache
-├── vercel.json           # Static hosting headers for Vercel
-├── icons/                # 192, 512 and maskable PWA icons
-├── css/
-│   ├── base.css          # Layout, HUD, heat meter, penalty sheet, controls, gates
-│   └── themes.css        # One visual world per game + home tiles
-└── js/
-    ├── audio.js          # Synthesized SFX per game (Web Audio, no files)
-    ├── core.js           # State, players/couples, heat ramp, decks, penalties, timers, pause, wake lock
-    ├── games.js          # The 9 games (+ Rate-your-partner and WYR couples variants)
-    └── app.js            # Age gate, consent, home, setup, routing
-```
+## How it's split
 
-## Games
+| Path | What it is |
+|---|---|
+| `public/` | The static app. Copied to `dist/` by the build. |
+| `public/js/core.js` `games.js` `app.js` `audio.js` `motion.js` | The game engine, the 9 games, the app shell, sounds and the motion layer. |
+| `public/js/intro.js` | The home screen: hold to heat check, tonight's vibe, the tilted game stack. |
+| `public/js/account.js` | Accounts, entitlements, free hot tastes, preferences, stats, payments, admin client. |
+| `public/js/account-ui.js` | Sign-in (email OTP), paywall, pass chip, Lv3 lock moments, profile, receipts, admin panel. |
+| `public/js/boot.js` | Starts the app, then loads accounts in the background. |
+| `public/js/vendor/` | supabase-js 2.117.3 (UMD), loaded only when accounts are switched on. |
+| `public/css/base.css` `themes.css` | The original design. **Never edited.** Additions go in `fixes.css`, `motion.css`, `polish.css`, `intro.css`, `account.css`. |
+| `public/cards.json` | Lv1 and Lv2 cards, plus the 9 free "taste" Lv3 cards (one per game). |
+| `public/_headers` `_routes.json` | Cloudflare Pages headers (CSP etc.) and Functions routing (`/api/*` only). |
+| `functions/api/` | Pages Functions (Workers runtime, Web Crypto + fetch only, no npm packages). |
+| `lib/` | Shared server code: pricing (the one price file), Supabase REST, Razorpay REST, crypto, rate limits, admin session. |
+| `supabase/migrations/` | Tables, `is_pro()`, RPCs, RLS policies. |
+| `supabase/seed/premium_cards.sql` | The 250 Lv3 cards (moved out of the client). |
+| `tools/build.mjs` | Copies `public/` to `dist/` and stamps `SITE_URL` (and `CONTACT_EMAIL`) into canonical/og tags, manifest, robots, sitemap and legal pages. |
+| `tools/hash-admin-password.mjs` | Makes the `ADMIN_PASSWORD_HASH` value. |
+| `wrangler.toml` | Pages config: output dir, `SITE_URL`, KV binding. |
+| `vercel.json` | Keeps the old Vercel deployment working (guest mode) until the move is done. |
 
-| Game | World | Card `game` id |
+## API
+
+| Route | Auth | Does |
 |---|---|---|
-| Red Flag / Green Flag (+ Rate your partner) | Talk-show / couples reaction video | `redflag`, `rate` |
-| Never Have I Ever | Neon house party, red cups | `nhie` |
-| Guess the Body Part | Noir, blindfold, spotlight, body map | `bodypart` |
-| Strip Charades | Velvet-curtain cabaret | `charades` |
-| Would You Rather (group vote / guess your partner) | Fighting-game VS | `wyr` |
-| Who's Most Likely To | Pop-art comic | `mostlikely` |
-| Hot Seat Quiz | Game-show stage | `hotseat` |
-| Two Truths & a Spicy Lie | Casino felt | `twotruths` |
-| Swap Rounds | Chrome mirror | `swap` |
+| `GET /api/config` | none | Public settings: Supabase URL + anon key, Turnstile site key, Razorpay key id, prices, game switches. |
+| `POST /api/auth/otp` | Turnstile | Emails a 6-digit code (rate limited per email and IP). |
+| `POST /api/create-order` | user | Creates a Razorpay order. The server sets the amount from `lib/pricing.js`. |
+| `POST /api/verify-payment` | user | Checks the Checkout signature, confirms with Razorpay, grants. Idempotent. |
+| `POST /api/razorpay-webhook` | signature | Same grant path, from Razorpay. Raw body is read before parsing. |
+| `GET /api/export-data` | user | Everything we hold about the user, as JSON. |
+| `POST /api/delete-account` | user + emailed code | Deletes profile and preferences, anonymizes purchases. |
+| `POST /api/admin/unlock` | admin + password | PBKDF2 check, lockout after 5 fails, sets a 30-minute signed cookie. |
+| `GET /api/admin/status` `POST /api/admin/logout` | admin | Cookie state. |
+| `GET /api/admin/stats`, `POST /api/admin/grant`, `GET/POST /api/admin/games`, `GET/POST /api/admin/cards` | admin + cookie | Counts, grant/revoke by email, game switches, Lv3 card editor. |
+| `POST /api/event` | none | Crash beacon (logs a trimmed line). |
 
-## Editing cards
+## Rules this codebase keeps
 
-`cards.json` is an array. Every card has:
+- Lv3 cards only come from Supabase, gated by RLS (`is_pro(auth.uid())`), and live in memory only.
+- The client never sends a price and never writes `plan`, `premium_until` or `role`.
+- Every admin route checks the signed cookie **and** `profiles.role = 'admin'` on the server.
+- Secrets live in Pages environment variables, never in the repo or the frontend.
+- One `SITE_URL` drives canonical/og tags, manifest, sitemap and CORS.
 
-```json
-{ "game": "nhie", "heat": 2, "text": "Never have I ever …", "optionalDare": "Whisper …" }
-```
+## Release checklist
 
-Extra fields some games use:
-- `bodypart` → `"zone"`: one of `forehead eyelids ear cheek jaw lips neck nape collarbone shoulder upperarm elbow wrist palm fingers upperback lowerback waist hip thigh knee calf ankle foot`
-- `charades` → `"category"`: Movie, Scenario, Dance Move, Bedroom Charade, Celebrity, Song
-- `wyr` → `"a"` and `"b"`: the two options (the app also splits `text` on " or " if these are missing)
+1. Bump `?v=N` in `public/index.html`, `VERSION` and the `SHELL` list in `public/sw.js` together.
+2. `node --check` the changed JS, run the tests, push to `main`. Cloudflare Pages builds and deploys.
 
-Heat: `1` Flirty (1 pt), `2` Spicy (2 pts), `3` Hot (3 pts). Add as many cards as you like; decks shuffle without repeats until exhausted.
+## Rollback
 
-## How the systems work
-
-- **Age gate** once per device, then a **consent screen** every launch.
-- **Pause (⏸)** instantly swaps to a boring grocery-list page. Press-and-hold "Hold to resume" (or double-tap the "Notes" bar, or press Esc) to come back. Timers freeze while paused.
-- **Pass** is always on screen: free on dares, Spicy/Hot cards, Body Part and Charades; costs 1 pt on a Flirty prompt. Every penalty sheet also has a free Pass.
-- **Heat Meter** climbs every N rounds (4/6/8/12) from your start level up to your max. Turn auto-ramp off to lock one level.
-- **Penalty modes**: 🍸 Drinks (points = sips), 💧 Water, 🎲 Dares only (Lv1 truth/compliment, Lv2 kiss/massage/whisper, Lv3 hot dare). Every penalty offers the card's dare as a swap.
-- **Strip Charades layers**: set 3–6 layers each; when someone runs out (or you switch strip off) only the kiss/massage/sip options remain.
-- **Scoreboard** (points taken) and Charades layers sit in the top bar. "New night" on Home resets heat and scores.
-- **Screen Wake Lock** keeps the phone awake during play (Chrome/Edge/Safari 16.4+).
-
-## Run locally
-
-Service workers need http(s), so don't open `index.html` as a file. From this folder:
-
-```bash
-npx serve .            # or: python3 -m http.server 5173
-```
-
-Open the printed URL on your phone (same Wi-Fi) or in desktop Chrome with device mode.
-
-## Deploy to Vercel
-
-**Option A, CLI**
-
-```bash
-npm i -g vercel
-cd heat-check
-vercel          # framework: "Other", build command: none, output dir: ./
-vercel --prod
-```
-
-**Option B, GitHub**
-
-1. Push this folder to a new GitHub repo (files at the repo root).
-2. vercel.com → Add New → Project → import the repo.
-3. Framework Preset: **Other**. Leave Build Command and Output Directory empty. Deploy.
-
-Then open the URL on your phone → browser menu → **Add to Home screen / Install app**. After the first load (fonts included) it runs fully offline.
-
-**Updating:** after you edit JS/CSS, bump `VERSION` in `sw.js` (e.g. `hc-v2`) so phones pick up the new files. `cards.json` is network-first, so card edits show up on the next online launch.
-
-## Play nice
-
-Adults only. Everyone opts in, anyone can stop, nobody is pressured. Drink responsibly, and nobody drives.
-
-## Rollback plan (launch day)
-
-1. Every deploy is immutable and stays live at its own URL. Nothing is ever overwritten.
-2. If a release breaks: Vercel dashboard → heat-check → Deployments → pick the last good one → "Instant Rollback" (or `vercel rollback <deployment-url>`). Takes seconds, no rebuild.
-3. Phones that cached the bad version: the service worker is network-first for cards.json and re-checks sw.js on every launch (sw.js is served no-cache), so bumping `VERSION` in sw.js on the fixed deploy forces clients to drop the old cache.
-4. Known-good deployments are noted in the project log before each release.
-5. After rolling back, open the site, run one round of each game, and check the scoreboard, pause and pass buttons before announcing the fix.
+Cloudflare Pages keeps every deployment. In the dashboard, open the project, Deployments, pick the last good one and choose "Rollback to this deployment". Database changes are additive; the migration never drops data.
