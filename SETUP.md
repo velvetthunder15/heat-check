@@ -1,4 +1,4 @@
-# Heat Check v10: setup and test guide
+# Heat Check: setup and test guide (v11)
 
 Accounts, paywall, admin mode and the new intro. Until the keys below are added, the app runs in
 guest mode: everything free works, and sign-in and Pro show "switching on soon".
@@ -7,17 +7,17 @@ guest mode: everything free works, and sign-in and Pro show "switching on soon".
 
 ## 1. Database (Supabase)
 
-Files: `supabase/migrations/20261010000000_heat_check_accounts.sql`, then `supabase/seed/premium_cards.sql`.
+Run in this order: `supabase/migrations/20261010000000_heat_check_accounts.sql`, `supabase/migrations/20261010180000_v11_heat_groups.sql`, then `supabase/seed/premium_cards.sql`. All three are safe to re-run.
 
 | Object | Notes |
 |---|---|
 | `profiles` | `id` (= `auth.users.id`), `email`, `plan` (`free`/`pass`/`lifetime`), `premium_until`, `role` (`user`/`admin`), `created_at`, `taste_used`, `preferences`, `stats`. Created by a trigger on signup. |
 | `purchases` | `id`, `user_id` (set to null when an account is deleted), `product`, `razorpay_order_id` (unique), `razorpay_payment_id` (unique), `amount_inr`, `currency`, `status` (`created`/`paid`/`failed`), `created_at`, `paid_at`, `anonymized_at`. |
-| `premium_cards` | `game`, `heat` (3 only), `text`, `optional_dare`, plus `extra` (jsonb: Would You Rather options, body zone, charades category), `active`, timestamps. |
-| `games` | One row per game, `enabled` (admin switch). Public read. |
+| `premium_cards` | `game`, `heat` (3 only), `text`, `optional_dare`, `extra` (jsonb: Would You Rather options, charades category + origin), `is_taste`, `active`, timestamps. Pro reads non-taste rows; taste rows are only served by `/api/taste`. |
+| `games` | One row per game, `mode` (`couples` / `group`), `enabled` (admin switch). Public read. |
 | `admin_actions` | Audit log of admin grants, card edits and game switches. No client access. |
 | `is_pro(uid)` | `plan = 'lifetime' OR premium_until > now()`. |
-| `add_tastes(jsonb)` | Signed-in users add free-taste keys. Never removes or overwrites. |
+| `claim_taste(user, game)` | Service role only. Locks the profile row, checks `taste_used`, marks it, returns one taste card. Returns nothing if already used. |
 | `grant_purchase(...)` | Service role only. Locks the purchase row, grants once per order, checks the amount, extends an active pass by 4 hours, never downgrades Lifetime. |
 | `admin_set_entitlement`, `admin_stats`, `anonymize_user_purchases` | Service role only. |
 
@@ -53,7 +53,8 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 
 ## 3. Accounts, payments, admin: how it behaves
 
-- **Guests** play all 9 games at Lv1 and Lv2, up to 4 players, plus one free Lv3 "taste" card per game (bundled, tracked in localStorage, marked when shown).
+- **Guests** play every game at Lv1 and Lv2, up to 4 players. No Hot cards of any kind.
+- **Signed-in free**: one free Hot card per game from `/api/taste`. It plays as exactly one card, then heat drops back to Spicy everywhere.
 - **Sign-in**: email, Turnstile, then `/api/auth/otp` (rate limited) asks Supabase to email a code. The 6 boxes verify with `supabase.auth.verifyOtp`. On first login, guest tastes (union), preferences and stats merge into the profile.
 - **Paywall**: Date Night Pass (4 hours, stacks) and Pro Lifetime. Prices come from `lib/pricing.js` through `/api/config`. Guests are sent to sign-in first, then back to the paywall.
 - **Payment**: `/api/create-order`, Razorpay Checkout (UPI block first), `/api/verify-payment` (signature, then confirm and capture with Razorpay, then `grant_purchase`). The webhook does the same thing, so a closed tab still unlocks. Lv3 cards load into memory, no reload.
@@ -95,15 +96,17 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 
 Use Razorpay test mode, Turnstile test keys if you like (`1x00000000000000000000AA` / `1x0000000000000000000000000000000AA`), and a private window.
 
-1. **Guest**: open the site, pass the 18+ gate, hold the button (Flirty, Spicy, then the Lv3 lock), pick a vibe, pick a game, accept the consent screen, add names. Set Max heat to Hot. At Lv3 you get "Try one hot card (free)" once; take it and the next card is the free one. After that, Lv3 plays Spicy cards with a lock strip. Reload: the taste stays used. Adding a 3rd couple opens the paywall.
-2. **Email OTP**: profile chip, Sign in, email, wait for the check, "Email me a code". Try a wrong code (clear error), paste the right one (fills all 6). Resend unlocks after 30 seconds. Your guest tastes now show in the profile.
-3. **Pass purchase**: tap a Lv3 lock, choose Date Night Pass, pay with test UPI `success@razorpay` or card `4111 1111 1111 1111`. Success animation, Lv3 opens without a reload, countdown chip appears. In Supabase, `purchases.status = 'paid'` and `premium_until` is about 4 hours away.
-4. **Pass expiry**: in SQL, `update profiles set premium_until = now() + interval '16 minutes' where email = '...'`, reopen the app: the 15-minute heads-up shows. Then set it to `now() + interval '30 seconds'` while in a game: the current card finishes, the next draw shows "Pass's up" and Lv3 locks.
-5. **Lifetime**: buy Pro Lifetime. The pass option disappears, the profile shows Lifetime with the purchase date.
-6. **Idempotency**: in Razorpay, Webhooks, resend the `payment.captured` event. `premium_until` doesn't move and no second grant happens.
-7. **Restore**: sign out, clear site data, sign in with the same email: plan and Lv3 come back.
-8. **Admin unlock**: make yourself admin (step 9 above). Long-press the logo 3 seconds, enter the password. Panel opens with counts. Grant a pass to a test email, switch a game off (it disappears for everyone on next load), add a Lv3 card. Wrong password 5 times locks unlock for an hour.
-9. **Export and delete**: profile, Export my data downloads JSON. Delete account sends a code; after confirming, the profile row is gone and the purchase rows remain with `user_id` null.
+1. **Guest**: pass the 18+ gate. Hold the ring: one turn Flirty, two Spicy, the third shakes and says "Sign in to try Hot". Release: Spicy is locked in. Tap ↺: back to Flirty. Play a game: every 5 cards heat rises once, stops at Spicy, and a "Hot is locked" chip shows once. Adding a 3rd couple (or 5th group player) opens the paywall.
+2. **Free Hot card**: signed in, hold to the third turn, tap "Use your free Hot card?", pick a game. The first card is Hot; the next one is Spicy with "Still at Spicy. Hot is locked." Reload, re-hold, or call `/api/taste` again: still Spicy, the API answers 403.
+3. **Groups**: switch to Groups, add 3+ players, play Most Likely (point or secret vote) and Two Truths (60s clock, secret or fingers vote).
+4. **Email OTP**: profile chip, Sign in, email, wait for the check, "Email me a code". Try a wrong code (clear error), paste the right one (fills all 6). Resend unlocks after 30 seconds. The profile shows the free Hot card tracker.
+5. **Pass purchase**: tap a Lv3 lock, choose Date Night Pass, pay with test UPI `success@razorpay` or card `4111 1111 1111 1111`. Success animation, Lv3 opens without a reload, countdown chip appears. In Supabase, `purchases.status = 'paid'` and `premium_until` is about 4 hours away.
+6. **Pass expiry**: in SQL, `update profiles set premium_until = now() + interval '16 minutes' where email = '...'`, reopen the app: the 15-minute heads-up shows. Then set it to `now() + interval '30 seconds'` while in a game: the current card finishes, the next draw shows "Pass's up" and Lv3 locks.
+7. **Lifetime**: buy Pro Lifetime. The pass option disappears, the profile shows Lifetime with the purchase date.
+8. **Idempotency**: in Razorpay, Webhooks, resend the `payment.captured` event. `premium_until` doesn't move and no second grant happens.
+9. **Restore**: sign out, clear site data, sign in with the same email: plan and Lv3 come back.
+10. **Admin unlock**: make yourself admin (step 9 above). Long-press the logo 3 seconds, enter the password. Panel opens with counts. Grant a pass to a test email, switch a game off (it disappears for everyone on next load), add a Lv3 card. Wrong password 5 times locks unlock for an hour.
+11. **Export and delete**: profile, Export my data downloads JSON. Delete account sends a code; after confirming, the profile row is gone and the purchase rows remain with `user_id` null.
 
 ## 6. Changes outside the brief
 
@@ -111,10 +114,20 @@ Use Razorpay test mode, Turnstile test keys if you like (`1x00000000000000000000
 - **Extra env**: `SUPABASE_ANON_KEY`, `TURNSTILE_SITE_KEY`, the `RATE_KV` binding and optional `CONTACT_EMAIL`.
 - **Schema**: `premium_cards` has `extra` (the games need options, zones and categories), `active` and timestamps; `games` and `admin_actions` tables added; purchases has `currency`, `paid_at`, `anonymized_at`.
 - **OTP sending** goes through `/api/auth/otp` so Turnstile and the limits can't be skipped. It calls the same Supabase endpoint `signInWithOtp` uses. Verifying uses `supabase.auth.verifyOtp` in the browser.
-- **Flow**: the intro (hold to heat check, vibe, game stack) is the new home. The consent screen now shows once per session before the first game instead of on every launch.
+- **Flow**: the intro (hold-to-heat ring, game stack) is the new home. The consent screen now shows once per session before the first game instead of on every launch.
 - **"Themes and sounds" for Pro**: the Velvet sound pack and Midnight and Neon home looks, built from existing palettes. All current game themes and sounds stay free.
 - **Saved names (Pro)**: a synced name list with tap-to-add in setup. Names still stay on the device for everyone, as before.
 - **Bug fix**: motion sounds (soft tick, whoosh) never played because the sound module wasn't reachable from the motion layer. They now play when sound is on.
 - **Free taste in Red Flag**: the free card is a Flags scenario, so Rate mode doesn't offer a taste.
 - **PBKDF2**: 100,000 iterations, the Cloudflare Workers maximum.
 - **Repo layout**: `public/`, `functions/`, `lib/`, `supabase/`, `tools/`, with a small build step for `SITE_URL`. `vercel.json` keeps the current Vercel site running in guest mode until Cloudflare takes over.
+
+## 7. v11 changes outside the brief
+
+- **Red Flag "Rate" mode** now rates the same scenario 1 to 10 (how big a red flag) instead of drawing a separate "rate your partner" card, so the toggle can keep one question. The separate rate deck is gone.
+- **Strip Charades setting**: the "strip on/off" toggle is gone (a flop is always one item of clothing). "Layers each" stays.
+- **Groups penalty mode** is its own setting (sips or no alcohol); dares-only isn't offered to groups.
+- **Two Truths** is renamed "Two Truths & a Lie" (it was "& a Spicy Lie").
+- **Pro taste cards**: Pro accounts don't see the 8 taste cards in their deck (RLS hides them); they still get every other Lv3 card.
+- **Performance**: the hold ring updates one CSS variable on the hero instead of on the whole app, which took ring frames from ~33 ms to ~17 ms under 6x CPU throttling.
+- **themes.css** still contains Body Part selectors because that file is never edited; nothing uses them.
