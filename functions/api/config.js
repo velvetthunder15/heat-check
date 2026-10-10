@@ -3,7 +3,7 @@ import { json, handle } from '../../lib/http.js';
 import { publicCatalog } from '../../lib/pricing.js';
 import { rest } from '../../lib/supabase.js';
 
-const GAME_IDS = ['redflag', 'nhie', 'bodypart', 'charades', 'wyr', 'mostlikely', 'hotseat', 'twotruths', 'swap'];
+import { GAME_IDS } from '../../lib/games.js';
 
 export const onRequestGet = handle(async ({ request, env }) => {
   const accounts = !!(env.SUPABASE_URL && env.SUPABASE_ANON_KEY && env.SUPABASE_SERVICE_KEY);
