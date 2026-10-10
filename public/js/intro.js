@@ -17,7 +17,7 @@ const MICRO = [
 ];
 
 const CHEEKY = {
-  redflag: 'Judge famous couples. Find out where you stand.',
+  redflag: 'Judge wild dating moves. Find out where you stand.',
   nhie: 'Confess things. Sip accordingly.',
   charades: 'Act out the title. Flop and lose a layer.',
   wyr: 'Two options. One of them gets you in trouble.',
