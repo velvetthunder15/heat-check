@@ -1,0 +1,603 @@
+[
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather hold hands under the table all night or play footsie through an entire dinner?",
+  "optionalDare": "Hold your partner's hand and trace slow circles on their palm for 30 seconds.",
+  "a": "Hold hands under the table all night",
+  "b": "Play footsie through an entire dinner"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather get a surprise kiss on the cheek or get a surprise squeeze around the waist?",
+  "optionalDare": "Sneak up, kiss your partner's cheek, and hold the hug around their waist for 10 seconds.",
+  "a": "Get a surprise kiss on the cheek",
+  "b": "Get a surprise squeeze around the waist"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather slow dance in the kitchen or cuddle on the couch for a whole movie?",
+  "optionalDare": "Pull your partner in by the waist and slow dance for 30 seconds, no music needed.",
+  "a": "Slow dance in the kitchen",
+  "b": "Cuddle on the couch for a whole movie"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather have your hair played with for ten minutes or get a five minute hand massage?",
+  "optionalDare": "Run your fingers through your partner's hair for one full minute.",
+  "a": "Have your hair played with for ten minutes",
+  "b": "Get a five minute hand massage"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather be winked at across a crowded room or have your hand held in a crowded room?",
+  "optionalDare": "Hold eye contact with your partner for 20 seconds, then wink and kiss their knuckles.",
+  "a": "Be winked at across a crowded room",
+  "b": "Have your hand held in a crowded room"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather get a lingering forehead kiss or get a playful nose kiss?",
+  "optionalDare": "Kiss your partner's forehead and hold it there for 5 seconds.",
+  "a": "Get a lingering forehead kiss",
+  "b": "Get a playful nose kiss"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather share one hoodie or share one blanket on a cold night?",
+  "optionalDare": "Wrap your arms around your partner's waist from behind and hold for 30 seconds.",
+  "a": "Share one hoodie",
+  "b": "Share one blanket on a cold night"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather be fed dessert by your partner or feed your partner dessert?",
+  "optionalDare": "Feed your partner one slow bite of something sweet, then kiss the corner of their lips.",
+  "a": "Be fed dessert by your partner",
+  "b": "Feed your partner dessert"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather have your partner rest their head on your shoulder or rest your head in your partner's lap?",
+  "optionalDare": "Rest your head on your partner's shoulder for one minute while they stroke your hair.",
+  "a": "Have your partner rest their head on your shoulder",
+  "b": "Rest your head in your partner's lap"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather get a compliment whispered in your ear or get a compliment written on your hand?",
+  "optionalDare": "Whisper one honest compliment into your partner's ear, lips close enough to tickle.",
+  "a": "Get a compliment whispered in your ear",
+  "b": "Get a compliment written on your hand"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather have your shoulders rubbed for a minute or have your feet rubbed for a minute?",
+  "optionalDare": "Rub your partner's shoulders for one full minute.",
+  "a": "Have your shoulders rubbed for a minute",
+  "b": "Have your feet rubbed for a minute"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather be pulled close by your belt loops or be pulled close by your hand?",
+  "optionalDare": "Hook a finger in your partner's belt loop and pull them close for 10 seconds.",
+  "a": "Be pulled close by your belt loops",
+  "b": "Be pulled close by your hand"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather get a quick kiss on the knuckles or get a quick kiss on the inner wrist?",
+  "optionalDare": "Kiss the back of your partner's hand, then their inner wrist, 3 seconds each.",
+  "a": "Get a quick kiss on the knuckles",
+  "b": "Get a quick kiss on the inner wrist"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather spoon as the big spoon or spoon as the little spoon?",
+  "optionalDare": "Spoon your partner for one minute, arm around their waist.",
+  "a": "Spoon as the big spoon",
+  "b": "Spoon as the little spoon"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather have your jaw cupped during a kiss or have your waist held during a kiss?",
+  "optionalDare": "Cup your partner's jaw in both hands and give them one soft 5 second kiss on the lips.",
+  "a": "Have your jaw cupped during a kiss",
+  "b": "Have your waist held during a kiss"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather sit with your legs over your partner's lap or have your partner's legs over your lap?",
+  "optionalDare": "Drape your legs across your partner's lap for one minute while they rest a hand on your knee.",
+  "a": "Sit with your legs over your partner's lap",
+  "b": "Have your partner's legs over your lap"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather get a peck every time you laugh tonight or get a hug every time you blush tonight?",
+  "optionalDare": "Make your partner laugh, then kiss their cheek.",
+  "a": "Get a peck every time you laugh tonight",
+  "b": "Get a hug every time you blush tonight"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather have your fingers interlaced for a whole walk or have an arm around your shoulders for a whole walk?",
+  "optionalDare": "Interlace fingers and walk one slow lap of the room together, shoulders touching.",
+  "a": "Have your fingers interlaced for a whole walk",
+  "b": "Have an arm around your shoulders for a whole walk"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather be tickled for ten seconds or be held still in a tight hug for a minute?",
+  "optionalDare": "Hug your partner tight for one full minute without letting go.",
+  "a": "Be tickled for ten seconds",
+  "b": "Be held still in a tight hug for a minute"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather get a kiss on the temple or get a kiss on the top of your head?",
+  "optionalDare": "Kiss your partner's temple and stay there for 3 seconds.",
+  "a": "Get a kiss on the temple",
+  "b": "Get a kiss on the top of your head"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather draw a heart on your partner's back or have a word traced on your back to guess?",
+  "optionalDare": "Trace a word on your partner's back with one finger. They get three guesses.",
+  "a": "Draw a heart on your partner's back",
+  "b": "Have a word traced on your back to guess"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather be kissed hello like you've been gone a week or be kissed goodbye like you're leaving for a week?",
+  "optionalDare": "Kiss your partner hello on the lips like you haven't seen them in a week, 5 seconds.",
+  "a": "Be kissed hello like you've been gone a week",
+  "b": "Be kissed goodbye like you're leaving for a week"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather have your cheek stroked with a thumb or have your neck brushed by fingertips?",
+  "optionalDare": "Brush your thumb slowly along your partner's cheekbone for 10 seconds.",
+  "a": "Have your cheek stroked with a thumb",
+  "b": "Have your neck brushed by fingertips"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather squeeze into one chair together or share one pillow together?",
+  "optionalDare": "Squeeze into one chair together, your arm around their waist, for one minute.",
+  "a": "Squeeze into one chair together",
+  "b": "Share one pillow together"
+ },
+ {
+  "game": "wyr",
+  "heat": 1,
+  "text": "Would you rather get a slow kiss on the back of your hand or get a quick kiss on the corner of your mouth?",
+  "optionalDare": "Kiss the corner of your partner's mouth, slow and soft, for 3 seconds.",
+  "a": "Get a slow kiss on the back of your hand",
+  "b": "Get a quick kiss on the corner of your mouth"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather have your neck kissed for thirty seconds or have your ear whispered into for a minute?",
+  "optionalDare": "Kiss the side of your partner's neck slowly for 30 seconds.",
+  "a": "Have your neck kissed for thirty seconds",
+  "b": "Have your ear whispered into for a minute"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather sit on your partner's lap for five minutes or have your partner sit on your lap for five minutes?",
+  "optionalDare": "Sit sideways on your partner's lap with your arms around their neck for one minute.",
+  "a": "Sit on your partner's lap for five minutes",
+  "b": "Have your partner sit on your lap for five minutes"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather make out for one minute standing up or make out for one minute on the couch?",
+  "optionalDare": "Make out with your partner for one minute, right where you're sitting.",
+  "a": "Make out for one minute standing up",
+  "b": "Make out for one minute on the couch"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather get a slow kiss on your collarbone or get a slow kiss behind your ear?",
+  "optionalDare": "Kiss along your partner's collarbone, one side to the other, taking 15 seconds.",
+  "a": "Get a slow kiss on your collarbone",
+  "b": "Get a slow kiss behind your ear"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather get a ten minute back massage or get a ten minute neck and shoulder massage?",
+  "optionalDare": "Massage your partner's neck and shoulders for two minutes.",
+  "a": "Get a ten minute back massage",
+  "b": "Get a ten minute neck and shoulder massage"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather hear a whispered secret wish or hear what your partner wants to do later?",
+  "optionalDare": "Whisper into your partner's ear exactly how you want to kiss them later tonight.",
+  "a": "Hear a whispered secret wish",
+  "b": "Hear what your partner wants to do later"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather have your inner wrist kissed slowly or have your palm kissed slowly?",
+  "optionalDare": "Kiss your partner's inner wrist three times, slower each time.",
+  "a": "Have your inner wrist kissed slowly",
+  "b": "Have your palm kissed slowly"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather have your earlobe gently nibbled or have your lower lip gently nibbled?",
+  "optionalDare": "Gently nibble your partner's earlobe for 5 seconds.",
+  "a": "Have your earlobe gently nibbled",
+  "b": "Have your lower lip gently nibbled"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather be kissed against a wall or be kissed against a kitchen counter?",
+  "optionalDare": "Back your partner against the nearest wall and kiss them for 20 seconds.",
+  "a": "Be kissed against a wall",
+  "b": "Be kissed against a kitchen counter"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather get your lower back massaged or get your calves massaged?",
+  "optionalDare": "Massage your partner's lower back with both hands for one minute.",
+  "a": "Get your lower back massaged",
+  "b": "Get your calves massaged"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather have kisses trailed along your jaw or have kisses trailed down your neck?",
+  "optionalDare": "Trail five slow kisses along your partner's jawline, ear to chin.",
+  "a": "Have kisses trailed along your jaw",
+  "b": "Have kisses trailed down your neck"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather straddle your partner's lap for a kiss or be straddled for a kiss?",
+  "optionalDare": "Straddle your partner's lap, fully clothed, and kiss them for 30 seconds.",
+  "a": "Straddle your partner's lap for a kiss",
+  "b": "Be straddled for a kiss"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather have breath on your neck for ten seconds or have lips hovering over yours for ten seconds?",
+  "optionalDare": "Hover your lips an inch from your partner's for 10 seconds without touching. Then kiss them.",
+  "a": "Have breath on your neck for ten seconds",
+  "b": "Have lips hovering over yours for ten seconds"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather get a kiss on the nape of your neck or get a kiss on the hollow of your throat?",
+  "optionalDare": "Move your partner's hair aside and kiss the nape of their neck for 10 seconds.",
+  "a": "Get a kiss on the nape of your neck",
+  "b": "Get a kiss on the hollow of your throat"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather have fingertips trace your spine over your shirt or have fingertips trace your collarbone?",
+  "optionalDare": "Trace your partner's spine with your fingertips, nape to lower back, twice.",
+  "a": "Have fingertips trace your spine over your shirt",
+  "b": "Have fingertips trace your collarbone"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather be told your best feature in a whisper or be told your sexiest habit in a whisper?",
+  "optionalDare": "Whisper your partner's sexiest feature into their ear, then kiss just below that ear.",
+  "a": "Be told your best feature in a whisper",
+  "b": "Be told your sexiest habit in a whisper"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather make out with no hands allowed or make out with hands only on the waist?",
+  "optionalDare": "Kiss your partner for 30 seconds with your hands clasped behind your back.",
+  "a": "Make out with no hands allowed",
+  "b": "Make out with hands only on the waist"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather get a kiss on each shoulder or get a kiss on each wrist?",
+  "optionalDare": "Slide your partner's collar aside and kiss their shoulder for 10 seconds.",
+  "a": "Get a kiss on each shoulder",
+  "b": "Get a kiss on each wrist"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather sit between your partner's knees for a massage or massage your partner while they sit between yours?",
+  "optionalDare": "Sit your partner between your knees and rub their shoulders for one minute.",
+  "a": "Sit between your partner's knees for a massage",
+  "b": "Massage your partner while they sit between yours"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather get kissed slowly with eyes open or get kissed fast with eyes closed?",
+  "optionalDare": "Kiss your partner on the lips for 15 seconds, eyes open the whole time.",
+  "a": "Get kissed slowly with eyes open",
+  "b": "Get kissed fast with eyes closed"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather have your waist held while you kiss or have your face held while you kiss?",
+  "optionalDare": "Hold your partner's waist with both hands and kiss them for 20 seconds.",
+  "a": "Have your waist held while you kiss",
+  "b": "Have your face held while you kiss"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather hear your name whispered slowly or hear a bold compliment whispered?",
+  "optionalDare": "Whisper your partner's name slowly into their ear, then kiss their neck for 5 seconds.",
+  "a": "Hear your name whispered slowly",
+  "b": "Hear a bold compliment whispered"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather get a hand massage with kisses after or get a foot rub with a kiss on the ankle?",
+  "optionalDare": "Massage your partner's hand for one minute, then kiss each fingertip.",
+  "a": "Get a hand massage with kisses after",
+  "b": "Get a foot rub with a kiss on the ankle"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather be kissed in the car before going inside or be kissed in an elevator between floors?",
+  "optionalDare": "Kiss your partner like you have 10 seconds before the elevator doors open.",
+  "a": "Be kissed in the car before going inside",
+  "b": "Be kissed in an elevator between floors"
+ },
+ {
+  "game": "wyr",
+  "heat": 2,
+  "text": "Would you rather have your hair gently pulled during a kiss or have your chin tilted up for a kiss?",
+  "optionalDare": "Tilt your partner's chin up with one finger and kiss them for 10 seconds.",
+  "a": "Have your hair gently pulled during a kiss",
+  "b": "Have your chin tilted up for a kiss"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have your neck kissed for a minute or have your thighs traced for a minute?",
+  "optionalDare": "Trace slow lines along your partner's thighs, over clothes, for one minute.",
+  "a": "Have your neck kissed for a minute",
+  "b": "Have your thighs traced for a minute"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather be pinned to the bed by your wrists or pin your partner down by their wrists?",
+  "optionalDare": "Gently pin your partner's wrists above their head and kiss their neck for 30 seconds.",
+  "a": "Be pinned to the bed by your wrists",
+  "b": "Pin your partner down by their wrists"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather be blindfolded and kissed somewhere new or blindfold your partner and choose the spot?",
+  "optionalDare": "Cover your partner's eyes and kiss three surprise spots: inner wrist, collarbone, nape. 5 seconds each.",
+  "a": "Be blindfolded and kissed somewhere new",
+  "b": "Blindfold your partner and choose the spot"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have your wrists tied with a soft scarf or tie your partner's wrists with a soft scarf?",
+  "optionalDare": "Loosely loop a scarf around your partner's wrists and kiss along their jaw for 30 seconds.",
+  "a": "Have your wrists tied with a soft scarf",
+  "b": "Tie your partner's wrists with a soft scarf"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have your jacket slowly taken off you or slowly take off your partner's hoodie?",
+  "optionalDare": "Slowly remove one outer layer from your partner, like a jacket or hoodie, kissing their neck as you go.",
+  "a": "Have your jacket slowly taken off you",
+  "b": "Slowly take off your partner's hoodie"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have your hips gripped while you kiss or have your thighs squeezed while you kiss?",
+  "optionalDare": "Hold your partner's hips firmly and kiss them for 30 seconds.",
+  "a": "Have your hips gripped while you kiss",
+  "b": "Have your thighs squeezed while you kiss"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather whisper your boldest fantasy or hear your partner's boldest fantasy whispered?",
+  "optionalDare": "Whisper one fantasy into your partner's ear, then kiss behind that ear for 5 seconds.",
+  "a": "Whisper your boldest fantasy",
+  "b": "Hear your partner's boldest fantasy whispered"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have kisses trailed from ear to collarbone or have kisses trailed from wrist to shoulder?",
+  "optionalDare": "Trail slow kisses from your partner's ear down to their collarbone, taking 20 seconds.",
+  "a": "Have kisses trailed from ear to collarbone",
+  "b": "Have kisses trailed from wrist to shoulder"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather be in total control for five minutes or give up total control for five minutes?",
+  "optionalDare": "Take the lead for 2 minutes: you decide where your partner's hands rest, waist, hips, or thighs.",
+  "a": "Be in total control for five minutes",
+  "b": "Give up total control for five minutes"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have a hand slide slowly up your thigh or have a hand slide around your lower back?",
+  "optionalDare": "Slide your hand slowly up your partner's thigh, over clothes, and rest it at mid thigh for 10 seconds.",
+  "a": "Have a hand slide slowly up your thigh",
+  "b": "Have a hand slide around your lower back"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather be kissed blindfolded with no warning or be kissed with your hands held behind you?",
+  "optionalDare": "Hold your partner's hands behind their back and kiss them for 30 seconds.",
+  "a": "Be kissed blindfolded with no warning",
+  "b": "Be kissed with your hands held behind you"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have your hip bones kissed over your clothes or have your lower back kissed over your clothes?",
+  "optionalDare": "Kneel and kiss your partner's hip bone over their clothes for 10 seconds.",
+  "a": "Have your hip bones kissed over your clothes",
+  "b": "Have your lower back kissed over your clothes"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather be pressed against a door and kissed or be pulled onto a lap and kissed?",
+  "optionalDare": "Press your partner against a door and kiss their neck for 30 seconds.",
+  "a": "Be pressed against a door and kissed",
+  "b": "Be pulled onto a lap and kissed"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather act out a fantasy tonight or hear a fantasy described tonight?",
+  "optionalDare": "Describe a fantasy setting in your partner's ear for 30 seconds, then kiss their lips.",
+  "a": "Act out a fantasy tonight",
+  "b": "Hear a fantasy described tonight"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have your waist grabbed and pulled close or have your hips guided onto a lap?",
+  "optionalDare": "Grab your partner's waist, pull them flush against you, and hold for 20 seconds.",
+  "a": "Have your waist grabbed and pulled close",
+  "b": "Have your hips guided onto a lap"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather be told exactly where you'll be kissed or never know where the next kiss lands?",
+  "optionalDare": "Tell your partner three places you'll kiss them, then kiss each for 5 seconds.",
+  "a": "Be told exactly where you'll be kissed",
+  "b": "Never know where the next kiss lands",
+  "taste": true
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather get a full body massage with oil or get a slow thigh and hip massage?",
+  "optionalDare": "Massage your partner's thighs and hips, over clothes, for two minutes.",
+  "a": "Get a full body massage with oil",
+  "b": "Get a slow thigh and hip massage"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather make out until someone has to stop or kiss for one minute without breaking?",
+  "optionalDare": "Make out for 90 seconds. First to pull away owes a 10 second kiss on the neck.",
+  "a": "Make out until someone has to stop",
+  "b": "Kiss for one minute without breaking"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather be blindfolded for ten minutes or have your hands tied for ten minutes?",
+  "optionalDare": "Blindfold your partner for one minute and kiss their lips, jaw, and neck in any order.",
+  "a": "Be blindfolded for ten minutes",
+  "b": "Have your hands tied for ten minutes"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have your nape kissed while held from behind or have your jaw kissed while pinned to a wall?",
+  "optionalDare": "Hold your partner from behind and kiss the nape of their neck for 30 seconds.",
+  "a": "Have your nape kissed while held from behind",
+  "b": "Have your jaw kissed while pinned to a wall"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather take off one outer layer while being watched or watch your partner take off one outer layer?",
+  "optionalDare": "Slowly take off one outer layer, like a jacket or hoodie, while holding eye contact with your partner.",
+  "a": "Take off one outer layer while being watched",
+  "b": "Watch your partner take off one outer layer"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have teeth graze your neck or have teeth graze your shoulder?",
+  "optionalDare": "Lightly graze your teeth along your partner's neck for 5 seconds, then kiss the spot.",
+  "a": "Have teeth graze your neck",
+  "b": "Have teeth graze your shoulder"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather be pinned to the couch for a kiss or be lifted onto a counter for a kiss?",
+  "optionalDare": "Lean your partner back onto the couch and kiss them for 30 seconds.",
+  "a": "Be pinned to the couch for a kiss",
+  "b": "Be lifted onto a counter for a kiss"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather be whispered to while pinned in place or be kissed while you can't use your hands?",
+  "optionalDare": "Hold your partner's wrists at their sides and whisper what you want into their ear for 20 seconds.",
+  "a": "Be whispered to while pinned in place",
+  "b": "Be kissed while you can't use your hands"
+ },
+ {
+  "game": "wyr",
+  "heat": 3,
+  "text": "Would you rather have your waist kissed through your shirt or have your thighs kissed through your jeans?",
+  "optionalDare": "Kiss your partner's waist through their shirt, side to side, for 20 seconds.",
+  "a": "Have your waist kissed through your shirt",
+  "b": "Have your thighs kissed through your jeans"
+ }
+]
