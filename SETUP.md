@@ -1,29 +1,31 @@
-# Heat Check: setup and test guide (v11)
+# Heat Check: setup and test guide (v12)
 
 Accounts, paywall, admin mode and the new intro. Until the keys below are added, the app runs in
-guest mode: everything free works, and sign-in and Pro show "switching on soon".
+guest mode: Flirty works, and sign-in, Lite and Premium show "switching on soon".
 
 ---
 
 ## 1. Database (Supabase)
 
-Run in this order: `supabase/migrations/20261010000000_heat_check_accounts.sql`, `supabase/migrations/20261010180000_v11_heat_groups.sql`, then `supabase/seed/premium_cards.sql`. All three are safe to re-run.
+Run in this order: `supabase/migrations/20261010000000_heat_check_accounts.sql`, `supabase/migrations/20261010180000_v11_heat_groups.sql`, `supabase/migrations/20261011000000_v12_tiers.sql`, then `supabase/seed/premium_cards.sql`. All are safe to re-run.
 
 | Object | Notes |
 |---|---|
-| `profiles` | `id` (= `auth.users.id`), `email`, `plan` (`free`/`pass`/`lifetime`), `premium_until`, `role` (`user`/`admin`), `created_at`, `taste_used`, `preferences`, `stats`. Created by a trigger on signup. |
+| `profiles` | `id` (= `auth.users.id`), `email`, `plan` (`base`/`lite`/`premium`), `premium_until` (Lite only, always null for Premium), `role` (`user`/`admin`), `created_at`, `taste_used`, `preferences`, `stats` (incl. the server-owned `limits` block: today's Flirty counts, Lite Hot counts). Created by a trigger on signup. |
 | `purchases` | `id`, `user_id` (set to null when an account is deleted), `product`, `razorpay_order_id` (unique), `razorpay_payment_id` (unique), `amount_inr`, `currency`, `status` (`created`/`paid`/`failed`), `created_at`, `paid_at`, `anonymized_at`. |
-| `premium_cards` | `game`, `heat` (3 only), `text`, `optional_dare`, `extra` (jsonb: Would You Rather options, charades category + origin), `is_taste`, `active`, timestamps. Pro reads non-taste rows; taste rows are only served by `/api/taste`. |
+| `premium_cards` | `game`, `heat` (2 Spicy or 3 Hot), `text`, `optional_dare`, `extra` (jsonb: Would You Rather options, charades category + origin), `is_taste`, `active`, timestamps. Pro reads non-taste rows; taste rows are only served by `/api/taste`. |
 | `games` | One row per game, `mode` (`couples` / `group`), `enabled` (admin switch). Public read. |
 | `admin_actions` | Audit log of admin grants, card edits and game switches. No client access. |
-| `is_pro(uid)` | `plan = 'lifetime' OR premium_until > now()`. |
-| `claim_taste(user, game)` | Service role only. Locks the profile row, checks `taste_used`, marks it, returns one taste card. Returns nothing if already used. |
-| `grant_purchase(...)` | Service role only. Locks the purchase row, grants once per order, checks the amount, extends an active pass by 4 hours, never downgrades Lifetime. |
+| `has_lite(uid)` / `has_premium(uid)` | `plan = 'lite' AND premium_until > now()` OR `plan = 'premium'` / `plan = 'premium'`. Premium has no expiry check. |
+| `bump_flirty`, `sync_flirty`, `claim_hot` | Service role only. Base Flirty counter (5 per game per day), guest counters on sign-in, Lite Hot cards (3 per game per pass). Row-locked, atomic. |
+| `save_stats(stats)` | Signed-in users save their own stats; the `limits` block is always kept. |
+| `claim_taste(user, game, origins)` | Service role only. Locks the profile row, checks `taste_used`, marks it, returns one taste card. Returns nothing if already used. |
+| `grant_purchase(...)` | Service role only. Locks the purchase row, grants once per order and once per payment id, checks the amount. Premium: `plan = 'premium'`, `premium_until` null. Lite: +60 minutes (a new pass resets its Hot counters), never on a Premium account. |
 | `admin_set_entitlement`, `admin_stats`, `anonymize_user_purchases` | Service role only. |
 
 RLS is on for every table. Users read only their own profile and purchases, can update only
-`preferences` and `stats` (column grants), and can read `premium_cards` only while `is_pro()` is true.
-`plan`, `premium_until`, `role` and `taste_used` can't be written by clients.
+`preferences` (column grant) and their stats through `save_stats()`. They read Spicy rows only with `has_lite()` and Hot rows only with `has_premium()`.
+`plan`, `premium_until`, `role`, `taste_used` and the limit counters can't be written by clients.
 
 ## 2. Pages Functions and environment
 
@@ -51,15 +53,17 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 
 ⚑ = not in the original list, needed by the design (see "Changes outside the brief").
 
-## 3. Accounts, payments, admin: how it behaves
+## 3. Tiers, payments, admin: how it behaves
 
-- **Guests** play every game at Lv1 and Lv2, up to 4 players. No Hot cards of any kind.
-- **Signed-in free**: one free Hot card per game from `/api/taste`. It plays as exactly one card, then heat drops back to Spicy everywhere.
-- **Sign-in**: email, Turnstile, then `/api/auth/otp` (rate limited) asks Supabase to email a code. The 6 boxes verify with `supabase.auth.verifyOtp`. On first login, guest tastes (union), preferences and stats merge into the profile.
-- **Paywall**: Date Night Pass (4 hours, stacks) and Pro Lifetime. Prices come from `lib/pricing.js` through `/api/config`. Guests are sent to sign-in first, then back to the paywall.
-- **Payment**: `/api/create-order`, Razorpay Checkout (UPI block first), `/api/verify-payment` (signature, then confirm and capture with Razorpay, then `grant_purchase`). The webhook does the same thing, so a closed tab still unlocks. Lv3 cards load into memory, no reload.
-- **Pass**: countdown chip, 15-minute heads-up, expiry screen. At expiry the current card finishes, then Lv3 locks and the in-memory cards are cleared.
-- **Admin**: long-press the logo for 3 seconds (does nothing for non-admins). Password, then a 30-minute HttpOnly, Secure, SameSite=Strict cookie. Panel: counts, grant or revoke by email, game switches, Lv3 card editor.
+- **Guest** (not signed in): 5 Flirty cards per game per day, no Spicy, no Hot, up to 4 players. Counters in localStorage.
+- **Base** (signed in, free): 5 Flirty per game per day, then one free Hot card per game from `/api/taste`, then the game locks with a soft "Unlock more" sheet. Counters live on the server (`/api/flirty`).
+- **Lite** (₹69, 1 hour): Flirty and Spicy unlimited, 3 Hot cards per game from `/api/hot`, the Velvet sounds and the Midnight look. Up to 4 players. At expiry the current card finishes, then Lite locks.
+- **Premium** (₹99, one-time): everything, never expires. Unlimited players, saved names, every look.
+- **Counters**: a quiet line above the card ("Flirty 3/5 · Hot 0/1" or "Hot 2/3"), hidden for Premium. Limits only show when the next card is asked for, never mid-card.
+- **Sign-in**: email, Turnstile, then `/api/auth/otp` (rate limited) asks Supabase to email a code. On first login, preferences, stats and today's guest Flirty counts carry over.
+- **Paywall**: Lite and Premium side by side. Prices and durations come from `lib/pricing.js` through `/api/config`; the app sends only the product name. Guests sign in first, then come back to the paywall.
+- **Payment**: `/api/create-order`, Razorpay Checkout, `/api/verify-payment` (signature, confirm and capture, then `grant_purchase`). The webhook does the same thing. A payment id only ever grants once. Premium accounts can't buy Lite ("You already have Premium.").
+- **Admin**: long-press the logo for 3 seconds. Password, then a 30-minute cookie. Panel: counts, grant Lite / Premium or revoke, game switches, Spicy and Hot card editor. Admin mode plays as Premium.
 
 ## 4. Setup checklist
 
@@ -96,16 +100,16 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 
 Use Razorpay test mode, Turnstile test keys if you like (`1x00000000000000000000AA` / `1x0000000000000000000000000000000AA`), and a private window.
 
-1. **Guest**: pass the 18+ gate. Hold the ring: one turn Flirty, two Spicy, the third shakes and says "Sign in to try Hot". Release: Spicy is locked in. Tap ↺: back to Flirty. Play a game: every 5 cards heat rises once, stops at Spicy, and a "Hot is locked" chip shows once. Adding a 3rd couple (or 5th group player) opens the paywall.
-2. **Free Hot card**: signed in, hold to the third turn, tap "Use your free Hot card?", pick a game. The first card is Hot; the next one is Spicy with "Still at Spicy. Hot is locked." Reload, re-hold, or call `/api/taste` again: still Spicy, the API answers 403.
-3. **Groups**: switch to Groups, add 3+ players, play Most Likely (point or secret vote) and Two Truths (60s clock, secret or fingers vote).
-4. **Email OTP**: profile chip, Sign in, email, wait for the check, "Email me a code". Try a wrong code (clear error), paste the right one (fills all 6). Resend unlocks after 30 seconds. The profile shows the free Hot card tracker.
-5. **Pass purchase**: tap a Lv3 lock, choose Date Night Pass, pay with test UPI `success@razorpay` or card `4111 1111 1111 1111`. Success animation, Lv3 opens without a reload, countdown chip appears. In Supabase, `purchases.status = 'paid'` and `premium_until` is about 4 hours away.
-6. **Pass expiry**: in SQL, `update profiles set premium_until = now() + interval '16 minutes' where email = '...'`, reopen the app: the 15-minute heads-up shows. Then set it to `now() + interval '30 seconds'` while in a game: the current card finishes, the next draw shows "Pass's up" and Lv3 locks.
-7. **Lifetime**: buy Pro Lifetime. The pass option disappears, the profile shows Lifetime with the purchase date.
-8. **Idempotency**: in Razorpay, Webhooks, resend the `payment.captured` event. `premium_until` doesn't move and no second grant happens.
-9. **Restore**: sign out, clear site data, sign in with the same email: plan and Lv3 come back.
-10. **Admin unlock**: make yourself admin (step 9 above). Long-press the logo 3 seconds, enter the password. Panel opens with counts. Grant a pass to a test email, switch a game off (it disappears for everyone on next load), add a Lv3 card. Wrong password 5 times locks unlock for an hour.
+1. **Guest**: pass the 18+ gate. Hold the ring: one turn Flirty; the second turn shakes ("Spicy needs Lite or Premium."), keep holding and the third says "Sign in for a free Hot card". Play a game: the 6th card opens the "Unlock more" sheet.
+2. **Base + free Hot card**: signed in, play 5 Flirty cards in one game: the next request offers "Use your free Hot card?". After it, "Unlock more". The counter reads "Flirty 5/5 · Hot 1/1". `/api/taste` again answers 403.
+3. **Timer and Hollywood / Bollywood**: settings, pick 15s: Strip Charades, Would You Rather, Most Likely, Two Truths and the Red Flag debate all count from 15. Turn Hollywood off: no Hollywood charades or famous couples on the next card. The last toggle can't be turned off.
+4. **Email OTP**: profile, Sign in, email, wait for the check, "Email me a code". Wrong code: clear error. Resend unlocks after 30 seconds.
+5. **Lite purchase**: tap a lock, choose Lite, pay with test netbanking (Success) or the Indian test card `4100 2800 0000 1007`. The banner shows "Lite · 60 min left", Spicy opens, Hot shows "Hot 1/3" and stops after 3 per game. `purchases.status = 'paid'`, `premium_until` about an hour ahead.
+6. **Lite expiry**: `update profiles set premium_until = now() + interval '6 minutes' where email = '...'`: the 5-minute chip shows. Set it to `now() + interval '30 seconds'` in a game: the current card finishes, the next is Flirty and "Lite’s up" opens.
+7. **Premium**: buy Premium. The banner reads "Premium · Lifetime", `plan = 'premium'`, `premium_until` null. Lite can no longer be bought.
+8. **Idempotency**: in Razorpay, Webhooks, resend the `payment.captured` event. Nothing changes and no second grant happens.
+9. **Restore**: sign out, clear site data, sign in with the same email: the plan and its cards come back.
+10. **Admin unlock**: make yourself admin (step 9 above). Long-press the logo 3 seconds, enter the password. Panel opens with counts. Grant Lite to a test email, switch a game off (it disappears for everyone on next load), add a Spicy or Hot card. Wrong password 5 times locks unlock for an hour.
 11. **Export and delete**: profile, Export my data downloads JSON. Delete account sends a code; after confirming, the profile row is gone and the purchase rows remain with `user_id` null.
 
 ## 6. Changes outside the brief
@@ -131,3 +135,18 @@ Use Razorpay test mode, Turnstile test keys if you like (`1x00000000000000000000
 - **Pro taste cards**: Pro accounts don't see the 8 taste cards in their deck (RLS hides them); they still get every other Lv3 card.
 - **Performance**: the hold ring updates one CSS variable on the hero instead of on the whole app, which took ring frames from ~33 ms to ~17 ms under 6x CPU throttling.
 - **themes.css** still contains Body Part selectors because that file is never edited; nothing uses them.
+
+## 8. v12 changes outside the brief
+
+- **Flirty limits reset daily** (midnight IST). The brief says "per game" without a period; a lifetime cap would lock free players out of a game forever. One constant (`HC.LIMIT_RESET` / `lib/limits.js`).
+- **Flirty text stays in the bundle** so guests can play offline. The Base counter is server-side, but the cards themselves are free content. Spicy and Hot never ship in the bundle.
+- **Lite Hot counters reset with each new Lite pass** (buying again while active just adds an hour).
+- **Lite gets the Velvet sounds and the Midnight look**; Premium gets every look (Neon too) and saved names.
+- **Timers added to Would You Rather and Most Likely**: a talk clock that starts the vote when it runs out (tap to vote early). Before, those two had no clock.
+- **Strip Charades flops add the card's penalty points** to the scoreboard (so End Night totals include them), as well as one item of clothing.
+- **In-game heat selector**: tap the heat chip in a game to change heat; locked levels show the same lock messages as the ring.
+- **"New night" reset button** on home is replaced by End Night (which resets after the summary).
+- **Swipe-to-skip** on a card now uses Chicken Out.
+- **Purchase history**: the old test purchases were relabelled (`pass` -> `lite`, `lifetime` -> `premium`) by the migration.
+- **Old tests**: `test/t2.js`, `t3.js`, `fn.mjs`, `sql/t11.mjs` are retired; `test/t4.js`, `fn12.mjs`, `sql/t12.mjs` replace them.
+- **base.css and themes.css** still contain dead Pause and Body Part selectors because those files are never edited; nothing uses them.
