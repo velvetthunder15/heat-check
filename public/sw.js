@@ -1,11 +1,11 @@
 /* Heat Check service worker: offline app shell, cache-first assets.
    Never touches /api or other origins (Supabase, Razorpay, Turnstile), so Lv3 cards
    and account data are never cached here. */
-const VERSION = 'hc-v14';
+const VERSION = 'hc-v16';
 const SHELL = [
   '/', '/privacy', '/terms', '/refund', '/cards.json', '/site.webmanifest',
-  '/css/base.css?v=14', '/css/themes.css?v=14', '/css/fixes.css?v=14', '/css/motion.css?v=14', '/css/polish.css?v=14', '/css/intro.css?v=14', '/css/account.css?v=14', '/css/buttons.css?v=14',
-  '/js/config.js?v=14', '/js/audio.js?v=14', '/js/core.js?v=14', '/js/games.js?v=14', '/js/account.js?v=14', '/js/app.js?v=14', '/js/intro.js?v=14', '/js/account-ui.js?v=14', '/js/motion.js?v=14', '/js/boot.js?v=14',
+  '/css/base.css?v=16', '/css/themes.css?v=16', '/css/fixes.css?v=16', '/css/motion.css?v=16', '/css/polish.css?v=16', '/css/intro.css?v=16', '/css/account.css?v=16', '/css/buttons.css?v=16',
+  '/js/config.js?v=16', '/js/audio.js?v=16', '/js/core.js?v=16', '/js/games.js?v=16', '/js/account.js?v=16', '/js/app.js?v=16', '/js/intro.js?v=16', '/js/account-ui.js?v=16', '/js/motion.js?v=16', '/js/boot.js?v=16',
   '/fonts/inter-var-4.woff2', '/fonts/inter-var-italic-4.woff2',
   '/logo-wordmark.webp', '/favicon.ico', '/favicon.svg', '/favicon-96x96.png', '/apple-touch-icon.png', '/web-app-manifest-192x192.png', '/web-app-manifest-512x512.png',
 ];
