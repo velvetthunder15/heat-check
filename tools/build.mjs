@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// Build: copies public/ to dist/ and stamps SITE_URL (and CONTACT_EMAIL) into the
+// Build: copies public/ to dist/, lints the cards and writes dist/cards.json (Lv1-2 only), and stamps SITE_URL (and CONTACT_EMAIL) into the
 // files that need absolute URLs: canonical/og tags, manifest, robots, sitemap.
 // Runs on Cloudflare Pages (and Vercel) with no npm dependencies.
 //   SITE_URL=https://heatcheck.app node tools/build.mjs
 import { cpSync, rmSync, readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = new URL('..', import.meta.url).pathname;
 const src = join(root, 'public');
@@ -36,6 +37,8 @@ if (CONTACT_EMAIL && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(CONTACT_EMAIL)) throw ne
 
 rmSync(out, { recursive: true, force: true });
 cpSync(src, out, { recursive: true });
+// Cards: lint content/ and write the Lv1-2 deck. A lint failure fails the build.
+execFileSync(process.execPath, [join(root, 'tools/cards.mjs'), '--out', join(out, 'cards.json')], { stdio: 'inherit' });
 
 const STAMP = new Set(['.html', '.webmanifest', '.txt', '.xml', '.json', '.js']);
 const contactHtml = CONTACT_EMAIL ? `<a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>` : 'our support email (being set up, check back soon)';
