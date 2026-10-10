@@ -180,8 +180,8 @@ html.vt-run #app .screen, html.vt-run #app .tile, html.vt-run #app .home-head, h
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, -16px) scale(.96); } }
 @keyframes toastOut { to { opacity: 0; transform: translate(-50%, -10px); } }
 
-/* Pause: instant, flash-free crossfade */
-#pause { will-change: opacity; }
+
+
 
 /* ---------- Reduced motion: crossfades only ---------- */
 @media (prefers-reduced-motion: reduce) {
