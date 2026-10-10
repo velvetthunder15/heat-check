@@ -1,6 +1,7 @@
-/* Heat Check: accounts, entitlements, tastes, preferences, stats, payments, admin client.
+/* Heat Check: accounts, tiers, limits, paid cards, tastes, preferences, stats, payments, admin client.
    UI for all of this lives in account-ui.js. Nothing here is trusted by the server:
-   the server decides plan, prices and access (Lv3 cards come from Supabase RLS). */
+   the server decides plan, prices, limits and access. Spicy and Hot text only ever
+   arrives from Supabase (RLS) or the API, is held in memory, and is never persisted. */
 
 const GAME_IDS = HC.GAMES.map((g) => g.id);
 const SITE = { contact: '%%CONTACT_EMAIL%%'.startsWith('%%') ? '' : '%%CONTACT_EMAIL%%' };
@@ -130,10 +131,10 @@ const Auth = {
   },
   _clear() {
     Taste.drop(); Taste.armed = false;
-    if (Core.S && Core.S.heat > 2) { Core.S.heat = 2; Core.save(); }
+    if (Core.S && Core.S.heat > 1) { Core.S.heat = 1; Core.S.rampCount = 0; Core.save(); }
     if (!this.user && !this.profile) return;
     this.user = null; this.profile = null; Admin.exp = 0;
-    Ent._wasPro = false; Ent._adminWas = false; Ent._expirePending = false; // signing out isn't an expiry
+    Ent._was = 'guest'; Ent._adminWas = false; Ent._expirePending = false; // signing out isn't an expiry
     Premium.clear();
     Bus.emit('auth');
   },
@@ -158,100 +159,191 @@ const Api = {
   },
 };
 
-/* ---------- Entitlements (display only; the server enforces) ---------- */
+/* ---------- Tiers (display only; the server enforces) ----------
+   guest: not signed in. base: signed in, free. lite: Rs 69 for 60 min. premium: Rs 99, lifetime.
+   Premium never expires: no expiry check anywhere for it. */
 const Ent = {
-  _wasPro: false, _expirePending: false, _adminWas: false,
-  profilePro() {
-    const p = Auth.profile; if (!p) return false;
-    if (p.plan === 'lifetime') return true;
-    return !!p.premium_until && Date.parse(p.premium_until) > Cfg.now();
-  },
-  pro() { return Admin.active() || this.profilePro(); },
-  plan() {
+  _was: 'guest', _expirePending: false, _adminWas: false,
+  profileTier() {
     const p = Auth.profile;
     if (!Auth.signedIn() || !p) return 'guest';
-    if (p.plan === 'lifetime') return 'lifetime';
-    if (p.premium_until && Date.parse(p.premium_until) > Cfg.now()) return 'pass';
-    return 'free';
+    if (p.plan === 'premium') return 'premium';
+    if (p.plan === 'lite' && p.premium_until && Date.parse(p.premium_until) > Cfg.now()) return 'lite';
+    return 'base';
   },
-  passLeft() { const p = Auth.profile; return p && p.premium_until ? Math.max(0, Date.parse(p.premium_until) - Cfg.now()) : 0; },
-  unlimitedPlayers() { return this.pro(); },
+  tier() { return Admin.active() ? 'premium' : this.profileTier(); },
+  plan() { return this.tier(); },
+  premium() { return this.tier() === 'premium'; },
+  paid() { const t = this.tier(); return t === 'lite' || t === 'premium'; },
+  pro() { return this.premium(); },                       // unlimited players, saved names, every look
+  liteLeft() { const p = Auth.profile; return this.profileTier() === 'lite' ? Math.max(0, Date.parse(p.premium_until) - Cfg.now()) : 0; },
+  unlimitedPlayers() { return this.premium(); },
   inGame() { return !!document.getElementById('stage'); },
-  // Called by Core.draw: at expiry the current card finishes, then Lv3 locks here.
+  // Called by Core.next: at Lite expiry the current card finishes, then Lite features lock here.
   checkExpiry() {
     if (!this._expirePending) return;
     this._expirePending = false;
     Premium.clear();
+    if (Core.S.heat > Core.heatCap()) { Core.S.heat = Core.heatCap(); Core.S.rampCount = 0; Core.save(); }
     setTimeout(() => window.UI && UI.expired(), 450);
   },
   tick() {
-    const nowPro = this.pro();
-    const admin = Admin.active();
-    if (this._wasPro && !nowPro) {
-      if (Core.S.heat > 2) { Core.S.heat = 2; Core.save(); }
-      if (this._adminWas && !admin && !this.profilePro()) {
-        Premium.clear(); Core.toast('Admin session ended');
-      } else if (this.inGame()) this._expirePending = true;
-      else { Premium.clear(); window.UI && UI.expired(); }
-      if (Auth.signedIn()) Auth.refresh();
+    const now = this.tier(), admin = Admin.active();
+    if (now !== this._was) {
+      const rank = { guest: 0, base: 1, lite: 2, premium: 3 };
+      if (rank[now] < rank[this._was] && Auth.signedIn()) {
+        if (this._adminWas && !admin) { Premium.clear(); Core.toast('Admin session ended'); this.clampHeat(); }
+        else if (this._was === 'lite' && this.inGame()) this._expirePending = true;   // finish the card first
+        else { Premium.clear(); this.clampHeat(); if (this._was === 'lite') window.UI && UI.expired(); }
+        Auth.refresh();
+      }
+      if (rank[now] > rank[this._was] || (now === 'lite' && !Premium.loaded)) Premium.load();
+      this._was = now;
+      Prefs.apply();
+      Bus.emit('tier');
     }
-    if (!this._wasPro && nowPro && !Premium.loaded) Premium.load();
-    if (this.plan() === 'pass') {
-      const left = this.passLeft(), key = 'hc_warned_' + Auth.profile.premium_until;
-      if (left > 0 && left <= 15 * 60 * 1000 && !sessionStorage.getItem(key)) { sessionStorage.setItem(key, '1'); window.UI && UI.passWarning(); }
+    if (now === 'lite') {
+      const left = this.liteLeft(), key = 'hc_warned_' + Auth.profile.premium_until;
+      if (left > 0 && left <= 5 * 60 * 1000 && !sessionStorage.getItem(key)) { sessionStorage.setItem(key, '1'); window.UI && UI.liteWarning(); }
     }
-    this._wasPro = nowPro; this._adminWas = admin;
+    this._adminWas = admin;
     window.UI && UI.updatePassChip();
   },
+  clampHeat() { if (!this._expirePending && Core.S.heat > Core.heatCap()) { Core.S.heat = Core.heatCap(); Core.S.rampCount = 0; Core.save(); Bus.emit('heat'); } },
 };
 
-/* ---------- Lv3 cards: in memory only, never persisted ---------- */
+/* ---------- Paid cards: Spicy (Lite+) and Hot (Premium), in memory only, never persisted ---------- */
 const Premium = {
   cards: [], loaded: false, loading: null,
   async load() {
-    if (!Ent.pro()) { this.clear(); return; }
+    if (!Ent.paid()) { this.clear(); return; }
     if (this.loading) return this.loading;
     this.loading = (async () => {
       try {
         let rows;
-        if (Admin.active() && !Ent.profilePro()) rows = await Api.call('GET', '/api/admin/cards?active=1');
+        if (Admin.active() && Ent.profileTier() !== 'premium') rows = await Api.call('GET', '/api/admin/cards?active=1');
         else {
           const c = await SB.get();
+          // RLS returns Spicy to Lite and Premium, Hot to Premium only
           const { data, error } = await c.from('premium_cards').select('game,heat,text,optional_dare,extra');
           if (error) throw error;
           rows = data;
         }
-        if (!Ent.pro()) return this.clear();
-        this.cards = (rows || []).map((r) => ({ ...(r.extra || {}), game: r.game, heat: 3, text: r.text, ...(r.optional_dare ? { optionalDare: r.optional_dare } : {}) }));
+        if (!Ent.paid()) return this.clear();
+        this.cards = (rows || []).filter((r) => r.heat === 2 || (r.heat === 3 && Ent.premium()))
+          .map((r) => ({ ...(r.extra || {}), game: r.game, heat: r.heat, text: r.text, ...(r.optional_dare ? { optionalDare: r.optional_dare } : {}) }));
         this.loaded = true;
         Bus.emit('premium');
-      } catch (e) { console.warn('Lv3 cards not loaded', e && e.message); }
+      } catch (e) { console.warn('paid cards not loaded', e && e.message); }
     })().finally(() => { this.loading = null; });
     return this.loading;
   },
   clear() { this.cards = []; this.loaded = false; },
 };
 
-/* ---------- One free Hot card per game (signed-in accounts only) ----------
+/* ---------- Hot cards: Premium from memory, Lite one at a time from /api/hot ---------- */
+const Cards = {
+  _toldUsedUp: {},
+  fromRow(c) { return { ...(c.extra || {}), game: c.game, heat: 3, text: c.text, ...(c.optional_dare ? { optionalDare: c.optional_dare } : {}) }; },
+  async hot(game) {
+    const t = Ent.tier();
+    if (t === 'premium') return Core.pick(game, 3);
+    if (t !== 'lite') return null;
+    if (Limits.hotLeft(game) <= 0) { this.usedUp(game); return null; }
+    try {
+      const r = await Api.call('POST', '/api/hot', { game, origins: Core.origins(), exclude: (Core.recent[game] || []).slice(-40) });
+      Limits.setHot(game, r.used);
+      return this.fromRow(r.card);
+    } catch (e) {
+      if (e.code === 'used_up') { Limits.setHot(game, HC.LIMITS.lite.hot); this.usedUp(game); }
+      else if (e.code === 'locked') Auth.refresh();
+      else Core.toast(e.code === 'offline' ? 'You look offline. Spicy until you’re back.' : e.message);
+      return null;
+    }
+  },
+  // Lite with this game's Hot cards spent: say so once per game, then play on at Spicy
+  usedUp(game) {
+    if (this._toldUsedUp[game]) return;
+    this._toldUsedUp[game] = true;
+    Core.toast(`${HC.LIMITS.lite.hot} Hot cards used here. Premium has unlimited.`);
+    Bus.emit('heat');
+  },
+};
+
+/* ---------- Per-game limits and their counters ----------
+   Guests: localStorage. Signed in: profiles.stats.limits, written only by the server
+   (/api/flirty, /api/hot, /api/taste). Flirty counters reset daily (IST). */
+const Limits = {
+  window() { return new Date(Date.now() + 330 * 60 * 1000).toISOString().slice(0, 10); },
+  of(tier = Ent.tier()) { return HC.LIMITS[tier]; },
+  local() { const l = Store.get('hc_limits', {}); return l && l.window === this.window() ? { window: l.window, flirty: l.flirty || {} } : { window: this.window(), flirty: {} }; },
+  remote() { const l = (Auth.profile && Auth.profile.stats && Auth.profile.stats.limits) || {}; return l; },
+  flirtyUsed(game) {
+    if (Ent.tier() === 'guest') return +this.local().flirty[game] || 0;
+    const l = this.remote();
+    return l.window === this.window() ? +((l.flirty || {})[game]) || 0 : 0;
+  },
+  // null = unlimited
+  flirtyLeft(game) { const cap = this.of().flirty; return cap == null ? null : Math.max(0, cap - this.flirtyUsed(game)); },
+  countFlirty(game) {
+    const tier = Ent.tier();
+    if (tier === 'guest') { const l = this.local(); l.flirty[game] = (+l.flirty[game] || 0) + 1; Store.set('hc_limits', l); return; }
+    if (tier !== 'base') return;
+    const p = Auth.profile; p.stats = p.stats || {};
+    const l = p.stats.limits = p.stats.limits || {};
+    if (l.window !== this.window()) { l.window = this.window(); l.flirty = {}; }
+    l.flirty = l.flirty || {}; l.flirty[game] = (+l.flirty[game] || 0) + 1;
+    // The server is the source of truth: it counts the same card and refuses past the limit
+    Api.call('POST', '/api/flirty', { game }).then((r) => { if (r && r.used != null) l.flirty[game] = Math.max(l.flirty[game], r.used); })
+      .catch((e) => { if (e.code === 'flirty_limit') { l.flirty[game] = HC.LIMITS.base.flirty; Core.updateHud(); } });
+  },
+  hotUsed(game) { const l = this.remote(); return +((l.hot || {})[game]) || 0; },
+  hotLeft(game) { const cap = this.of().hot; return cap == null ? null : Math.max(0, cap - this.hotUsed(game)); },
+  setHot(game, used) {
+    const p = Auth.profile; if (!p) return;
+    p.stats = p.stats || {}; const l = p.stats.limits = p.stats.limits || {};
+    l.hot = { ...(l.hot || {}), [game]: Math.max(+used || 0, +((l.hot || {})[game]) || 0) };
+    Core.updateHud();
+  },
+  // The quiet line above the card. Never a banner, hidden for Premium.
+  line(game) {
+    const t = Ent.tier();
+    if (t === 'premium') return '';
+    if (t === 'lite') return `Hot ${this.hotUsed(game)}/${HC.LIMITS.lite.hot}`;
+    const f = `Flirty ${Math.min(this.flirtyUsed(game), HC.LIMITS[t].flirty)}/${HC.LIMITS[t].flirty}`;
+    return t === 'base' ? `${f} · Hot ${Taste.used(game) || Taste.showing === game ? 1 : 0}/1` : f;
+  },
+  // Sign-in: carry this device's guest counters up to the account (never down)
+  async sync() {
+    const l = this.local(), counts = l.flirty;
+    if (!Object.keys(counts).length || Ent.paid()) return;
+    try {
+      const r = await Api.call('POST', '/api/flirty', { sync: counts });
+      const p = Auth.profile; p.stats = p.stats || {};
+      p.stats.limits = { ...(p.stats.limits || {}), window: r.window, flirty: r.flirty };
+    } catch (e) {}
+  },
+};
+
+/* ---------- One free Hot card per game (signed-in Base accounts only) ----------
    The card lives on the server. POST /api/taste checks, marks and returns it in one
    SQL call; a second call for the same game is refused. The card is held in memory
-   for exactly one draw, then heat is back to Spicy. Guests get no taste. */
+   for exactly one draw, then heat is back to what the tier allows. Guests get no taste. */
 const Taste = {
   armed: false,     // "Use your free Hot card?" accepted on the home ring: spend it on the next game picked
   _card: null, _game: null,
   showing: null,    // game id while the taste card is on screen (Core.heat() reads 3 for it)
-  available() { return Auth.signedIn() && !!Auth.profile; },
+  available() { return Auth.signedIn() && !!Auth.profile && Ent.tier() === 'base'; },
   used(game) { return !!(Auth.profile && Auth.profile.taste_used && Auth.profile.taste_used[game]); },
   usedCount() { return GAME_IDS.filter((g) => this.used(g)).length; },
   unusedAny() { return this.available() && GAME_IDS.some((g) => !this.used(g)); },
-  canClaim(game) { return this.available() && !Ent.pro() && !this.used(game); },
+  canClaim(game) { return this.available() && !this.used(game); },
   async claim(game) {
-    if (!this.canClaim(game)) throw new Error(this.available() ? 'You’ve used this game’s free Hot card.' : 'Sign in to try Hot.');
-    const r = await Api.call('POST', '/api/taste', { game });
+    if (!this.canClaim(game)) throw new Error(this.available() ? 'You’ve used this game’s free Hot card.' : 'Sign in for a free Hot card.');
+    const r = await Api.call('POST', '/api/taste', { game, origins: Core.origins() });
     if (!r || !r.card) throw new Error('No Hot card came back. Try again.');
     if (Auth.profile) Auth.profile.taste_used = Object.assign({}, Auth.profile.taste_used, { [game]: r.used_at || new Date().toISOString() });
-    const c = r.card;
-    this._card = { ...(c.extra || {}), game: c.game, heat: 3, text: c.text, ...(c.optional_dare ? { optionalDare: c.optional_dare } : {}), taste: true };
+    this._card = { ...Cards.fromRow(r.card), taste: true };
     this._game = game;
     this.armed = false;
     Bus.emit('taste');
@@ -263,13 +355,12 @@ const Taste = {
     const c = this._card; this._card = null; this._game = null;
     return c;
   },
-  // Called on the draw after the taste card: heat drops back to Spicy everywhere
+  // Called on the draw after the taste card: heat goes back to what the tier allows
   finish() {
-    const g = this.showing; this.showing = null;
-    if (Core.S.heat > Core.heatCap()) Core.S.heat = Core.heatCap();
+    this.showing = null;
+    if (Core.S.heat > Core.heatCap()) { Core.S.heat = Core.heatCap(); Core.S.rampCount = 0; }
     Core.save(); Core.updateHud();
     Bus.emit('heat');
-    if (g && document.getElementById('stage')) Core.toast('Still at Spicy. Hot is locked.');
   },
   drop() { this._card = null; this._game = null; this.showing = null; },
 };
@@ -285,7 +376,7 @@ const Taste = {
 
 /* ---------- Preferences (local for guests, synced for accounts) ---------- */
 const Prefs = {
-  defaults: { mode: 'drink', auto_ramp: true, cards_per_ramp: HC.RAMP_DEFAULT, haptics: true, motion: 'system', savedNames: [], soundPack: 'classic', look: 'ember' },
+  defaults: { mode: 'drink', timer: HC.TIMER_DEFAULT, hollywood: true, bollywood: true, auto_ramp: true, cards_per_ramp: HC.RAMP_DEFAULT, haptics: true, motion: 'system', savedNames: [], soundPack: 'classic', look: 'ember' },
   get() { return this.clean(Store.get('hc_prefs', {})); },
   clean(p) {
     const o = { ...this.defaults, ...p };
@@ -293,6 +384,9 @@ const Prefs = {
     o.auto_ramp = o.auto_ramp !== false;
     o.cards_per_ramp = Math.min(HC.RAMP_MAX, Math.max(HC.RAMP_MIN, Math.round(+o.cards_per_ramp || HC.RAMP_DEFAULT)));
     o.mode = ['drink', 'water', 'dare'].includes(o.mode) ? o.mode : 'drink';
+    o.timer = HC.TIMER_OPTIONS.includes(+o.timer) ? +o.timer : HC.TIMER_DEFAULT;
+    o.hollywood = o.hollywood !== false; o.bollywood = o.bollywood !== false;
+    if (!o.hollywood && !o.bollywood) o.hollywood = o.bollywood = true;
     o.haptics = o.haptics !== false;
     o.motion = ['system', 'reduce', 'full'].includes(o.motion) ? o.motion : 'system';
     o.soundPack = ['classic', 'velvet'].includes(o.soundPack) ? o.soundPack : 'classic';
@@ -311,15 +405,18 @@ const Prefs = {
   apply(p = this.get()) {
     const html = document.documentElement;
     if (p.motion === 'system') delete html.dataset.motion; else html.dataset.motion = p.motion;
-    const pro = Ent.pro();
-    SFX.setPack && SFX.setPack(pro ? p.soundPack : 'classic');
+    // Sounds: Lite and Premium. Looks: Lite gets Midnight, Premium gets every look.
+    SFX.setPack && SFX.setPack(Ent.paid() ? p.soundPack : 'classic');
     const app = document.getElementById('app');
-    if (app) { if (pro && p.look !== 'ember') app.dataset.look = p.look; else delete app.dataset.look; }
+    if (app) { if (this.lookOk(p.look) && p.look !== 'ember') app.dataset.look = p.look; else delete app.dataset.look; }
   },
-  // Synced defaults: penalty mode and auto-ramp
+  lookOk(look) { return look === 'ember' || Ent.premium() || (Ent.paid() && look === 'midnight'); },
+  // Synced defaults: penalty mode, timer, Hollywood/Bollywood and auto-ramp
   applyNightDefaults() {
     const p = this.get(), st = Core.S.settings;
     st.mode = p.mode; st.autoRamp = p.auto_ramp; st.cardsPerRamp = p.cards_per_ramp;
+    st.timer = p.timer;
+    if (st.hollywood !== p.hollywood || st.bollywood !== p.bollywood) { st.hollywood = p.hollywood; st.bollywood = p.bollywood; Core.used = {}; Core.recent = {}; }
     Core.save();
   },
   _t: 0,
@@ -334,17 +431,20 @@ const Prefs = {
 
 /* ---------- Light stats ---------- */
 const Stats = {
-  get() { const s = Store.get('hc_stats', {}); return { sessions: +s.sessions || 0, games: s.games && typeof s.games === 'object' ? s.games : {}, topHeat: +s.topHeat || 0 }; },
+  get() { const s = Store.get('hc_stats', {}); return { sessions: +s.sessions || 0, games: s.games && typeof s.games === 'object' ? s.games : {}, topHeat: +s.topHeat || 0, nights: Array.isArray(s.nights) ? s.nights.slice(-20) : [] }; },
   save(s) { Store.set('hc_stats', s); this.push(); },
   game(id) { const s = this.get(); s.sessions++; s.games[id] = (s.games[id] || 0) + 1; this.save(s); },
   heat(h) { const s = this.get(); if (h > s.topHeat) { s.topHeat = h; this.save(s); } },
+  // End Night summaries: the last 20 nights
+  night(sum) { const s = this.get(); s.nights = [...s.nights, sum].slice(-20); this.save(s); },
   favorite() { const g = this.get().games; let best = null; for (const k of Object.keys(g)) if (!best || g[k] > g[best]) best = k; return best; },
   _t: 0,
   push() {
     if (!Auth.signedIn()) return;
     clearTimeout(this._t);
     this._t = setTimeout(async () => {
-      try { const c = await SB.get(); await c.from('profiles').update({ stats: this.get() }).eq('id', Auth.user.id); } catch (e) {}
+      // save_stats keeps the server-owned limits block untouched
+      try { const c = await SB.get(); await c.rpc('save_stats', { p_stats: this.get() }); } catch (e) {}
     }, 1500);
   },
 };
@@ -366,14 +466,16 @@ const Sync = {
     Prefs.apply();
     // stats: add this device's guest stats once, then the account is the source of truth
     const flag = 'hc_stats_merged_' + p.id, rs = p.stats || {};
-    const remoteStats = { sessions: +rs.sessions || 0, games: rs.games && typeof rs.games === 'object' ? rs.games : {}, topHeat: +rs.topHeat || 0 };
+    const remoteStats = { sessions: +rs.sessions || 0, games: rs.games && typeof rs.games === 'object' ? rs.games : {}, topHeat: +rs.topHeat || 0, nights: Array.isArray(rs.nights) ? rs.nights : [] };
     if (!Store.get(flag, false)) {
       const l = Stats.get(), games = { ...remoteStats.games };
       for (const k of Object.keys(l.games)) games[k] = (games[k] || 0) + (+l.games[k] || 0);
-      const merged = { sessions: remoteStats.sessions + l.sessions, games, topHeat: Math.max(remoteStats.topHeat, l.topHeat) };
+      const merged = { sessions: remoteStats.sessions + l.sessions, games, topHeat: Math.max(remoteStats.topHeat, l.topHeat), nights: [...remoteStats.nights, ...l.nights].slice(-20) };
       Store.set('hc_stats', merged); Store.set(flag, true);
-      try { await c.from('profiles').update({ stats: merged }).eq('id', p.id); } catch (e) {}
+      try { await c.rpc('save_stats', { p_stats: merged }); } catch (e) {}
     } else Store.set('hc_stats', remoteStats);
+    // limit counters: a guest's Flirty count today carries over to the account
+    await Limits.sync();
   },
 };
 
@@ -410,8 +512,9 @@ const Pay = {
             done({ ok: true, granted: v.granted || v.alreadyGranted });
           } catch (e) {
             // Paid but not confirmed yet: the webhook will grant. Poll the profile for a bit.
-            for (let i = 0; i < 8 && !Ent.profilePro(); i++) { await sleep(2500); await Auth.refresh(); }
-            if (Ent.profilePro()) { await Premium.load(); done({ ok: true, granted: true }); }
+            const want = productId === 'premium' ? ['premium'] : ['lite', 'premium'];
+            for (let i = 0; i < 8 && !want.includes(Ent.profileTier()); i++) { await sleep(2500); await Auth.refresh(); }
+            if (want.includes(Ent.profileTier())) { await Premium.load(); done({ ok: true, granted: true }); }
             else done({ error: e, paid: true });
           }
         },
@@ -464,7 +567,7 @@ const Admin = {
     if (!this.exp) return;
     this.exp = 0;
     try { await Api.call('POST', '/api/admin/logout'); } catch (e) {}
-    if (!Ent.profilePro()) Premium.clear();
+    if (Ent.profileTier() !== 'premium') { Premium.clear(); Premium.load(); }
     Prefs.apply();
     Bus.emit('admin');
   },
@@ -482,11 +585,11 @@ const Account = {
     await Cfg.load();
     Bus.emit('config');
     if (Cfg.accounts) await Auth.init(); else Auth.ready = true;
-    Ent._wasPro = Ent.pro();
+    Ent._was = Ent.tier();
     setInterval(() => Ent.tick(), 1000);
     window.addEventListener('online', () => { if (Auth.signedIn()) Auth.refresh().then(() => Premium.load()); });
   },
 };
 
 // Expose on window too (other modules feature-check with window.X)
-Object.assign(window, { GAME_IDS, SITE, Store, Cfg, SB, Bus, Auth, Api, Ent, Premium, Taste, Prefs, Stats, Sync, Pay, Captcha, Admin, Account });
+Object.assign(window, { GAME_IDS, SITE, Store, Cfg, SB, Bus, Auth, Api, Ent, Premium, Cards, Limits, Taste, Prefs, Stats, Sync, Pay, Captcha, Admin, Account });
