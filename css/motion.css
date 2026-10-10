@@ -1,0 +1,195 @@
+/* ===== Heat Check: motion + polish layer =====
+   Loaded after base.css / themes.css and never edits them. Uses the existing palette only:
+   #120a12 base, theme --accent / --accent2 / --card, heat ramp #ffd166 → #ff7a3c → #ff2e63.
+   Animates transform + opacity only. */
+
+/* ---------- 1. Motion tokens ---------- */
+:root {
+  --dur-xs: 120ms;   /* taps, ticks */
+  --dur-s: 220ms;    /* small state changes */
+  --dur-m: 380ms;    /* entrances */
+  --dur-l: 650ms;    /* hero morphs, intros */
+  --dur-xl: 1200ms;  /* splash */
+  --stagger: 50ms;
+
+  /* Signature entrance: one smooth ease-out */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-in: cubic-bezier(.7, 0, .84, 0);
+  /* Gentle springs for interactions (cubic fallbacks first, real springs where linear() is supported) */
+  --spring: cubic-bezier(.34, 1.4, .64, 1);
+  --spring-soft: cubic-bezier(.3, 1.2, .6, 1);
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+  --radius-s: 12px; --radius-m: 18px; --radius-l: 24px; --radius-pill: 999px;
+
+  --heat-1: #ffd166; --heat-2: #ff7a3c; --heat-3: #ff2e63;
+}
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    --spring: linear(0, 0.031, 0.105, 0.207, 0.325, 0.447, 0.567, 0.679, 0.778, 0.855, 0.927, 0.983, 1.026, 1.056, 1.075, 1.085, 1.088, 1.086, 1.08, 1.071, 1.061, 1.05, 1.04, 1.03, 1.021, 1.014, 1.007, 1.002, 0.998, 0.995, 0.994, 0.993, 0.992, 0.992, 0.993, 0.994, 0.994, 0.995, 0.996, 0.997, 1);
+    --spring-soft: linear(0, 0.021, 0.072, 0.131, 0.212, 0.3, 0.376, 0.464, 0.548, 0.615, 0.686, 0.749, 0.797, 0.846, 0.888, 0.917, 0.946, 0.969, 0.985, 0.999, 1.008, 1.016, 1.021, 1.024, 1.025, 1.026, 1.025, 1.024, 1.022, 1.02, 1.018, 1.015, 1.014, 1.011, 1.009, 1.008, 1.006, 1.005, 1.004, 1.003, 1);
+  }
+}
+
+/* ---------- Fluid type, shared chrome on the token scale ---------- */
+h1 { font-size: clamp(28px, 8vw, 40px); }
+h2 { font-size: clamp(22px, 6vw, 30px); }
+.hud-title { font-size: clamp(17px, 4.8vw, 21px); }
+.btn { font-size: clamp(15px, 4.3vw, 17px); }
+.chip, .input, .seg, .seg button { border-radius: var(--radius-s); }
+.chip { border-radius: var(--radius-pill); }
+.modal { border-radius: var(--radius-l) var(--radius-l) 0 0; }
+.toast { border-radius: var(--radius-pill); }
+
+/* ---------- 4. Ambience: mesh + grain, behind all content ---------- */
+#app { isolation: isolate; --heat-t: 0; }
+#amb { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; contain: strict; }
+#amb .blob { position: absolute; width: 90vmax; height: 90vmax; border-radius: 50%; will-change: transform; opacity: calc(.32 + var(--heat-t) * .38); transition: opacity 1.6s var(--ease-out); }
+#amb .b1 { left: -45vmax; top: -50vmax; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 34%, transparent), transparent); }
+#amb .b2 { right: -50vmax; bottom: -45vmax; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent2) 26%, transparent), transparent); }
+#amb .b3 { left: 10vmax; top: 30vh; width: 60vmax; height: 60vmax; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 16%, transparent), transparent); }
+#amb .glow { position: absolute; left: -10%; right: -10%; bottom: -30vh; height: 70vh; border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--heat-3) 40%, transparent), transparent);
+  opacity: calc(var(--heat-t) * .55); transition: opacity 1.6s var(--ease-out); will-change: opacity, transform; }
+#amb .grain { position: absolute; inset: -60px; opacity: calc(.035 + var(--heat-t) * .05); transition: opacity 1.6s var(--ease-out);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grainShift .9s steps(4) infinite; will-change: transform; }
+@keyframes grainShift { 0% { transform: translate(0, 0); } 25% { transform: translate(-22px, 14px); } 50% { transform: translate(18px, -26px); } 75% { transform: translate(-12px, -8px); } 100% { transform: translate(0, 0); } }
+/* Noir already ships its own film grain */
+[data-theme="bodypart"] #amb .grain { display: none; }
+
+/* ---------- 1. Splash ---------- */
+#splash { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; background: #120a12; touch-action: manipulation; }
+#splash .sp-inner { display: grid; justify-items: center; gap: 22px; will-change: transform, opacity; }
+#splash .sp-logo { font-family: "Fraunces", Georgia, serif; font-weight: 900; font-size: 64px; letter-spacing: -.03em; line-height: .9; text-align: center;
+  background: linear-gradient(180deg, #ffd166, #ff5a3c 55%, #ff2e63); -webkit-background-clip: text; background-clip: text; color: transparent; }
+#splash .sp-meter { display: flex; gap: 6px; }
+#splash .sp-meter i { width: 46px; height: 8px; border-radius: 99px; background: #ffffff14; overflow: hidden; position: relative; }
+#splash .sp-meter i::after { content: ""; position: absolute; inset: 0; border-radius: inherit; transform: scaleX(0); transform-origin: left; background: var(--c); }
+#splash .sp-meter i:nth-child(1) { --c: var(--heat-1); } #splash .sp-meter i:nth-child(2) { --c: var(--heat-2); } #splash .sp-meter i:nth-child(3) { --c: var(--heat-3); }
+#splash .sp-bloom { position: absolute; width: 60vmin; height: 60vmin; border-radius: 50%; opacity: 0; pointer-events: none;
+  background: radial-gradient(closest-side, #ff5a3c66, #ff2e6322 60%, transparent); will-change: transform, opacity; }
+#splash .sp-skip { position: absolute; bottom: calc(24px + env(safe-area-inset-bottom)); font-size: 13px; color: #b9a5b5; opacity: .7; }
+html.booting #app .tile { animation-play-state: paused; }
+
+/* ---------- Home: staggered fade-and-rise ---------- */
+#app:not(.no-stagger) .tiles .tile { animation: tileIn var(--dur-m) var(--ease-out) both; animation-delay: calc(var(--i, 0) * var(--stagger) + 60ms); }
+#app:not(.no-stagger) .home-head, #app:not(.no-stagger) .home-sub { animation: tileIn var(--dur-m) var(--ease-out) both; }
+@keyframes tileIn { from { opacity: 0; transform: translateY(18px) scale(.98); } }
+.tile { transition: transform var(--dur-s) var(--spring); }
+.tile:active { transition-duration: var(--dur-xs); }
+
+/* ---------- 2. Page transitions ---------- */
+/* Fallback when View Transitions aren't supported */
+#app.fx-in > :not(.modal-wrap):not(.controls):not(#amb) { animation: fxIn var(--dur-m) var(--ease-out) both; }
+#app.fx-in > .controls { animation: fxUp var(--dur-m) var(--ease-out) both; }
+@keyframes fxIn { from { opacity: 0; transform: translateY(14px); } }
+@keyframes fxUp { from { opacity: 0; transform: translateY(24px); } }
+/* During a view transition the browser does the motion, so local entrances stand down */
+html.vt-run #app .screen, html.vt-run #app .tile, html.vt-run #app .home-head, html.vt-run #app .home-sub { animation: none; }
+
+::view-transition-group(root) { animation-duration: var(--dur-m); animation-timing-function: var(--ease-out); }
+::view-transition-old(root) { animation: vtOut var(--dur-s) var(--ease-out) both; }
+::view-transition-new(root) { animation: vtIn var(--dur-m) var(--ease-out) both; }
+@keyframes vtOut { to { opacity: 0; } }
+@keyframes vtIn { from { opacity: 0; } }
+::view-transition-group(hero) { animation-duration: var(--dur-l); animation-timing-function: var(--ease-out); z-index: 50; }
+::view-transition-old(hero), ::view-transition-new(hero) { height: 100%; width: 100%; object-fit: cover; overflow: clip; }
+::view-transition-old(hero) { animation: vtOut calc(var(--dur-l) * .5) var(--ease-out) both; }
+::view-transition-new(hero) { animation: vtIn calc(var(--dur-l) * .6) var(--ease-out) both; }
+
+/* ---------- Game intros (overlay, 0.6–0.8s, never blocks taps) ---------- */
+.intro { position: fixed; inset: 0; z-index: 55; pointer-events: none; overflow: hidden; display: grid; place-items: center; }
+.intro * { position: absolute; will-change: transform, opacity; }
+.intro .flash { inset: 0; background: var(--accent); opacity: 0; }
+/* Red flag / green flag */
+.intro .flag { width: 34vw; max-width: 200px; height: 22vw; max-height: 130px; top: 34%; transform-origin: left center; border-radius: 4px 10px 10px 4px; }
+.intro .flag.r { left: 12%; background: linear-gradient(90deg, #ff3b4e, #e11d2e); }
+.intro .flag.g { right: 12%; left: auto; transform-origin: right center; background: linear-gradient(270deg, #3ee08a, #1fb96a); border-radius: 10px 4px 4px 10px; }
+.intro .pole { width: 5px; height: 42vw; max-height: 260px; top: 33%; background: #ffcf33; border-radius: 3px; }
+.intro .pole.r { left: calc(12% - 5px); } .intro .pole.g { right: calc(12% - 5px); }
+/* NHIE cups */
+.intro .cup { width: 72px; height: 92px; top: 40%; background: linear-gradient(#ff3b3b, #b5121b); clip-path: polygon(0 0, 100% 0, 84% 100%, 16% 100%); box-shadow: inset 0 10px 0 #ffffff55; }
+.intro .cup.l { left: calc(50% - 76px); } .intro .cup.r { left: calc(50% + 4px); }
+.intro .clink { width: 120px; height: 120px; top: calc(40% - 30px); left: calc(50% - 60px); border-radius: 50%; border: 3px solid #00f0ff; opacity: 0; }
+/* Noir iris */
+.intro .iris { width: 30px; height: 30px; border-radius: 50%; left: calc(50% - 15px); top: calc(40% - 15px); box-shadow: 0 0 0 200vmax #000; background: transparent; }
+/* Curtains */
+.intro .curtain { top: 0; bottom: 0; width: 51%; background: repeating-linear-gradient(90deg, #5c0016 0 18px, #3d000e 18px 36px); box-shadow: inset 0 -40px 60px #00000066; }
+.intro .curtain.l { left: 0; transform-origin: left; } .intro .curtain.r { right: 0; transform-origin: right; }
+.intro .valance { top: 0; left: 0; right: 0; height: 56px; background: linear-gradient(#7a0a22, #5c0016); border-bottom: 3px solid #d4af37; }
+/* VS */
+.intro .half { top: 0; bottom: 0; width: 60%; }
+.intro .half.l { left: -5%; background: #e01b2b; clip-path: polygon(0 0, 100% 0, 84% 100%, 0 100%); }
+.intro .half.r { right: -5%; background: #1d4fe0; clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%); }
+.intro .vs { font: clamp(80px, 30vw, 160px) "Bungee", sans-serif; color: #ffe14d; text-shadow: 6px 6px 0 #000; position: relative; }
+.intro.shake { animation: shake .32s ease .28s; }
+/* Comic POW */
+.intro .burst { width: 70vmin; height: 70vmin; background: radial-gradient(#ffe14d 22%, transparent 24%) 0 0/12px 12px, #ffe14d; clip-path: polygon(50% 0, 61% 30%, 95% 15%, 72% 44%, 100% 62%, 66% 66%, 72% 100%, 50% 76%, 26% 100%, 32% 66%, 0 62%, 28% 44%, 6% 15%, 39% 30%); }
+.intro .pow { font: clamp(56px, 20vw, 110px) "Bangers", cursive; color: #111; letter-spacing: .04em; position: relative; }
+/* Hot seat bulbs */
+.intro .ring { width: 70vmin; height: 70vmin; border-radius: 50%; border: 3px dashed #ffc83d; opacity: 0; }
+.intro .spot { width: 90vmin; height: 90vmin; border-radius: 50%; background: radial-gradient(closest-side, #ffc83d55, transparent); opacity: 0; }
+.intro .q { font: 800 clamp(70px, 26vw, 140px) "Syne", sans-serif; color: #ffc83d; position: relative; }
+/* Casino deal */
+.intro .pc { width: 86px; height: 120px; border-radius: 10px; background: #fff; color: #c8102e; display: grid; place-items: center; font: 700 40px "Playfair Display", serif; box-shadow: 0 10px 24px #0008; top: 38%; left: calc(50% - 43px); }
+.intro .pc.s { color: #111; }
+/* Mirror swap */
+.intro .sheen { top: -20%; bottom: -20%; width: 40%; left: -50%; background: linear-gradient(100deg, transparent, #c8b6ff99, #ffd6f5cc, #b8f2ff99, transparent); transform: skewX(-12deg); }
+.intro .mir { font: 800 clamp(40px, 14vw, 70px) "Syne", sans-serif; color: #f4f0ff; position: relative; }
+
+/* ---------- 3. Cards & interaction ---------- */
+.hc-card { touch-action: pan-y; transform-style: preserve-3d; }
+.btn { position: relative; transition: transform var(--dur-s) var(--spring), filter var(--dur-s) var(--ease-out); }
+.btn:active { transform: scale(.95); transition-duration: var(--dur-xs); transition-timing-function: var(--ease-out); }
+.btn::before { content: ""; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none; opacity: 0;
+  box-shadow: 0 0 22px 2px color-mix(in srgb, var(--accent) 70%, transparent); transition: opacity var(--dur-m) var(--ease-out); }
+@media (hover: hover) { .btn:hover::before { opacity: .7; } }
+.btn:focus-visible { outline: none; } .btn:focus-visible::before { opacity: 1; }
+.btn.ghost::before { box-shadow: 0 0 18px 1px color-mix(in srgb, var(--fg) 30%, transparent); }
+.icon-btn { transition: transform var(--dur-s) var(--spring); } .icon-btn:active { transform: scale(.9); }
+.switch::after { transition: transform var(--dur-s) var(--spring) !important; }
+
+/* Heat meter fill: transform instead of width */
+.heat-fill { width: 100% !important; transform: scaleX(var(--hp, 0)); transform-origin: left center; transition: transform var(--dur-l) var(--spring) !important; }
+
+/* Score chips */
+.chip b { display: inline-block; font-variant-numeric: tabular-nums; min-width: 1ch; text-align: center; }
+.chip.bump { animation: chipPop var(--dur-m) var(--spring); }
+@keyframes chipPop { 40% { transform: scale(1.16); } }
+
+/* Embers */
+.ember { position: fixed; z-index: 80; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; pointer-events: none; will-change: transform, opacity; }
+
+/* Timers: smooth ring, pulse in the last 5 s */
+@property --p { syntax: "<number>"; inherits: true; initial-value: 1; }
+.timer { transition: --p 110ms linear; }
+.timer.warn { animation: none; }
+.timer::after { content: ""; position: absolute; inset: -8px; border-radius: 50%; box-shadow: 0 0 26px 4px color-mix(in srgb, var(--accent) 70%, transparent); opacity: 0; pointer-events: none; }
+.timer.final { animation: timerPulse .5s var(--ease-out) infinite alternate; }
+.timer.final::after { animation: timerGlow .5s var(--ease-out) infinite alternate; }
+@keyframes timerPulse { to { transform: scale(1.06); } }
+@keyframes timerGlow { to { opacity: 1; } }
+
+/* Modals + toasts ride the same curves */
+.modal-wrap { animation-duration: var(--dur-s) !important; }
+.modal { animation: sheetUp var(--dur-m) var(--spring-soft) both !important; }
+@keyframes sheetUp { from { transform: translateY(100%); } }
+.toast { animation: toastIn var(--dur-m) var(--spring-soft) both, toastOut var(--dur-s) var(--ease-in) 2s forwards !important; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, -16px) scale(.96); } }
+@keyframes toastOut { to { opacity: 0; transform: translate(-50%, -10px); } }
+
+/* Pause: instant, flash-free crossfade */
+#pause { will-change: opacity; }
+
+/* ---------- Reduced motion: crossfades only ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #amb .blob, #amb .grain, #amb .glow { animation: none !important; transform: none !important; }
+  .intro, #splash .sp-meter i::after { display: none; }
+  #app .tile, #app .home-head, #app .home-sub { animation: fadeOnly var(--dur-m) linear both !important; }
+  ::view-transition-group(hero) { animation-duration: 1ms; }
+  ::view-transition-old(hero), ::view-transition-new(hero) { animation: none; }
+  .btn:active, .icon-btn:active, .tile:active { transform: none; }
+  .timer.final { animation: none; }
+}
+@keyframes fadeOnly { from { opacity: 0; } }
