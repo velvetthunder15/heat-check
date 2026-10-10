@@ -10,6 +10,7 @@ const App = {
     this.bind();
     if (localStorage.getItem('hc_age') !== 'yes') this.ageGate();
     else this.home();
+    try { const f = sessionStorage.getItem('hc_flash'); if (f) { sessionStorage.removeItem('hc_flash'); setTimeout(() => Core.toast(f), 400); } } catch (e) {}
   },
 
   root() { return document.getElementById('app'); },
@@ -282,6 +283,7 @@ const Night = {
     const cardsTotal = Object.values(s.cards).reduce((a, b) => a + b, 0);
     const showPaywall = s.limitHit && window.Ent && Ent.tier() !== 'premium';
     App.set('home', `<main class="screen night">
+      <div class="night-logo"><img src="/logo-wordmark.webp" width="694" height="289" alt="Heat Check" draggable="false" decoding="async" /></div>
       <p class="night-kicker">That’s a wrap</p>
       <h1 class="night-title">Tonight’s damage</h1>
       <section class="night-taunt"><p>${esc(s.taunt)}</p>${s.tauntFor ? `<span class="note">${esc(s.tauntFor)} · ${s.tauntPts} pts together</span>` : ''}</section>
@@ -315,16 +317,20 @@ const Night = {
       const rg = x.createRadialGradient(540, 360, 40, 540, 360, 620); rg.addColorStop(0, 'rgba(255,46,99,.45)'); rg.addColorStop(1, 'rgba(255,46,99,0)');
       x.fillStyle = rg; x.fillRect(0, 0, 1080, 1350);
       const font = (w, sz, it) => `${it ? 'italic ' : ''}${w} ${sz}px Inter, system-ui, sans-serif`;
-      x.textAlign = 'center'; x.fillStyle = '#ffd166'; x.font = font(800, 40, false); x.fillText('HEAT CHECK', 540, 120);
-      x.fillStyle = '#fff'; x.font = font(900, 92, true); x.fillText('Tonight’s damage', 540, 250);
+      x.textAlign = 'center';
+      // The home-page wordmark up top (same-origin image, so the canvas stays shareable)
+      const logo = await new Promise((r) => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = '/logo-wordmark.webp'; });
+      if (logo) { const w = 440, h = Math.round(w * (logo.naturalHeight || 289) / (logo.naturalWidth || 694)); x.drawImage(logo, 540 - w / 2, 48, w, h); }
+      else { x.fillStyle = '#ffd166'; x.font = font(800, 40, false); x.fillText('HEAT CHECK', 540, 120); }
+      x.fillStyle = '#fff'; x.font = font(900, 88, true); x.fillText('Tonight’s damage', 540, 330);
       const wrap = (t, y, w, lh) => { const words = t.split(' '); let line = ''; for (const wd of words) { const tt = line ? line + ' ' + wd : wd; if (x.measureText(tt).width > w && line) { x.fillText(line, 540, y); y += lh; line = wd; } else line = tt; } x.fillText(line, 540, y); return y + lh; };
-      x.fillStyle = '#ffe3ec'; x.font = font(600, 46, true); let y = wrap(s.taunt, 370, 900, 60);
+      x.fillStyle = '#ffe3ec'; x.font = font(600, 46, true); let y = wrap(s.taunt, 430, 900, 60);
       const cardsTotal = Object.values(s.cards).reduce((a, b) => a + b, 0);
       const tiles = [[String(s.games.length), 'games'], [String(cardsTotal), 'cards'], [HEAT[s.topHeat].name, 'top heat'], [String(s.total), 'points']];
       tiles.forEach(([v, l], k) => { const cx = 150 + k * 260; x.fillStyle = '#ffffff14'; x.fillRect(cx - 115, y + 20, 230, 190); x.fillStyle = '#fff'; x.font = font(900, 64, true); x.fillText(v, cx, y + 120); x.fillStyle = '#d9b8c8'; x.font = font(600, 30, false); x.fillText(l, cx, y + 175); });
       y += 290;
       x.font = font(700, 40, false);
-      s.players.slice().sort((a, b) => b.pts - a.pts).slice(0, 8).forEach((p) => { x.textAlign = 'left'; x.fillStyle = '#fff'; x.fillText(p.name, 170, y); x.textAlign = 'right'; x.fillStyle = '#ffd166'; x.fillText(p.pts + ' pts', 910, y); y += 62; });
+      s.players.slice().sort((a, b) => b.pts - a.pts).slice(0, Math.max(1, Math.floor((1230 - y) / 62))).forEach((p) => { x.textAlign = 'left'; x.fillStyle = '#fff'; x.fillText(p.name, 170, y); x.textAlign = 'right'; x.fillStyle = '#ffd166'; x.fillText(p.pts + ' pts', 910, y); y += 62; });
       x.textAlign = 'center'; x.fillStyle = '#d9b8c8'; x.font = font(600, 30, false); x.fillText('heat-check · 18+', 540, 1290);
       const blob = await new Promise((r) => c.toBlob(r, 'image/png'));
       const file = new File([blob], 'heat-check-night.png', { type: 'image/png' });
