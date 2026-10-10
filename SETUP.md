@@ -45,7 +45,7 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 | `COOKIE_SECRET` | 32+ random characters | `openssl rand -base64 48` |
 | `TURNSTILE_SECRET` | Turnstile secret key | Cloudflare, Turnstile |
 | `TURNSTILE_SITE_KEY` ⚑ | Turnstile site key (public) | Cloudflare, Turnstile |
-| `SITE_URL` | `https://heat-check.pages.dev` now, the .app/.dev domain later | `wrangler.toml` `[vars]` |
+| `SITE_URL` | `https://heat-check-a9b.pages.dev` now, the .app/.dev domain later | `wrangler.toml` `[vars]` |
 | `RATE_KV` ⚑ | KV namespace **binding** (not a variable) | `wrangler.toml` `[[kv_namespaces]]` |
 | `CONTACT_EMAIL` ⚑ | optional plain variable, shown on legal pages, profile and receipts | Pages build variable |
 
@@ -82,7 +82,7 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 4. For live mode: finish KYC, add the website with the Privacy, Terms, Refund and Contact details, then swap to live keys and a live webhook.
 
 ### Cloudflare
-1. Turnstile: add a widget (Managed), hostnames `heat-check.pages.dev` (and the custom domain later). Copy both keys.
+1. Turnstile: add a widget (Managed), hostnames `heat-check-a9b.pages.dev` (and the custom domain later). Copy both keys.
 2. KV: `npx wrangler kv namespace create RATE_KV`, paste the id into `wrangler.toml` and remove the `#` on those three lines. (Without it, sign-in and admin return "not switched on yet": rate limits fail closed.)
 3. Pages: Create, Connect to Git, pick `velvetthunder15/heat-check`, branch `main`. Framework preset: None. Build command: `node tools/build.mjs`. Output directory: `dist`.
 4. Add the secrets from section 2 to Production and Preview, then redeploy.
