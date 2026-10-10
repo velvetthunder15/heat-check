@@ -126,6 +126,7 @@ const App = {
     this.set('home', `<main class="screen setup ${group ? 'is-group' : ''}" style="padding-bottom:40px">
       <div class="row" style="justify-content:space-between;margin-bottom:16px"><h1 style="font-size:34px">${group ? 'Who’s in?' : 'Who’s playing?'}</h1>
         ${canBack ? '<button class="icon-btn" id="back" aria-label="Back">✕</button>' : ''}</div>
+      <h3 class="set-h first">Players</h3>
       ${group ? `
         <p class="note">${HC.GROUP_MIN} to ${HC.GROUP_MAX} players. Everyone plays for themselves.</p>
         <div class="col" id="roster">${S.group.players.map(groupRow).join('')}</div>
@@ -136,27 +137,27 @@ const App = {
         <button class="btn ghost sm" id="addc" style="margin-top:12px;align-self:flex-start">+ Add a couple${cappedCouples ? ' <span class="pro-tag">Premium</span>' : ''}</button>
         ${!unlimited && S.couples.length > coupleCap ? `<p class="note">This plan plays the first ${coupleCap} couples. Premium brings everyone.</p>` : ''}`}
       ${savedNames.length ? `<div class="saved-names"><span class="note">Saved names, tap to add</span><div class="chips-row">${savedNames.map((n) => `<button class="chip" data-name="${esc(n)}">${esc(n)}</button>`).join('')}</div></div>` : ''}
-      <div class="spacer"></div>
+      <section class="set-sec"><h3 class="set-h">Penalties</h3>
+        <div class="field"><label>How do penalties work?</label>
+          ${group ? seg('mode', [['drink', '🍸 Sips'], ['water', '💧 No alcohol']], S.group) : seg('mode', [['drink', '🍸 Drinks'], ['water', '💧 Water'], ['dare', '🎲 Dares']])}
+          <p class="note" id="modeNote"></p></div>
+        <p class="note">Penalty points: Flirty ${HC.PENALTY_PTS[1]}, Spicy ${HC.PENALTY_PTS[2]}, Hot ${HC.PENALTY_PTS[3]}. Each penalty is taken on the spot and its points land on the scoreboard. Anyone can Chicken Out once a round, no penalty.</p></section>
 
-      <div class="field"><label>How do penalties work?</label>
-        ${group ? seg('mode', [['drink', '🍸 Sips'], ['water', '💧 No alcohol']], S.group) : seg('mode', [['drink', '🍸 Drinks'], ['water', '💧 Water'], ['dare', '🎲 Dares']])}
-        <p class="note" id="modeNote"></p></div>
-      <div class="spacer"></div>
+      <section class="set-sec"><h3 class="set-h">Timer</h3>
+        <div class="field">${seg('timer', HC.TIMER_OPTIONS.map((n) => [n, n + 's']))}<p class="note">Every timed game uses this clock.</p></div></section>
 
-      <div class="field"><label>Timer</label>${seg('timer', HC.TIMER_OPTIONS.map((n) => [n, n + 's']))}<p class="note">Every timed game uses this clock.</p></div>
-      <div class="spacer"></div>
-      ${sw('hollywood', 'Hollywood', 'Movies, shows and songs from Hollywood.')}
-      ${sw('bollywood', 'Bollywood', 'Films, shows and songs from Bollywood.')}
-      <div class="spacer"></div>
-      ${sw('autoRamp', 'Auto-ramp', 'Heat climbs one level every few cards, up to the highest level you have.')}
-      <div class="field" id="rpl" ${st.autoRamp ? '' : 'hidden'}><label>Cards per ramp</label>
-        <div class="stepper"><button class="icon-btn" data-step="-1" aria-label="Fewer">−</button><b id="cpr">${st.cardsPerRamp}</b><button class="icon-btn" data-step="1" aria-label="More">+</button></div></div>
-      ${group ? '' : `<div class="spacer"></div>
-      <div class="field"><label>Strip Charades: layers each</label>${seg('layers', [[3, '3'], [4, '4'], [5, '5'], [6, '6']])}</div>`}
+      <section class="set-sec"><h3 class="set-h">Content</h3>
+        ${sw('hollywood', 'Hollywood', 'Movies, shows and songs from Hollywood.')}
+        ${sw('bollywood', 'Bollywood', 'Films, shows and songs from Bollywood.')}</section>
 
-      <div class="spacer"></div>
-      <p class="note">Penalty points: Flirty ${HC.PENALTY_PTS[1]}, Spicy ${HC.PENALTY_PTS[2]}, Hot ${HC.PENALTY_PTS[3]}. Each penalty is taken on the spot and its points land on the scoreboard. Anyone can Chicken Out once a round, no penalty.</p>
-      <div class="spacer"></div>
+      <section class="set-sec"><h3 class="set-h">Heat</h3>
+        ${sw('autoRamp', 'Auto-ramp', 'Heat climbs one level every few cards, up to the highest level you have.')}
+        <div class="field" id="rpl" ${st.autoRamp ? '' : 'hidden'}><label>Cards per ramp</label>
+          <div class="stepper"><button class="icon-btn" data-step="-1" aria-label="Fewer">−</button><b id="cpr">${st.cardsPerRamp}</b><button class="icon-btn" data-step="1" aria-label="More">+</button></div></div></section>
+      ${group ? '' : `
+      <section class="set-sec"><h3 class="set-h">Strip Charades</h3>
+        <div class="field"><label>Layers each</label>${seg('layers', [[3, '3'], [4, '4'], [5, '5'], [6, '6']])}</div></section>`}
+
       <button class="btn block" id="save">Let’s play →</button>
     </main>`);
     const notes = { drink: 'Points = sips. Dares can stand in for the sips. Drink responsibly: pace yourselves, keep water on the table, and nobody drives.', water: 'Points = sips of water. Dares can stand in. Same game, no hangover.', dare: 'No drinks. Every penalty is the card’s dare, nothing else.' };
@@ -244,6 +245,7 @@ const App = {
       if (a === 'standings') Core.standings();
       if (a === 'heatsheet') window.UI && UI.heatSheet(Core.game);
       if (a === 'chicken') { SFX.play('tap'); Core.chickenOut(); }
+      if (a === 'players') { SFX.play('tap'); this.setup(); }
     });
   },
 };
