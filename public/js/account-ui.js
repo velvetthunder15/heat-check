@@ -536,7 +536,7 @@ const UI = {
         <div class="row" style="justify-content:center;gap:8px"><span class="plan-badge ${tier}">${tier === 'premium' ? 'Premium · Lifetime' : PLAN_LABEL[tier]}</span><span class="note">Member since ${esc(fmtDate(p.created_at, false))}</span></div>
       </section>
       <section class="pf-card"><h3>${tier === 'base' ? 'Plans' : 'Your plan'}</h3>${plan}</section>
-      <section class="pf-card"><h3>Free Hot cards</h3>${this.tasteTracker()}</section>
+      ${Ent.profileTier() === 'premium' ? '' : `<section class="pf-card"><h3>Free Hot cards</h3>${this.tasteTracker()}</section>`}
       <section class="pf-card"><h3>Purchase history</h3><div id="pfPurchases"><p class="note">Digging out your receipts…</p></div>
         <p class="note"><a href="/refund">Need a refund?</a></p></section>
       <section class="pf-card"><h3>Preferences</h3>
