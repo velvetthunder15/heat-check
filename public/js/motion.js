@@ -178,7 +178,7 @@
     setTimeout(() => o.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' }).onfinish = () => o.remove(), ms);
   };
 
-  /* ---------------- Cards: spring flip in, drag with tilt, swipe to pass ---------------- */
+  /* ---------------- Cards: spring flip in, drag with tilt, swipe to Chicken Out ---------------- */
   const CARD_SEL = '.lower-third, .neon-sign, .casefile, .panel, .bulb-frame, .playing, .mirror, #stage > .card';
   const flipIn = (el) => {
     if (!el || reduced() || !el.animate) return;
@@ -214,12 +214,12 @@
       if (!active) return; active = false;
       if (!horiz) return;
       const from = el.style.transform; el.style.transform = '';
-      const pass = document.querySelector('.controls [data-act="pass"]');
-      if (armed && pass && !Core.paused) {
+      const ck = document.querySelector('.controls [data-act="chicken"]');   // swipe away = Chicken Out
+      if (armed && ck && Core._skip) {
         const dir = Math.sign(dx);
         buzz([10, 20, 30]);
         el.animate([{ transform: from, opacity: 1 }, { transform: `perspective(900px) translateX(${dir * 130}vw) rotate(${dir * 28}deg)`, opacity: 0 }], { duration: 320, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' })
-          .onfinish = () => pass.click();
+          .onfinish = () => ck.click();
       } else {
         el.animate([{ transform: from }, { transform: 'none' }], { duration: 650, easing: SPRING() });
         if (Math.abs(dx) > 20) buzz(6);
@@ -285,17 +285,6 @@
         buzz([[0], [15], [20, 40, 25], [30, 40, 60, 40, 80]][heat] || 15);
       });
       return p;
-    };
-    // pause: instant crossfade, no white flash
-    const origPause = Core.pause.bind(Core), pz = document.getElementById('pause');
-    Core.pause = function () {
-      origPause();
-      if (pz.animate) pz.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 90, easing: 'linear' });
-    };
-    Core.resume = function () {
-      this.paused = false; document.title = 'Heat Check';
-      if (!pz.animate) { pz.hidden = true; return; }
-      pz.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: 'linear' }).onfinish = () => { if (!Core.paused) pz.hidden = true; };
     };
     // game screens: intro on mount, flip-in + drag for each new card
     const origMount = window.mount;
