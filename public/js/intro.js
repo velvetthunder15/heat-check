@@ -27,6 +27,8 @@ const CHEEKY = {
   twotruths: 'Lie with a straight face. The table votes.',
 };
 
+// One short vibe per level under the pills (the penalty already shows inside the ring)
+const VIBE = { 1: 'Cute. Suspicious, but cute.', 2: 'Somebody open a window.', 3: 'No locks tonight. Behave. Or don’t.' };
 const TILT = [-5, 4, -3, 5, -4, 3, -5, 2, -3];
 const HEAT_RING = ['#ffd166', '#ff7a3c', '#ff2e63'];
 const LOW_END = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 2;
@@ -88,7 +90,8 @@ const Intro = {
   avatar() {
     if (Auth.signedIn()) {
       const ch = (Auth.email()[0] || '?').toUpperCase();
-      return `<button class="avatar on" data-act="profile" aria-label="Your profile">${esc(ch)}</button>`;
+      const t = window.Ent ? Ent.tier() : '', ring = t === 'premium' || t === 'lite' ? ` tier-${t}` : '';
+      return `<button class="avatar on${ring}" data-act="profile" aria-label="Your profile${ring ? `, ${t === 'premium' ? 'Premium' : 'Lite'}` : ''}">${ring ? '<i class="av-ring" aria-hidden="true"></i>' : ''}<span class="av-ch">${esc(ch)}</span></button>`;
     }
     return '<button class="avatar" data-act="profile" aria-label="Profile and sign in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4"/><path d="M4 20.5c1.4-4 4.4-6 8-6s6.6 2 8 6"/></svg></button>';
   },
@@ -257,7 +260,7 @@ const Intro = {
       }
       SFX.play('tap'); vibrate(10); hero.classList.remove('locked');
       Core.setHeat(lv); setHeatAttr(Core.heat());
-      line.textContent = `Locked in: ${ptsLabel(lv)}.`;
+      line.textContent = VIBE[lv];
     }));
     const setHeatAttr = (h) => { hero.dataset.heat = String(Math.max(1, Math.min(3, h || 1))); };
     const sync = () => {
@@ -300,9 +303,8 @@ const Intro = {
       if (done > completed) {
         completed = done;
         label(done); vibrate(done === 3 ? [30, 30, 60, 30, 90] : 18); SFX.play('softtick');
-        if (done === 1 && !blocked) line.textContent = `Flirty · ${ptsWord(pts(1))} penalty. Cute. Suspicious, but cute.`;
-        if (done === 2 && !blocked) line.textContent = `Spicy · ${ptsWord(pts(2))} penalty. Somebody open a window.`;
-        if (done === 3) { line.textContent = `${HOT} · ${ptsWord(pts(3))} penalty. No locks tonight.`; Burn.play(hero); }
+        if (done < 3 && !blocked) line.textContent = VIBE[done];
+        if (done === 3) { line.textContent = VIBE[3]; Burn.play(hero); }
       }
       paint(done, frac);
       if (done < 3) raf = requestAnimationFrame(step);
@@ -326,7 +328,7 @@ const Intro = {
         const set = Core.setHeat(completed);   // clamps to what this account may play, resets the ramp
         shown = set; paint(set, 0); label(set); setHeatAttr(set);
         hero.classList.toggle('burning', set === 3);
-        if (!blocked) line.textContent = set === 3 ? `${HOT} it is · ${ptsWord(pts(3))} penalty. Behave. Or don’t.` : `Locked in: ${ptsLabel(set)}.`;
+        if (!blocked) line.textContent = VIBE[set];
         const pick = $('#pick');
         if (pick) setTimeout(() => pick.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' }), 160);
       } else {
@@ -353,7 +355,7 @@ const Intro = {
       const from = Core.heat();
       Core.resetHeat(); Taste.armed = false; shown = 1; setHeatAttr(1);
       hero.classList.remove('burning', 'locked'); Burn.stop(hero);
-      line.textContent = `Back to Flirty · ${ptsWord(pts(1))} penalty. Ramp counter reset.`;
+      line.textContent = `Back to Flirty. ${VIBE[1]}`;
       sweep(from, 1); vibrate(12); SFX.play('tap');
     };
     this.ring = { sync, sweep };
