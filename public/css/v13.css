@@ -40,9 +40,10 @@ html.vt-back::view-transition-new(root) { animation: vtInL var(--dur-m) var(--ea
 /* ---------- 3. "How HOT is tonight?" ---------- */
 #app .hero-title { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0; line-height: 1; font-style: normal; letter-spacing: 0; }
 .ht-l1 { display: flex; align-items: center; gap: .2em; }
-#app .hero-title .ht-soft { font-size: clamp(26px, 7.6vw, 34px); font-weight: 300; font-style: italic; letter-spacing: -.01em; color: var(--fg); }
+/* Same face as the ring's level word (Flirty): heavy italic, tight */
+#app .hero-title .ht-soft { font-size: clamp(28px, 8.4vw, 38px); font-weight: 900; font-style: italic; letter-spacing: -.03em; color: var(--fg); }
 .ht-l2 { margin-top: -2px; }
-.ht-q { display: inline-block; margin-left: .05em; color: var(--fl); font-weight: 600; transform: rotate(8deg); transform-origin: 50% 80%; }
+.ht-q { display: inline-block; margin-left: .05em; color: var(--fl); font-weight: 900; transform: rotate(8deg); transform-origin: 50% 80%; }
 .ht-hot { position: relative; display: inline-block; isolation: isolate; }
 .ht-svg { display: block; height: clamp(64px, 19vw, 84px); width: auto; aspect-ratio: 260 / 124; overflow: visible; }
 .ht-t { font-size: 104px; font-weight: 900; font-style: italic; }
@@ -98,7 +99,7 @@ html.vt-back::view-transition-new(root) { animation: vtInL var(--dur-m) var(--ea
 /* ---------- 5. "Pick your poison": a stamp, not a gradient ---------- */
 .pick-sec { position: relative; margin: 20px 18px 0; padding: 22px 0 0; border-top: 1px solid #ffffff17; display: flex; flex-direction: column; align-items: center; text-align: center; scroll-margin-top: 12px; }
 #app .pick-title { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 0; font-style: normal; letter-spacing: 0; line-height: 1; }
-#app .pick-title .pk-small { font-size: 12px; font-weight: 600; font-style: normal; letter-spacing: .28em; text-transform: uppercase; color: var(--muted); padding-left: .28em; }
+#app .pick-title .pk-small { font-size: clamp(20px, 6vw, 24px); font-weight: 900; font-style: italic; letter-spacing: -.03em; color: var(--muted); }
 #app .pick-title .pk-big { position: relative; display: inline-block; padding: 0 2px 13px; font-size: clamp(42px, 12.5vw, 54px); font-weight: 900; font-style: normal; letter-spacing: .02em; line-height: .9; color: var(--fl); transform: rotate(-2deg); }
 .pk-line { position: absolute; left: 0; bottom: 0; width: 100%; height: 9px; overflow: visible; }
 .pk-line path { fill: none; stroke: var(--fl); stroke-width: 8; stroke-dasharray: 100; stroke-dashoffset: 100; }
