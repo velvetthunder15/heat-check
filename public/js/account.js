@@ -273,7 +273,7 @@ const Cards = {
   usedUp(game) {
     if (this._toldUsedUp[game]) return;
     this._toldUsedUp[game] = true;
-    Core.toast(`${HC.LIMITS.lite.hot} Hot cards used here. Premium has unlimited.`);
+    Core.toast(`${HC.LIMITS.lite.hot} ${HOT} cards used here. Premium has unlimited.`);
     Bus.emit('heat');
   },
 };
@@ -317,9 +317,9 @@ const Limits = {
   line(game) {
     const t = Ent.tier();
     if (t === 'premium') return '';
-    if (t === 'lite') return `Hot ${this.hotUsed(game)}/${HC.LIMITS.lite.hot}`;
+    if (t === 'lite') return `${HOT} ${this.hotUsed(game)}/${HC.LIMITS.lite.hot}`;
     const f = `Flirty ${Math.min(this.flirtyUsed(game), HC.LIMITS[t].flirty)}/${HC.LIMITS[t].flirty}`;
-    return t === 'base' ? `${f} · Hot ${Taste.used(game) || Taste.showing === game ? 1 : 0}/1` : f;
+    return t === 'base' ? `${f} · ${HOT} ${Taste.used(game) || Taste.showing === game ? 1 : 0}/1` : f;
   },
   // Sign-in: carry this device's guest counters up to the account (never down)
   async sync() {
@@ -347,9 +347,9 @@ const Taste = {
   unusedAny() { return this.available() && GAME_IDS.some((g) => !this.used(g)); },
   canClaim(game) { return this.available() && !this.used(game); },
   async claim(game) {
-    if (!this.canClaim(game)) throw new Error(this.available() ? 'You’ve used this game’s free Hot card.' : 'Sign in for a free Hot card.');
+    if (!this.canClaim(game)) throw new Error(this.available() ? `You’ve used this game’s free ${HOT} card.` : `Sign in for a free ${HOT} card.`);
     const r = await Api.call('POST', '/api/taste', { game, origins: Core.origins() });
-    if (!r || !r.card) throw new Error('No Hot card came back. Try again.');
+    if (!r || !r.card) throw new Error(`No ${HOT} card came back. Try again.`);
     if (Auth.profile) Auth.profile.taste_used = Object.assign({}, Auth.profile.taste_used, { [game]: r.used_at || new Date().toISOString() });
     this._card = { ...Cards.fromRow(r.card), taste: true };
     this._game = game;
