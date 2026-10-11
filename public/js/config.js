@@ -2,6 +2,11 @@
    Every game count in the app comes from HC.GAMES. LIMITS mirrors lib/limits.js
    (the server enforces those); tools/cards.mjs fails the build if they differ. */
 const HC = {
+  // Heat-level names: the one place UI copy gets them. The top level always reads HOT
+  // (whole word, capitals). Ids, enums and DB values stay lowercase. tools/build.mjs
+  // fails if a UI string writes Hot/hot as a heat term instead of using HC.HOT.
+  HOT: 'HOT',
+  HEAT_NAMES: { 1: 'Flirty', 2: 'Spicy', 3: 'HOT' },
   ROTATION_MS: 1200,          // hold ring: one full turn = one heat level
   RAMP_DEFAULT: 5,            // auto-ramp: cards per level
   RAMP_MIN: 3,
@@ -58,6 +63,7 @@ const HC = {
   ],
   gamesFor(mode) { return this.GAMES.filter((g) => g.mode === mode).map((g) => g.id); },
   modeOf(id) { const g = this.GAMES.find((x) => x.id === id); return g ? g.mode : null; },
+  heatName(l) { return HC.HEAT_NAMES[l] || ''; },
   taunt(points) {
     const r = this.TAUNTS.find((t) => points >= t.min && (t.max == null || points <= t.max)) || this.TAUNTS[this.TAUNTS.length - 1];
     return r.lines[Math.floor(Math.random() * r.lines.length)];
