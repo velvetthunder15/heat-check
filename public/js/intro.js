@@ -81,7 +81,7 @@ const Intro = {
     const once = this._pickDrawn ? ' drawn' : ''; this._pickDrawn = true;
     return `<section class="pick-sec${once}" id="pick">
       <h2 class="pick-title" aria-label="Pick your poison"><span class="pk-small" aria-hidden="true">Pick your</span>
-        <span class="pk-big" aria-hidden="true">POISON<svg class="pk-line" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M3 6 H112"/><path class="pk-b" pathLength="100" d="M126 6 H197"/></svg></span></h2>
+        <span class="pk-big" aria-hidden="true"><span class="pk-word">POISON</span><svg class="pk-line" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="pkg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="0"><stop offset="0" stop-color="#ffb3c6"/><stop offset=".45" stop-color="#ff2e63"/><stop offset="1" stop-color="#ff7a3c"/></linearGradient></defs><path pathLength="100" d="M3 6 H112"/><path class="pk-b" pathLength="100" d="M126 6 H197"/></svg></span></h2>
       <span class="pk-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 6l6 5 6-5"/><path d="M6 13l6 5 6-5"/></svg></span>
     </section>`;
   },
@@ -132,7 +132,7 @@ const Intro = {
             <span class="ring-rot" aria-hidden="true"><i class="l1"></i><i class="l2"></i><i class="l3"></i></span>
             <svg class="ring-svg" viewBox="0 0 120 120" aria-hidden="true">
               <defs>
-                <linearGradient id="rfg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb3c6"/><stop offset="1" stop-color="#ff2e63"/></linearGradient>
+                <linearGradient id="rfg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb3c6"/><stop offset=".55" stop-color="#ff2e63"/><stop offset="1" stop-color="#d61f6e"/></linearGradient>
                 <linearGradient id="rfg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff2e63"/><stop offset="1" stop-color="#ff7a3c"/></linearGradient>
                 <linearGradient id="rfg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a3c"/><stop offset="1" stop-color="#fff4e0"/></linearGradient>
                 <radialGradient id="rspk"><stop offset="0" stop-color="#fff4e0" stop-opacity=".95"/><stop offset=".45" stop-color="#ffd2b0" stop-opacity=".55"/><stop offset="1" stop-color="#ff7a3c" stop-opacity="0"/></radialGradient>
