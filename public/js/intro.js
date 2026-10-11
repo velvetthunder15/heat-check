@@ -96,6 +96,7 @@ const Intro = {
     return HC.gamesFor(side).filter((id) => Cfg.gameOn(id) && Games[id]);
   },
   html() {
+    this._tier = window.Ent ? Ent.tier() : null;
     const side = Core.isGroup() ? 'group' : 'couples';
     const ps = Core.players();
     const games = this.tiles(side);
@@ -177,12 +178,26 @@ const Intro = {
   // Account or heat changed while on home: refresh in place
   refresh() {
     if (document.getElementById('app').dataset.theme !== 'home' || !$('#stack')) return;
+    // Plan changed (signed in, bought Lite/Premium, pass ended): redraw home so no stale
+    // lock or purchase prompt survives. If a sheet is open (e.g. checkout), redraw when it closes.
+    if (window.Ent && this._tier !== Ent.tier() && !$('#hero.holding')) {
+      if (!$('.modal-wrap')) return App.home();
+      this.softReset();
+      clearInterval(this._waitSheet);
+      this._waitSheet = setInterval(() => { if ($('#app').dataset.theme !== 'home') return clearInterval(this._waitSheet); if (!$('.modal-wrap')) { clearInterval(this._waitSheet); if (this._tier !== Ent.tier()) App.home(); } }, 400);
+    }
     const slot = $('#avatarSlot'); if (slot) slot.innerHTML = this.avatar();
     $$('#stack .tile').forEach((t) => { const b = $('.t-hot', t); if (b) b.outerHTML = this.hotBadge(t.dataset.game); });
     this.ring && this.ring.sync();
     window.UI && UI.updatePassChip();
   },
 
+  // Drop a lock message / lock badge that no longer applies at the current plan
+  softReset() {
+    const hero = $('#hero'), line = $('#holdLine'); if (!hero) return;
+    hero.classList.remove('locked');
+    if (line && line.querySelector('.lk, [data-lock]')) line.textContent = 'Press and hold. Each turn of the ring is one level.';
+  },
   bindSide() {
     $$('.side-switch [data-side]').forEach((b) => (b.onclick = () => {
       if (Core.S.side === b.dataset.side) return;
@@ -305,7 +320,7 @@ const Intro = {
     const end = () => {
       if (!holding) return;
       holding = false; cancelAnimationFrame(raf);
-      hero.classList.remove('holding'); app.classList.remove('warming');
+      hero.classList.remove('holding', 'locked'); app.classList.remove('warming');
       if (completed >= 1) {
         const set = Core.setHeat(completed);   // clamps to what this account may play, resets the ramp
         shown = set; paint(set, 0); label(set); setHeatAttr(set);
@@ -346,7 +361,7 @@ const Intro = {
       const vis = new IntersectionObserver((es) => es.forEach((e) => hero.classList.toggle('offscreen', !e.isIntersecting)));
       vis.observe(hero); this._cleanup.push(() => vis.disconnect());
     }
-    const off = Bus.on((type) => { if (type === 'heat' && !holding) { const to = Core.heat(); setHeatAttr(to); if (to !== shown) { sweep(shown, to); shown = to; } hero.classList.toggle('burning', to === 3 && Core.heatCap() === 3); } });
+    const off = Bus.on((type) => { if (type === 'heat' && !holding) { const to = Core.heat(); setHeatAttr(to); hero.classList.remove('locked'); if (to !== shown) { sweep(shown, to); shown = to; } hero.classList.toggle('burning', to === 3 && Core.heatCap() === 3); } });
     sync();
     this._cleanup.push(() => { holding = false; cancelAnimationFrame(raf); off(); app.classList.remove('warming'); Burn.stop(hero); this.ring = null; });
   },
