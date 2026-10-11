@@ -297,7 +297,27 @@ const Night = {
       players: players.map(({ name, pts }) => ({ name, pts })), couples, total,
       tauntFor: top ? top.names.join(' & ') : null, tauntPts, taunt: HC.taunt(tauntPts),
       limitHit: !!n.limitHit,
+      heatMix: { 1: (n.heat && n.heat[1]) || 0, 2: (n.heat && n.heat[2]) || 0, 3: (n.heat && n.heat[3]) || 0 },
+      chickens: Object.values(n.chickens || {}).reduce((a, b) => a + b, 0),
+      chickenKing: Night.leader(n.chickens || {}),
+      guilty: players.length && players.slice().sort((a, b) => b.pts - a.pts)[0].pts > 0 ? players.slice().sort((a, b) => b.pts - a.pts)[0] : null,
+      penalties: n.penalties || 0,
+      minutes: n.started ? Math.max(1, Math.round(((n.last || Date.now()) - n.started) / 60000)) : 0,
     };
+  },
+  leader(map) { const e = Object.entries(map).sort((a, b) => b[1] - a[1])[0]; return e && e[1] > 0 ? { name: e[0], n: e[1] } : null; },
+  dur(m) { return !m ? '0m' : m < 60 ? `${m}m` : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`; },
+  mixHtml(s) {
+    const t = s.heatMix[1] + s.heatMix[2] + s.heatMix[3]; if (!t) return '';
+    return `<section class="night-card"><h3>Heat mix</h3><div class="mix-bar">${[1, 2, 3].filter((l) => s.heatMix[l]).map((l) => `<i class="mx${l}" style="flex:${s.heatMix[l]}"></i>`).join('')}</div>
+      <ul class="mix-legend">${[1, 2, 3].map((l) => `<li class="mx${l}"><i></i>${HEAT[l].name}<b>${Math.round(s.heatMix[l] * 100 / t)}%</b></li>`).join('')}</ul></section>`;
+  },
+  awardsHtml(s) {
+    const a = [];
+    if (s.guilty) a.push(`<li><span>😈 Most guilty</span><b>${esc(s.guilty.name)} · ${s.guilty.pts} pts</b></li>`);
+    if (s.chickenKing) a.push(`<li><span>🐔 Biggest chicken</span><b>${esc(s.chickenKing.name)} · ${s.chickenKing.n}×</b></li>`);
+    if (s.couples.length > 1) { const c = s.couples.slice().sort((x, y) => y.pts - x.pts)[0]; a.push(`<li><span>🔥 Hottest pair</span><b>${c.names.map(esc).join(' &amp; ')}</b></li>`); }
+    return a.length ? `<section class="night-card"><h3>Awards</h3><ul class="night-list">${a.join('')}</ul></section>` : '';
   },
   // Guests keep it on this device; signed-in accounts get it in their profile stats
   save(s) { window.Stats && Stats.night(s); },
@@ -311,11 +331,12 @@ const Night = {
       <h1 class="night-title">Tonight’s damage</h1>
       <section class="night-taunt"><p>${esc(s.taunt)}</p>${s.tauntFor ? `<span class="note">${esc(s.tauntFor)} · ${s.tauntPts} pts together</span>` : ''}</section>
       <section class="night-grid">
-        <div><b>${s.games.length}</b><span>game${s.games.length === 1 ? '' : 's'} played</span></div>
-        <div><b>${cardsTotal}</b><span>cards played</span></div>
+        <div><b>${this.dur(s.minutes)}</b><span>on the clock</span></div>
+        <div><b>${cardsTotal}</b><span>cards across ${s.games.length} game${s.games.length === 1 ? '' : 's'}</span></div>
         <div><b class="h${s.topHeat}">${HEAT[s.topHeat].name}</b><span>highest heat</span></div>
         <div><b>${s.total}</b><span>penalty points</span></div>
       </section>
+      ${this.awardsHtml(s)}${this.mixHtml(s)}
       ${s.couples.length ? `<section class="night-card"><h3>Couples</h3><ul class="night-list">${s.couples.map((c) => `<li><span>${c.names.map(esc).join(' &amp; ')}</span><b>${c.pts} pts</b></li>`).join('')}</ul></section>` : ''}
       <section class="night-card"><h3>Penalty points</h3><ul class="night-list">${s.players.slice().sort((a, b) => b.pts - a.pts).map((p) => `<li><span>${esc(p.name)}</span><b>${p.pts}</b></li>`).join('')}</ul></section>
       <section class="night-card"><h3>Cards per game</h3><ul class="night-list">${s.games.map((g) => `<li><span>${esc(Games[g] ? Games[g].title : g)}</span><b>${s.cards[g] || 0}</b></li>`).join('')}</ul></section>
@@ -330,31 +351,97 @@ const Night = {
     $('#nightShare').onclick = (e) => this.share(s, e.currentTarget);
     SFX.play('win'); vibrate([30, 40, 60]);
   },
-  // One-tap share: draws the summary onto a canvas and shares the PNG (or downloads it)
+  // One-tap share: a 1080x1350 poster of the night, drawn on a canvas, shared as PNG (or downloaded)
   async share(s, btn) {
     try {
-      const c = document.createElement('canvas'); c.width = 1080; c.height = 1350;
+      const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
       const x = c.getContext('2d');
-      const g = x.createLinearGradient(0, 0, 1080, 1350); g.addColorStop(0, '#2a0b1c'); g.addColorStop(1, '#120a12');
-      x.fillStyle = g; x.fillRect(0, 0, 1080, 1350);
-      const rg = x.createRadialGradient(540, 360, 40, 540, 360, 620); rg.addColorStop(0, 'rgba(255,46,99,.45)'); rg.addColorStop(1, 'rgba(255,46,99,0)');
-      x.fillStyle = rg; x.fillRect(0, 0, 1080, 1350);
-      const font = (w, sz, it) => `${it ? 'italic ' : ''}${w} ${sz}px Inter, system-ui, sans-serif`;
-      x.textAlign = 'center';
-      // The home-page wordmark up top (same-origin image, so the canvas stays shareable)
+      try { await document.fonts.ready; } catch (e) {}
+      const F = (w, sz, it) => `${it ? 'italic ' : ''}${w} ${sz}px Inter, system-ui, sans-serif`;
+      const rr = (X, Y, w, h, r) => { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); };
+      const lin = (x0, y0, x1, y1, stops) => { const g = x.createLinearGradient(x0, y0, x1, y1); stops.forEach((st, k) => g.addColorStop(k / (stops.length - 1), st)); return g; };
+      const PAL = { 1: ['#ffb3c6', '#ff2e63', '#d61f6e'], 2: ['#ff2e63', '#ff7a3c'], 3: ['#ff7a3c', '#fff4e0'] };
+      // Backdrop: deep plum, a pink bloom top-left, an ember bloom bottom-right, soft grain
+      x.fillStyle = lin(0, 0, 0, H, ['#1d0716', '#140912', '#0d070d']); x.fillRect(0, 0, W, H);
+      const bloom = (cx, cy, r, col) => { const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H); };
+      bloom(180, 160, 700, 'rgba(255,46,99,.38)'); bloom(980, 1260, 760, 'rgba(255,122,60,.28)'); bloom(900, 260, 420, 'rgba(214,31,110,.18)');
+      let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      x.fillStyle = 'rgba(255,255,255,.035)'; for (let k = 0; k < 900; k++) x.fillRect(rnd() * W, rnd() * H, 1.6, 1.6);
+      // Thin gradient frame
+      x.lineWidth = 3; x.strokeStyle = lin(0, 0, W, H, ['rgba(255,179,198,.55)', 'rgba(255,46,99,.25)', 'rgba(255,122,60,.5)']); rr(28, 28, W - 56, H - 56, 44); x.stroke();
+      x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+      // Logo + kicker
       const logo = await new Promise((r) => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = '/logo-wordmark.webp'; });
-      if (logo) { const w = 440, h = Math.round(w * (logo.naturalHeight || 289) / (logo.naturalWidth || 694)); x.drawImage(logo, 540 - w / 2, 48, w, h); }
-      else { x.fillStyle = '#ffd166'; x.font = font(800, 40, false); x.fillText('HEAT CHECK', 540, 120); }
-      x.fillStyle = '#fff'; x.font = font(900, 88, true); x.fillText('Tonight’s damage', 540, 330);
-      const wrap = (t, y, w, lh) => { const words = t.split(' '); let line = ''; for (const wd of words) { const tt = line ? line + ' ' + wd : wd; if (x.measureText(tt).width > w && line) { x.fillText(line, 540, y); y += lh; line = wd; } else line = tt; } x.fillText(line, 540, y); return y + lh; };
-      x.fillStyle = '#ffe3ec'; x.font = font(600, 46, true); let y = wrap(s.taunt, 430, 900, 60);
+      if (logo) { const w = 300, h = Math.round(w * (logo.naturalHeight || 289) / (logo.naturalWidth || 694)); x.drawImage(logo, W / 2 - w / 2, 70, w, h); }
+      const date = new Date(s.at || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      x.fillStyle = 'rgba(255,227,236,.6)'; x.font = F(800, 24); if ('letterSpacing' in x) x.letterSpacing = '6px';
+      x.fillText(`THAT’S A WRAP  ·  ${date.toUpperCase()}`, W / 2, 245); if ('letterSpacing' in x) x.letterSpacing = '0px';
+      // Title with the brand gradient
+      x.font = F(900, 104, true); x.fillStyle = lin(220, 0, 860, 0, ['#ffb3c6', '#ff2e63', '#ff7a3c']); x.fillText('Tonight’s damage', W / 2, 352);
+      // Taunt
+      const wrap = (t, y, w, lh) => { const words = t.split(' '); let line = ''; for (const wd of words) { const tt = line ? line + ' ' + wd : wd; if (x.measureText(tt).width > w && line) { x.fillText(line, W / 2, y); y += lh; line = wd; } else line = tt; } x.fillText(line, W / 2, y); return y + lh; };
+      x.fillStyle = '#ffe3ec'; x.font = F(600, 38, true); let y = wrap(`“${s.taunt}”`, 422, 860, 50);
+      if (s.tauntFor) { x.fillStyle = 'rgba(255,227,236,.55)'; x.font = F(700, 24); x.fillText(`${s.tauntFor}  ·  ${s.tauntPts} pts together`, W / 2, y - 6); y += 30; }
+      y += 10;
+      // Stat cards
       const cardsTotal = Object.values(s.cards).reduce((a, b) => a + b, 0);
-      const tiles = [[String(s.games.length), 'games'], [String(cardsTotal), 'cards'], [HEAT[s.topHeat].name, 'top heat'], [String(s.total), 'points']];
-      tiles.forEach(([v, l], k) => { const cx = 150 + k * 260; x.fillStyle = '#ffffff14'; x.fillRect(cx - 115, y + 20, 230, 190); x.fillStyle = '#fff'; x.font = font(900, 64, true); x.fillText(v, cx, y + 120); x.fillStyle = '#d9b8c8'; x.font = font(600, 30, false); x.fillText(l, cx, y + 175); });
-      y += 290;
-      x.font = font(700, 40, false);
-      s.players.slice().sort((a, b) => b.pts - a.pts).slice(0, Math.max(1, Math.floor((1230 - y) / 62))).forEach((p) => { x.textAlign = 'left'; x.fillStyle = '#fff'; x.fillText(p.name, 170, y); x.textAlign = 'right'; x.fillStyle = '#ffd166'; x.fillText(p.pts + ' pts', 910, y); y += 62; });
-      x.textAlign = 'center'; x.fillStyle = '#d9b8c8'; x.font = font(600, 30, false); x.fillText('heat-check · 18+', 540, 1290);
+      const stats = [[Night.dur(s.minutes), 'ON THE CLOCK'], [String(cardsTotal), 'CARDS'], [String(s.total), 'PENALTY PTS'], [HEAT[s.topHeat].name, 'TOP HEAT', s.topHeat]];
+      const cw = 222, gap = 20, x0 = (W - (cw * 4 + gap * 3)) / 2, ch = 168;
+      stats.forEach(([v, l, lv], k) => {
+        const X = x0 + k * (cw + gap);
+        x.fillStyle = 'rgba(255,255,255,.06)'; rr(X, y, cw, ch, 28); x.fill();
+        x.lineWidth = 2; x.strokeStyle = 'rgba(255,255,255,.10)'; x.stroke();
+        let sz = 68; x.font = F(900, sz, true); while (x.measureText(v).width > cw - 28 && sz > 34) { sz -= 4; x.font = F(900, sz, true); }
+        x.fillStyle = lv ? lin(X + 20, 0, X + cw - 20, 0, PAL[lv]) : '#ffffff'; x.fillText(v, X + cw / 2, y + 96);
+        x.fillStyle = 'rgba(255,227,236,.55)'; x.font = F(800, 19); if ('letterSpacing' in x) x.letterSpacing = '3px'; x.fillText(l, X + cw / 2, y + 138); if ('letterSpacing' in x) x.letterSpacing = '0px';
+      });
+      y += ch + 52;
+      // Heat mix bar
+      const mt = s.heatMix[1] + s.heatMix[2] + s.heatMix[3], bx = 90, bw = W - 180;
+      if (mt) {
+        x.textAlign = 'left'; x.fillStyle = 'rgba(255,227,236,.6)'; x.font = F(800, 22); if ('letterSpacing' in x) x.letterSpacing = '4px'; x.fillText('HEAT MIX', bx, y); if ('letterSpacing' in x) x.letterSpacing = '0px';
+        y += 22; let cx = bx;
+        x.save(); rr(bx, y, bw, 26, 13); x.clip(); x.fillStyle = 'rgba(255,255,255,.07)'; x.fillRect(bx, y, bw, 26);
+        [1, 2, 3].forEach((l) => { const w = bw * s.heatMix[l] / mt; if (!w) return; x.fillStyle = lin(cx, 0, cx + w, 0, PAL[l]); x.fillRect(cx, y, w + 1, 26); cx += w; });
+        x.restore(); y += 64;
+        const seg = bw / 3; [1, 2, 3].forEach((l, k) => { const X = bx + k * seg; x.fillStyle = lin(X, 0, X + 22, 0, PAL[l]); x.beginPath(); x.arc(X + 11, y - 9, 10, 0, Math.PI * 2); x.fill();
+          x.fillStyle = '#fff'; x.font = F(800, 28); x.fillText(HEAT[l].name, X + 32, y); const tw = x.measureText(HEAT[l].name).width; x.fillStyle = 'rgba(255,227,236,.6)'; x.font = F(700, 26); x.fillText(`${Math.round(s.heatMix[l] * 100 / mt)}%`, X + 44 + tw, y); });
+        y += 40;
+      }
+      // Awards
+      const aw = [];
+      if (s.guilty) aw.push(['😈', 'MOST GUILTY', s.guilty.name, `${s.guilty.pts} pts`]);
+      if (s.chickenKing) aw.push(['🐔', 'BIGGEST CHICKEN', s.chickenKing.name, `${s.chickenKing.n}×`]);
+      else aw.push(['😇', 'CHICKEN OUTS', 'Nobody', 'brave lot']);
+      const awW = (bw - 20) / 2;
+      aw.slice(0, 2).forEach(([e, l, nm, v], k) => {
+        const X = bx + k * (awW + 20);
+        x.fillStyle = lin(X, y, X + awW, y + 120, ['rgba(255,46,99,.16)', 'rgba(255,122,60,.10)']); rr(X, y, awW, 108, 26); x.fill();
+        x.lineWidth = 2; x.strokeStyle = 'rgba(255,179,198,.22)'; x.stroke();
+        x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = F(400, 50); x.fillText(e, X + 24, y + 72);
+        x.fillStyle = 'rgba(255,227,236,.6)'; x.font = F(800, 18); if ('letterSpacing' in x) x.letterSpacing = '3px'; x.fillText(l, X + 98, y + 42); if ('letterSpacing' in x) x.letterSpacing = '0px';
+        let sz = 34; x.font = F(900, sz, true); const label = `${nm}  ·  ${v}`; while (x.measureText(label).width > awW - 120 && sz > 22) { sz -= 2; x.font = F(900, sz, true); }
+        x.fillStyle = '#fff'; x.fillText(label, X + 98, y + 82);
+      });
+      y += 158;
+      // Leaderboard with gradient bars
+      const rows = s.players.slice().sort((a, b) => b.pts - a.pts), maxP = Math.max(1, rows[0] ? rows[0].pts : 1);
+      const room = Math.max(1, Math.floor((H - 120 - y) / 50)), shown = rows.slice(0, Math.min(5, room));
+      x.textAlign = 'left'; x.fillStyle = 'rgba(255,227,236,.6)'; x.font = F(800, 22); if ('letterSpacing' in x) x.letterSpacing = '4px'; x.fillText('SCOREBOARD', bx, y); if ('letterSpacing' in x) x.letterSpacing = '0px';
+      y += 40;
+      const medal = ['🥇', '🥈', '🥉'];
+      shown.forEach((p, k) => {
+        x.textAlign = 'left'; x.font = F(400, 30); x.fillStyle = '#fff'; x.fillText(medal[k] || `${k + 1}`, bx, y + 10);
+        x.font = F(800, 30); let nm = p.name; while (x.measureText(nm).width > 230 && nm.length > 2) nm = nm.slice(0, -2) + '…'; x.fillText(nm, bx + 56, y + 10);
+        const barX = bx + 310, barW = bw - 310 - 110;
+        x.fillStyle = 'rgba(255,255,255,.07)'; rr(barX, y - 10, barW, 20, 10); x.fill();
+        const w = Math.max(20, barW * p.pts / maxP); x.fillStyle = lin(barX, 0, barX + barW, 0, ['#ffb3c6', '#ff2e63', '#ff7a3c']); rr(barX, y - 10, w, 20, 10); x.fill();
+        x.textAlign = 'right'; x.font = F(900, 30, true); x.fillStyle = '#fff'; x.fillText(`${p.pts}`, bx + bw, y + 10);
+        y += 50;
+      });
+      // Footer
+      x.textAlign = 'center'; x.fillStyle = 'rgba(255,227,236,.45)'; x.font = F(700, 22); if ('letterSpacing' in x) x.letterSpacing = '4px';
+      x.fillText(`${(location.host || 'heat-check').toUpperCase()}  ·  18+`, W / 2, H - 66); if ('letterSpacing' in x) x.letterSpacing = '0px';
       const blob = await new Promise((r) => c.toBlob(r, 'image/png'));
       const file = new File([blob], 'heat-check-night.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Heat Check: tonight’s damage' }); return; }
