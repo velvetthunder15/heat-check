@@ -218,3 +218,18 @@ html.low-end .av-ring::before, html[data-motion="reduce"] .av-ring::before { ani
 .night-grid b.h1 { background-image: linear-gradient(100deg, #ffb3c6, #ff2e63, #d61f6e); }
 .night-grid b.h2 { background-image: linear-gradient(100deg, #ff2e63, #ff7a3c); }
 .night-grid b.h3 { background-image: linear-gradient(100deg, #ff7a3c, #fff4e0); }
+
+/* ---------- Profile hero: the same metal ring, bigger (titanium Premium, gold Lite) ---------- */
+.pf-ring.tier-premium::before, .pf-ring.tier-lite::before { display: none; }
+.pf-ring span { position: relative; z-index: 1; }
+.pf-metal { position: absolute; inset: 0; border-radius: 50%; padding: 6px; overflow: hidden;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
+.pf-metal::before { content: ""; position: absolute; inset: 0; border-radius: 50%; animation: avSpin 7s linear infinite; }
+.tier-premium .pf-metal::before { background: conic-gradient(from 0deg, #f4f9ff, #a9c2db 18%, #6f879f 32%, #d9e8f7 48%, #ffffff 54%, #a9c2db 70%, #6f879f 84%, #f4f9ff); }
+.tier-lite .pf-metal::before { background: conic-gradient(from 0deg, #fff3c9, #e2ad48 18%, #a8741f 32%, #f6d47e 48%, #fffbe8 54%, #e2ad48 70%, #a8741f 84%, #fff3c9); }
+.pf-ring.tier-premium::after { background: radial-gradient(closest-side, #a9c2db66, transparent); }
+.pf-ring.tier-lite::after { background: radial-gradient(closest-side, #e2ad4866, transparent); }
+.pf-ring.tier-premium span { background: linear-gradient(160deg, #ffffff, #d9e8f7 40%, #a9c2db 70%, #f4f9ff); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+.pf-ring.tier-lite span { background: linear-gradient(160deg, #fff3c9, #f6d47e 40%, #e2ad48 70%, #fff3c9); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+html.low-end .pf-metal::before, html[data-motion="reduce"] .pf-metal::before { animation: none; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion="full"]) .pf-metal::before { animation: none; } }
