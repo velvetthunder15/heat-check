@@ -129,6 +129,7 @@ const Intro = {
           <span class="ring-side" aria-hidden="true"></span>
           <button class="hold-btn" id="holdBtn" aria-describedby="holdLine" aria-label="Hold to set the heat level">
             <span class="ring-glow" aria-hidden="true"><i class="l1"></i><i class="l2"></i><i class="l3"></i></span>
+            <span class="ring-hot" aria-hidden="true"><b class="rh-corona"></b><b class="rh-halo"></b>${Array.from({ length: 12 }, (_, k) => `<i style="--a:${k * 30 + (k % 3) * 7}deg;--d:${(2.4 + (k * 7 % 5) * 0.35).toFixed(2)}s;--w:${(-(k * 0.53) % 3).toFixed(2)}s;--s:${(0.6 + (k * 5 % 4) * 0.18).toFixed(2)}"></i>`).join('')}</span>
             <span class="ring-rot" aria-hidden="true"><i class="l1"></i><i class="l2"></i><i class="l3"></i></span>
             <svg class="ring-svg" viewBox="0 0 120 120" aria-hidden="true">
               <defs>
