@@ -34,9 +34,9 @@ function hotGate(game) {
   const lite = Core.tier() === 'lite' && Math.min(Core.S.heat, Core.levelCap(game)) === 3 && window.Limits && Limits.hotLeft(game) > 0;
   if (!taste && !lite) return Promise.resolve();
   const s = $('#stage'); if (!s) return Promise.reject(new Error('left-game'));
-  s.innerHTML = `<div class="deal-gate"><span class="dg-chip">🔥 Hot</span>
-      <h2>First card is Hot</h2>
-      <p class="muted">${taste ? 'Your free Hot card is only used once it’s dealt.' : `It counts as 1 of your ${HC.LIMITS.lite.hot} Hot cards here once it’s dealt.`}</p>
+  s.innerHTML = `<div class="deal-gate"><span class="dg-chip">🔥 ${HOT}</span>
+      <h2>First card is ${HOT}</h2>
+      <p class="muted">${taste ? `Your free ${HOT} card is only used once it’s dealt.` : `It counts as 1 of your ${HC.LIMITS.lite.hot} ${HOT} cards here once it’s dealt.`}</p>
       <button class="btn block" id="dgGo">Deal it</button>
       <button class="btn block ghost sm" id="dgNo">${taste ? 'Save it, start at Spicy' : 'Start at Spicy'}</button></div>`;
   gateWait = new Promise((resolve) => {
