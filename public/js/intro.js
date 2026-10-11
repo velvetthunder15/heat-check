@@ -3,17 +3,13 @@
    - Hold-to-heat ring: each full turn (HC.ROTATION_MS) is one heat level
    - The games as a loose, tilted stack of cards that fans out once, when it scrolls into view */
 
+// Chirag's lines (Oct 11 2026), in his casing. Trusted HTML: the Premium word gets the titanium finish.
 const MICRO = [
-  'Phones down. Well, except this one.',
-  'Rule one: Chicken Out is not a personality.',
-  'Somebody’s blushing by round four. Place your bets.',
-  'Lights low, volume up, dignity optional.',
-  'You brought the snacks. We brought the questions.',
-  'Warning: may cause eye contact.',
-  'Tonight’s forecast: 90% chance of giggling.',
-  'Be honest. You opened this on purpose.',
-  'Hydrate. Flirt. Repeat.',
-  'Your group chat will never know.',
+  'hey hottie 😏',
+  'drunk, are we?',
+  'warning: may cause eye contact.',
+  'consent first.',
+  'tried <span class="micro-prem">Premium</span> yet?',
 ];
 
 const CHEEKY = {
@@ -43,7 +39,8 @@ const Intro = {
       n = +(localStorage.getItem('hc_visits') || 0);
       if (!sessionStorage.getItem('hc_visit_counted')) { n += 1; localStorage.setItem('hc_visits', String(n)); sessionStorage.setItem('hc_visit_counted', '1'); }
     } catch (e) {}
-    return MICRO[n % MICRO.length];
+    const list = window.Ent && Ent.tier() === 'premium' ? MICRO.filter((m) => !m.includes('micro-prem')) : MICRO;
+    return list[n % list.length];
   },
   // One shared style for every tile tag (uppercase, bold): see .t-hot in tiers.css
   hotBadge(id) {
@@ -126,7 +123,7 @@ const Intro = {
       </div>
 
       <section class="hc-hero" id="hero">
-        <p class="hero-micro">${esc(this.micro())}</p>
+        <p class="hero-micro">${this.micro()}</p>
         ${this.heading()}
         <div class="ring-row">
           <span class="ring-side" aria-hidden="true"></span>
