@@ -33,10 +33,10 @@ const ICONS = {
 };
 const icon = (k) => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>`;
 const perkList = (items) => `<ul class="perk-list">${items.map(([k, t]) => `<li>${icon(k)}<span>${esc(t)}</span></li>`).join('')}</ul>`;
-const GUEST_PERKS = [['flame', 'Free Hot card per game'], ['sync', 'Sync your progress'], ['bag', 'Buy Lite or Premium']];
+const GUEST_PERKS = [['flame', `Free ${HOT} card per game`], ['sync', 'Sync your progress'], ['bag', 'Buy Lite or Premium']];
 // Paywall rows: Lite shows its first three, the fourth (Premium's) dimmed. Premium shows all four of its own.
-const LITE_ROWS = [['flame', 'Flirty and Spicy, unlimited', true], ['heat', '3 Hot cards per game', true], ['music', 'Themes and sounds', true], ['infinity', 'Unlimited Hot', false]];
-const PREMIUM_ROWS = [['infinity', 'Unlimited Hot, every game', true], ['group', 'Unlimited players', true], ['bookmark', 'Saved player names', true], ['sparkle', 'All themes unlocked', true]];
+const LITE_ROWS = [['flame', 'Flirty and Spicy, unlimited', true], ['heat', `${HC.LIMITS.lite.hot} ${HOT} cards per game`, true], ['music', 'Themes and sounds', true], ['infinity', `Unlimited ${HOT}`, false]];
+const PREMIUM_ROWS = [['infinity', `Unlimited ${HOT}, every game`, true], ['group', 'Unlimited players', true], ['bookmark', 'Saved player names', true], ['sparkle', 'All themes unlocked', true]];
 
 const fmtDate = (iso, time = true) => {
   if (!iso) return '';
@@ -286,7 +286,7 @@ const UI = {
         <h2>Turn up the heat</h2>
         <p class="muted">${esc(sub)}</p>
         <div id="pwPlans"></div>
-        ${game && Taste.canClaim(game) && document.getElementById('stage') ? '<button class="btn block ghost sm" id="pwTaste" style="margin-top:12px">Or use your free Hot card</button>' : ''}
+        ${game && Taste.canClaim(game) && document.getElementById('stage') ? '<button class="btn block ghost sm" id="pwTaste" style="margin-top:12px">Or use your free ' + HOT + ' card</button>' : ''}
         <p class="form-err" id="pwErr" role="alert" hidden></p>
         <p class="note center pw-foot">${Auth.signedIn() ? '' : '<button class="linkish" id="pwRestore">Already bought? Restore purchase</button><br>'}
           UPI, cards and more via Razorpay. <a href="/terms">Terms</a> · <a href="/refund">Refunds</a></p>
@@ -297,7 +297,7 @@ const UI = {
     const tasteBtn = $('#pwTaste', el);
     if (tasteBtn) tasteBtn.onclick = async () => {
       this.busy(tasteBtn, true);
-      try { await Taste.claim(game); s.close(); Core.toast('Your free Hot card is up next'); this.resume(); }
+      try { await Taste.claim(game); s.close(); Core.toast(`Your free ${HOT} card is up next`); this.resume(); }
       catch (e) { this.busy(tasteBtn, false); this.err(err, e.message); }
     };
     const restore = $('#pwRestore', el);
@@ -324,12 +324,12 @@ const UI = {
     const tasteNow = tier === 'base' && Taste.canClaim(game);
     const s = this.sheet(`
       <div class="pw lim">
-        <h2>${tasteNow ? 'Use your free Hot card?' : 'Unlock more'}</h2>
-        <p class="muted">${tier === 'guest' ? `That’s ${cap} Flirty cards in ${esc(title)} today. Sign in for a free Hot card, or unlock everything.`
-          : tasteNow ? `That’s ${cap} Flirty cards in ${esc(title)} today. This game’s free Hot card is still waiting.`
-            : `That’s ${cap} Flirty cards and your free Hot card in ${esc(title)} today.`}</p>
-        ${tier === 'guest' ? '<button class="btn block" id="limSignIn">Sign in for a free Hot card</button>' : ''}
-        ${tasteNow ? '<button class="btn block" id="limTaste">Play my free Hot card</button>' : ''}
+        <h2>${tasteNow ? `Use your free ${HOT} card?` : 'Unlock more'}</h2>
+        <p class="muted">${tier === 'guest' ? `That’s ${cap} Flirty cards in ${esc(title)} today. Sign in for a free ${HOT} card, or unlock everything.`
+          : tasteNow ? `That’s ${cap} Flirty cards in ${esc(title)} today. This game’s free ${HOT} card is still waiting.`
+            : `That’s ${cap} Flirty cards and your free ${HOT} card in ${esc(title)} today.`}</p>
+        ${tier === 'guest' ? `<button class="btn block" id="limSignIn">Sign in for a free ${HOT} card</button>` : ''}
+        ${tasteNow ? `<button class="btn block" id="limTaste">Play my free ${HOT} card</button>` : ''}
         <div id="limPlans"></div>
         <p class="form-err" id="limErr" role="alert" hidden></p>
         <button class="btn block ghost sm" data-close>Not now</button>
@@ -337,7 +337,7 @@ const UI = {
     const el = s.el;
     this.plans($('#limPlans', el), { game, onDone: () => { s.close(); this.resume(); } });
     const si = $('#limSignIn', el);
-    if (si) si.onclick = () => { s.close(); this.signIn({ reason: 'Sign in and every game gives you one free Hot card.', then: () => { Intro.refresh(); this.resume(); } }); };
+    if (si) si.onclick = () => { s.close(); this.signIn({ reason: `Sign in and every game gives you one free ${HOT} card.`, then: () => { Intro.refresh(); this.resume(); } }); };
     const tb = $('#limTaste', el);
     if (tb) tb.onclick = async () => {
       this.busy(tb, true);
@@ -352,12 +352,12 @@ const UI = {
     const tier = Ent.tier();
     if (level <= Core.levelCap(game)) return null;
     if (level === 2) return { text: 'Spicy needs Lite or Premium.', act: 'plans' };
-    if (tier === 'guest') return { text: 'Sign in for a free Hot card', act: 'signin' };
+    if (tier === 'guest') return { text: `Sign in for a free ${HOT} card`, act: 'signin' };
     if (tier === 'base') {
       const unused = game ? Taste.canClaim(game) : Taste.unusedAny();
-      return unused ? { text: 'Use your free Hot card?', act: 'taste' } : { text: 'Hot is locked. Lite or Premium unlocks it.', act: 'plans' };
+      return unused ? { text: `Use your free ${HOT} card?`, act: 'taste' } : { text: `${HOT} is locked. Lite or Premium unlocks it.`, act: 'plans' };
     }
-    if (tier === 'lite') return { text: `${HC.LIMITS.lite.hot} Hot cards used here. Premium has unlimited.`, act: 'premium' };
+    if (tier === 'lite') return { text: `${HC.LIMITS.lite.hot} ${HOT} cards used here. Premium has unlimited.`, act: 'premium' };
     return null;
   },
   lockActions(info) {
@@ -368,9 +368,9 @@ const UI = {
     return '<button class="mini-plan lite" data-lock="lite">Lite</button><button class="mini-plan premium" data-lock="premium">Premium</button>';
   },
   async lockAct(kind, game, done) {
-    if (kind === 'signin') return this.signIn({ reason: 'Sign in and every game gives you one free Hot card.', then: () => { Intro.refresh(); done && done(); } });
+    if (kind === 'signin') return this.signIn({ reason: `Sign in and every game gives you one free ${HOT} card.`, then: () => { Intro.refresh(); done && done(); } });
     if (kind === 'taste') {
-      if (game) { try { await Taste.claim(game); Core.toast('Your free Hot card is up next'); done && done(); } catch (e) { Core.toast(e.message); } return; }
+      if (game) { try { await Taste.claim(game); Core.toast(`Your free ${HOT} card is up next`); done && done(); } catch (e) { Core.toast(e.message); } return; }
       Taste.armed = true; done && done(); return;
     }
     return this.paywall({ game });
@@ -472,7 +472,7 @@ const UI = {
   // Lite ran out. The card on screen was allowed to finish first.
   expired() {
     if ($('.acct-wrap.expired')) return;
-    const s = this.sheet(`<h2>Lite’s up</h2><p class="muted">Spicy and Hot are locked again. Flirty is still on the table.</p>
+    const s = this.sheet(`<h2>Lite’s up</h2><p class="muted">Spicy and ${HOT} are locked again. Flirty is still on the table.</p>
       <div id="exPlans"></div><button class="btn block ghost sm" data-close>Stay at Flirty</button>`, { cls: 'expired pw-wrap' });
     this.plans($('#exPlans', s.el), { onDone: () => s.close() });
     this.refreshScreens();
@@ -497,7 +497,7 @@ const UI = {
     return `<div class="taste-grid">${GAME_IDS.map((g) => {
       const used = Taste.used(g);
       return `<div class="taste ${used ? 'used' : ''}" title="${esc(Games[g].title)}"><span class="ti">${GAME_ICON[g] || '🔥'}</span><span class="tn">${esc(GAME_SHORT[g] || g)}</span><span class="ts">${used ? 'Used' : 'Free'}</span></div>`;
-    }).join('')}</div><p class="note">${Ent.paid() ? 'Your plan has Hot already, so these can wait.' : `${left} of ${GAME_IDS.length} free Hot cards left.`}</p>`;
+    }).join('')}</div><p class="note">${Ent.paid() ? `Your plan has ${HOT} already, so these can wait.` : `${left} of ${GAME_IDS.length} free ${HOT} cards left.`}</p>`;
   },
 
   profileGuest() {
@@ -536,7 +536,7 @@ const UI = {
         <div class="row" style="justify-content:center;gap:8px"><span class="plan-badge ${tier}">${tier === 'premium' ? 'Premium · Lifetime' : PLAN_LABEL[tier]}</span><span class="note">Member since ${esc(fmtDate(p.created_at, false))}</span></div>
       </section>
       <section class="pf-card"><h3>${tier === 'base' ? 'Plans' : 'Your plan'}</h3>${plan}</section>
-      ${Ent.profileTier() === 'premium' ? '' : `<section class="pf-card"><h3>Free Hot cards</h3>${this.tasteTracker()}</section>`}
+      ${Ent.profileTier() === 'premium' ? '' : `<section class="pf-card"><h3>Free ${HOT} cards</h3>${this.tasteTracker()}</section>`}
       <section class="pf-card"><h3>Purchase history</h3><div id="pfPurchases"><p class="note">Digging out your receipts…</p></div>
         <p class="note"><a href="/refund">Need a refund?</a></p></section>
       <section class="pf-card"><h3>Preferences</h3>
@@ -694,7 +694,7 @@ const UI = {
   deleteAccount() {
     const s = this.sheet(`
       <div data-step="warn"><h2>Delete your account?</h2>
-        <p class="muted">Your profile, preferences, stats and free hot card history are deleted. Purchase records are kept without your name or email, because the law says we keep payment records. Lite or Premium access ends.</p>
+        <p class="muted">Your profile, preferences, stats and free ${HOT} card history are deleted. Purchase records are kept without your name or email, because the law says we keep payment records. Lite or Premium access ends.</p>
         <p class="form-err" id="daErr" role="alert" hidden></p>
         <div class="col"><button class="btn block danger-solid" id="daStart">Email me a code to confirm</button><button class="btn block ghost" data-close>Keep my account</button></div></div>
       <div data-step="code" hidden><h2>Enter the code</h2><p class="muted">We emailed a 6-digit code to <b>${esc(Auth.email())}</b>.</p>
@@ -757,7 +757,7 @@ const UI = {
         <section class="pf-card"><h3>Games</h3><div id="adGames"><p class="note">Loading…</p></div></section>
         <section class="pf-card"><h3>Paid cards</h3>
           <div class="row ad-row"><select class="input" id="adGame">${GAME_IDS.map((g) => `<option value="${g}">${esc(Games[g].title)}</option>`).join('')}</select>
-            <select class="input" id="adHeat"><option value="3">Hot</option><option value="2">Spicy</option></select>
+            <select class="input" id="adHeat"><option value="3">${HOT}</option><option value="2">Spicy</option></select>
             <button class="btn sm" id="adNew">+ New</button></div>
           <div id="adForm"></div><div id="adCards"><p class="note">Loading…</p></div></section>
       </div>`, { full: true, cls: 'admin' });
@@ -802,8 +802,8 @@ const UI = {
         ${g === 'charades' ? `<select class="input" id="cfCat">${CATS.map((z) => `<option ${x.category === z ? 'selected' : ''}>${z}</option>`).join('')}</select>` : ''}
         <select class="input" id="cfOrigin"><option value="">No origin tag</option>${ORIGINS.map((z) => `<option ${x.origin === z ? 'selected' : ''}>${z}</option>`).join('')}</select>
         ${g === 'redflag' ? `<div class="toggle"><div><b>Trait question</b><div class="note">A normal red or green vote question.</div></div><button class="switch ${x.kind === 'trait' ? 'on' : ''}" id="cfTrait" aria-label="Trait card"></button></div>` : ''}
-        <p class="note">${heat === 2 ? 'Spicy: Lite and Premium.' : 'Hot: Premium, Lite (3 per game), free Hot card.'}</p>
-        ${heat === 3 ? `<div class="toggle"><div><b>Free Hot card (taste)</b><div class="note">Only one per game is used. Served by /api/taste only.</div></div><button class="switch ${c && c.is_taste ? 'on' : ''}" id="cfTaste" aria-label="Taste card"></button></div>` : ''}
+        <p class="note">${heat === 2 ? 'Spicy: Lite and Premium.' : `${HOT}: Premium, Lite (3 per game), free ${HOT} card.`}</p>
+        ${heat === 3 ? `<div class="toggle"><div><b>Free ${HOT} card (taste)</b><div class="note">Only one per game is used. Served by /api/taste only.</div></div><button class="switch ${c && c.is_taste ? 'on' : ''}" id="cfTaste" aria-label="Taste card"></button></div>` : ''}
         <div class="toggle"><div><b>Active</b></div><button class="switch ${!c || c.active ? 'on' : ''}" id="cfActive" aria-label="Active"></button></div>
         <div class="row ad-row"><button class="btn sm" id="cfSave">${c ? 'Save' : 'Add card'}</button><button class="btn sm ghost" id="cfCancel">Cancel</button></div>
         <p class="note" id="cfMsg"></p></div>`;
