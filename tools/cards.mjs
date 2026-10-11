@@ -56,18 +56,17 @@ for (const f of files) {
     if (seen.has(c.text.toLowerCase())) fail(`${where}: duplicate`);
     seen.add(c.text.toLowerCase());
     if (c.origin != null && !ORIGINS.includes(c.origin)) fail(`${where}: origin must be Hollywood / Bollywood / Global`);
-    if (c.kind != null && !(id === 'redflag' && c.kind === 'trait')) fail(`${where}: unknown kind ${c.kind}`);
+    if (c.kind != null && id !== 'redflag') fail(`${where}: unknown kind ${c.kind}`);
     if (c.taste) { tastes++; if (c.heat !== 3) fail(`${where}: taste card must be Lv3`); }
     if (game.mode === 'group') {
       for (const re of BANNED_GROUP) if (re.test(blob)) fail(`${where}: group card uses ${re}`);
       if (c.optionalDare) fail(`${where}: group cards have no dares`);
     }
     if (id === 'redflag') {
-      if (c.kind === 'trait') {
-        traits++;
-        for (const re of BANNED_EXTERNAL) if (re.test(c.text)) fail(`${where}: trait card uses ${re}`);
-        if (!/\?$/.test(c.text)) fail(`${where}: trait card must be a question`);
-      } else for (const re of BANNED_SCENARIO) if (re.test(c.text)) fail(`${where}: scenario uses ${re}`);
+      // Every card is a statement about something someone did; players vote red or green (Oct 11 2026).
+      if (c.kind != null) fail(`${where}: Red Flag cards are all scenarios now (no kind)`);
+      if (/\?\s*$/.test(c.text) || /^(would|could|do|are|is|can) you\b/i.test(c.text)) fail(`${where}: Red Flag card must be a "someone did this" statement, not a yes/no question`);
+      for (const re of [...BANNED_SCENARIO, ...BANNED_EXTERNAL]) if (re.test(c.text)) fail(`${where}: scenario uses ${re}`);
       // No film or TV references in Red Flag (Oct 2026): everyday scenarios only
       if (c.origin != null) fail(`${where}: Red Flag cards take no Hollywood/Bollywood origin`);
       if (MEDIA_RE.test(c.text)) fail(`${where}: Red Flag card references a film or show`);
@@ -85,8 +84,6 @@ for (const f of files) {
   }
   for (const h of [1, 2, 3]) if (MIN_PER_LEVEL[id] && per[h] < MIN_PER_LEVEL[id]) fail(`${f}: only ${per[h]} Lv${h} cards (need ${MIN_PER_LEVEL[id]})`);
   if (id === 'redflag') {
-    if (traits < MIN_TRAITS) fail(`${f}: only ${traits} trait cards (need ${MIN_TRAITS})`);
-    for (const h of [1, 2, 3]) if (!cards.some((c) => c.kind === 'trait' && c.heat === h)) fail(`${f}: no Lv${h} trait cards`);
   }
   if (tastes !== 1) fail(`${f}: needs exactly one taste card (has ${tastes})`);
   all.push(...cards);
