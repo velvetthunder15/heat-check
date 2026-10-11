@@ -112,8 +112,8 @@ html.vt-back::view-transition-new(root) { animation: vtInL var(--dur-m) var(--ea
 @keyframes pkBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 
 /* ---------- Budget: pause offscreen / while scrolling; static for low-end + reduced motion ---------- */
-.hc-hero.offscreen .ht-flow, .hc-hero.offscreen .ring-rot, .hc-hero.offscreen .ring-glow,
-html.is-scrolling .ht-flow, html.is-scrolling .pk-chev { animation-play-state: paused; }
+.hc-hero.offscreen .ht-flow, .hc-hero.offscreen .ring-rot, .hc-hero.offscreen .ring-glow, .hc-hero.offscreen .ring-hot *,
+html.is-scrolling .ring-hot *, html.is-scrolling .ht-flow, html.is-scrolling .pk-chev { animation-play-state: paused; }
 html.low-end .ht-flow, html.low-end .ring-rot, html.low-end .ring-glow, html.low-end .pk-chev,
 html[data-motion="reduce"] .ht-flow, html[data-motion="reduce"] .ring-rot, html[data-motion="reduce"] .ring-glow, html[data-motion="reduce"] .pk-chev { animation: none; }
 html.low-end .ring-glow, html[data-motion="reduce"] .ring-glow { opacity: .85; }
@@ -146,3 +146,36 @@ html[data-motion="reduce"]::view-transition-old(root), html[data-motion="reduce"
 .ring-svg .ring-track { opacity: 0; }
 .ring-rot { transition: opacity .25s var(--ease-out); }
 .hc-hero.holding .ring-rot { opacity: .38; }
+
+/* ---------- HOT standing effect (v13.3): stays on for as long as HOT is the chosen level ----------
+   A flickering white-hot corona, a breathing heat halo and embers rising off the ring.
+   transform/opacity only; fades in after the one-off ignite burst. */
+.ring-hot { position: absolute; inset: -40px; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .9s var(--ease-out) .25s; }
+.hc-hero:not(.holding):not(.locked)[data-heat="3"] .ring-hot { opacity: 1; }
+.ring-hot b { position: absolute; border-radius: 50%; }
+.rh-corona { inset: 22px; background: radial-gradient(closest-side, transparent 80%, #fff4e0b3 85%, #ffb48a80 88%, #ff7a3c33 93%, transparent 100%); animation: rhFlicker 1.9s steps(1, end) infinite, rhSpin 14s linear infinite; }
+.rh-halo { inset: 0; background: radial-gradient(closest-side, transparent 58%, #ff7a3c59 70%, #ff2e6326 84%, transparent 100%); animation: rhBreath 2.6s ease-in-out infinite alternate; }
+.ring-hot i { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: radial-gradient(circle, #fff 0 22%, #ffd2b0 45%, #ff7a3c00 72%); transform: rotate(var(--a)) translateY(-112px) scale(var(--s)); opacity: 0; animation: rhEmber var(--d) ease-out var(--w) infinite; }
+@keyframes rhEmber { 0% { opacity: 0; transform: rotate(var(--a)) translateY(-108px) scale(var(--s)); } 15% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-150px) scale(calc(var(--s) * .3)); } }
+@keyframes rhBreath { from { opacity: .55; transform: scale(.97); } to { opacity: 1; transform: scale(1.04); } }
+@keyframes rhSpin { to { transform: rotate(360deg); } }
+@keyframes rhFlicker { 0% { opacity: .85; } 18% { opacity: 1; } 31% { opacity: .7; } 47% { opacity: .95; } 63% { opacity: .78; } 81% { opacity: 1; } }
+/* HOT word inside the ring and the HOT pill glow white-hot while HOT is on */
+.hc-hero:not(.holding)[data-heat="3"] #holdWord { text-shadow: 0 0 18px #ff7a3cb3, 0 0 2px #fff4e0; }
+.heat-steps .hs.on[data-step="3"] { animation: rhPill 2.6s ease-in-out infinite alternate; }
+@keyframes rhPill { from { box-shadow: 0 0 10px -4px #ff7a3c99; } to { box-shadow: 0 0 20px -2px #ff7a3ccc, inset 0 0 8px #fff4e026; } }
+html.low-end .ring-hot *, html[data-motion="reduce"] .ring-hot *, html.low-end .heat-steps .hs.on, html[data-motion="reduce"] .heat-steps .hs.on { animation: none; }
+html.low-end .ring-hot i, html[data-motion="reduce"] .ring-hot i { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .ring-hot *, html:not([data-motion="full"]) .heat-steps .hs.on { animation: none; }
+  html:not([data-motion="full"]) .ring-hot i { display: none; }
+}
+
+/* ---------- In-game heat matches the home palette ---------- */
+.heat-fill { background-image: linear-gradient(180deg, #ffffff55, #ffffff00 60%), linear-gradient(90deg, #ffb3c6, #ff2e63 30%, #ff7a3c 66%, #fff4e0) !important; box-shadow: 0 0 14px #ff5a3c99; }
+.mring { border-color: #ff2e63; }
+#app[data-heat="2"] .mring { border-color: #ff7a3c; }
+#app[data-heat="3"] .mring { border-color: #fff4e0; box-shadow: 0 0 8px #ff7a3ccc; }
+.h1b { background: #ff2e6333; color: #ff8fb0; }
+.h2b { background: #ff7a3c33; color: #ffa577; }
+.h3b { background: linear-gradient(135deg, #ff7a3c40, #fff4e026); color: #fff1e0; box-shadow: 0 0 10px -3px #ff7a3c99; }
