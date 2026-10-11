@@ -531,7 +531,7 @@ const UI = {
     const paid = Ent.paid(), prem = Ent.premium();
     return `
       <section class="pf-card pf-hero">
-        <div class="pf-ring glow" aria-hidden="true"><span>${esc((Auth.email()[0] || '?').toUpperCase())}</span></div>
+        ${(() => { const t = window.Ent ? Ent.tier() : ''; const m = t === 'premium' || t === 'lite'; return `<div class="pf-ring glow${m ? ` tier-${t}` : ''}" aria-hidden="true">${m ? '<i class="pf-metal"></i>' : ''}<span>${esc((Auth.email()[0] || '?').toUpperCase())}</span></div>`; })()}
         <div class="pf-email">${esc(Auth.email())}</div>
         <div class="row" style="justify-content:center;gap:8px"><span class="plan-badge ${tier}">${tier === 'premium' ? 'Premium · Lifetime' : PLAN_LABEL[tier]}</span><span class="note">Member since ${esc(fmtDate(p.created_at, false))}</span></div>
       </section>
