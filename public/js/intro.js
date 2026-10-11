@@ -30,6 +30,7 @@ const CHEEKY = {
 const TILT = [-5, 4, -3, 5, -4, 3, -5, 2, -3];
 const HEAT_RING = ['#ffd166', '#ff7a3c', '#ff2e63'];
 const LOW_END = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 2;
+document.documentElement.classList.toggle('low-end', LOW_END); // CSS: static gradients, no idle loops
 const reducedMotion = () => document.documentElement.dataset.motion === 'reduce' || (document.documentElement.dataset.motion !== 'full' && matchMedia('(prefers-reduced-motion: reduce)').matches);
 
 const Intro = {
@@ -46,9 +47,43 @@ const Intro = {
   hotBadge(id) {
     const t = Ent.tier();
     if (t === 'premium') return '<span class="t-hot open">Fully unlocked 🔓</span>';
-    if (t === 'lite') { const left = Limits.hotLeft(id); return left > 0 ? `<span class="t-hot open">Hot open · ${left} left</span>` : '<span class="t-hot">Hot used</span>'; }
-    if (t === 'base' && Taste.canClaim(id)) return '<span class="t-hot free">1 free Hot card</span>';
-    return '<span class="t-hot">🔒 Hot locked</span>';
+    if (t === 'lite') { const left = Limits.hotLeft(id); return left > 0 ? `<span class="t-hot open">${HOT} open · ${left} left</span>` : `<span class="t-hot">${HOT} used</span>`; }
+    if (t === 'base' && Taste.canClaim(id)) return `<span class="t-hot free">1 free ${HOT} card</span>`;
+    return `<span class="t-hot">🔒 ${HOT} locked</span>`;
+  },
+  /* "How HOT is tonight?": HOT is an SVG word. Three per-level gradients sit stacked inside a
+     mask made of the glyphs and a hand-drawn wave, and crossfade on opacity (~400ms). The idle
+     flow is a transform on that masked group (the gradients repeat, so the loop is seamless);
+     nothing animates background-position or the gradient itself. */
+  _drawn: false,
+  heading() {
+    const once = this._drawn ? ' drawn' : ''; this._drawn = true;
+    const g = (id, a, b) => `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="260" y2="40" spreadMethod="repeat"><stop offset="0" stop-color="${a}"/><stop offset=".5" stop-color="${b}"/><stop offset="1" stop-color="${a}"/></linearGradient>`;
+    return `<h1 class="hero-title${once}" aria-label="How ${HOT} is tonight?">
+      <span class="ht-l1" aria-hidden="true"><span class="ht-soft">How</span>
+        <span class="ht-hot"><i class="ht-glow"></i>
+          <svg class="ht-svg" viewBox="0 0 260 124" aria-hidden="true" focusable="false">
+            <defs>${g('htg1', '#ffb3c6', '#ff2e63')}${g('htg2', '#ff2e63', '#ff7a3c')}${g('htg3', '#ff7a3c', '#fff4e0')}
+              <mask id="htm" maskUnits="userSpaceOnUse" x="0" y="0" width="260" height="124">
+                <text class="ht-t" x="12" y="86" textLength="232" lengthAdjust="spacingAndGlyphs" fill="#fff">${HOT}</text>
+                <path class="ht-wave" pathLength="100" d="M16 112 C38 102 58 120 82 111 S124 101 146 111 S190 120 212 109 S238 104 246 107" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+              </mask></defs>
+            <g mask="url(#htm)"><g class="ht-flow">
+              <rect class="l1" x="0" y="0" width="520" height="124" fill="url(#htg1)"/>
+              <rect class="l2" x="0" y="0" width="520" height="124" fill="url(#htg2)"/>
+              <rect class="l3" x="0" y="0" width="520" height="124" fill="url(#htg3)"/></g></g>
+          </svg></span></span>
+      <span class="ht-l2 ht-soft" aria-hidden="true">is tonight<span class="ht-q">?</span></span></h1>`;
+  },
+  /* "Pick your poison": a stamped label, deliberately unlike the HOT heading */
+  _pickDrawn: false,
+  pickHeading() {
+    const once = this._pickDrawn ? ' drawn' : ''; this._pickDrawn = true;
+    return `<section class="pick-sec${once}" id="pick">
+      <h2 class="pick-title" aria-label="Pick your poison"><span class="pk-small" aria-hidden="true">Pick your</span>
+        <span class="pk-big" aria-hidden="true">POISON<svg class="pk-line" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M3 6 H112"/><path class="pk-b" pathLength="100" d="M126 6 H197"/></svg></span></h2>
+      <span class="pk-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 6l6 5 6-5"/><path d="M6 13l6 5 6-5"/></svg></span>
+    </section>`;
   },
   avatar() {
     if (Auth.signedIn()) {
@@ -88,15 +123,25 @@ const Intro = {
 
       <section class="hc-hero" id="hero">
         <p class="hero-micro">${esc(this.micro())}</p>
-        <h1 class="hero-title">How <span class="hot-word">hot</span> is tonight?</h1>
+        ${this.heading()}
         <div class="ring-row">
           <span class="ring-side" aria-hidden="true"></span>
           <button class="hold-btn" id="holdBtn" aria-describedby="holdLine" aria-label="Hold to set the heat level">
+            <span class="ring-glow" aria-hidden="true"><i class="l1"></i><i class="l2"></i><i class="l3"></i></span>
+            <span class="ring-rot" aria-hidden="true"><i class="l1"></i><i class="l2"></i><i class="l3"></i></span>
             <svg class="ring-svg" viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="rfg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb3c6"/><stop offset="1" stop-color="#ff2e63"/></linearGradient>
+                <linearGradient id="rfg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff2e63"/><stop offset="1" stop-color="#ff7a3c"/></linearGradient>
+                <linearGradient id="rfg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a3c"/><stop offset="1" stop-color="#fff4e0"/></linearGradient>
+                <radialGradient id="rspk"><stop offset="0" stop-color="#fff4e0" stop-opacity=".95"/><stop offset=".45" stop-color="#ffd2b0" stop-opacity=".55"/><stop offset="1" stop-color="#ff7a3c" stop-opacity="0"/></radialGradient>
+              </defs>
               <circle class="ring-track" cx="60" cy="60" r="54" pathLength="100"/>
               <circle class="ring-base" cx="60" cy="60" r="54" pathLength="100"/>
               <circle class="ring-fill" cx="60" cy="60" r="54" pathLength="100"/>
+              <g class="ring-spark" transform="translate(114 60)"><circle r="9" fill="url(#rspk)"/><circle r="2.6" fill="#fff"/></g>
             </svg>
+            <span class="ring-lock" aria-hidden="true">${typeof icon === 'function' ? icon('lock') : '🔒'}</span>
             <span class="hold-core"><span class="hold-word" id="holdWord"></span><span class="hold-sub" id="holdSub">hold to heat check</span></span>
           </button>
           <button class="ring-reset" id="ringReset" aria-label="Reset heat to level 1" title="Back to Lv1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4 4.5v4h4"/></svg></button>
@@ -106,7 +151,7 @@ const Intro = {
       </section>
 
 
-      <h2 class="stack-title" id="pick">Pick your poison</h2>
+      ${this.pickHeading()}
       <section class="stack" id="stack">
         ${games.map((id, k) => `<button class="tile ${id}" data-game="${id}" style="--i:${k};--r:${TILT[k % TILT.length]}deg">
           <div class="t-art"></div>${TILE_EXTRA[id] || ''}
@@ -151,7 +196,7 @@ const Intro = {
     const btn = $('#holdBtn'), hero = $('#hero'), app = document.getElementById('app');
     if (!btn) return;
     const ROT = HC.ROTATION_MS;
-    const fill = $('.ring-fill', btn), base = $('.ring-base', btn), word = $('#holdWord'), sub = $('#holdSub'), line = $('#holdLine');
+    const fill = $('.ring-fill', btn), base = $('.ring-base', btn), spark = $('.ring-spark', btn), word = $('#holdWord'), sub = $('#holdSub'), line = $('#holdLine');
     let raf = 0, t0 = 0, holding = false, completed = 0, blocked = 0, shown = 0;
 
     const paint = (level, frac) => {
@@ -159,9 +204,16 @@ const Intro = {
       const lv = Math.max(0, Math.min(3, level));
       base.style.stroke = lv ? HEAT_RING[lv - 1] : 'transparent';
       base.style.strokeDashoffset = lv ? '0' : '100';
-      fill.style.stroke = HEAT_RING[Math.min(2, lv)];
-      fill.style.strokeDashoffset = String(100 - Math.max(0, Math.min(1, frac)) * 100);
+      // Progress arc: a bright gradient for the level being filled, with a spark at its tip
+      const f = Math.max(0, Math.min(1, frac));
+      fill.style.stroke = `url(#rfg${Math.min(3, lv + 1)})`;
+      fill.style.strokeDashoffset = String(100 - f * 100);
       fill.classList.toggle('empty', frac <= 0.001);
+      if (spark) {
+        const a = f * Math.PI * 2;
+        spark.setAttribute('transform', `translate(${(60 + 54 * Math.cos(a)).toFixed(2)} ${(60 + 54 * Math.sin(a)).toFixed(2)})`);
+        spark.classList.toggle('on', holding && f > 0.02);
+      }
       // Per frame we only touch the ring and one variable on the hero (not #app), so style
       // recalculation stays local. Page-wide ambience changes once per level, not per frame.
       hero.style.setProperty('--hold', ((lv + frac) / 3).toFixed(3));
@@ -172,7 +224,7 @@ const Intro = {
       }
     };
     // The ring is the heat selector: each level shows its penalty points
-    const label = (lv) => { word.textContent = lv ? HEAT[lv].name : 'Hold'; sub.textContent = !lv ? 'hold to heat check' : Taste.armed && !holding ? 'free Hot card armed' : `${ptsWord(pts(lv))} penalty`; };
+    const label = (lv) => { word.textContent = lv ? HEAT[lv].name : 'Hold'; sub.textContent = !lv ? 'hold to heat check' : Taste.armed && !holding ? `free ${HOT} card armed` : `${ptsWord(pts(lv))} penalty`; };
     const lockMessage = (level) => {
       const info = UI.lockInfo(level, null);
       return info ? `<span class="lk" aria-hidden="true">${icon('lock')}</span> <span>${esc(info.text)}</span> ${UI.lockActions(info)}` : '';
@@ -187,12 +239,13 @@ const Intro = {
         hero.classList.remove('locked'); void hero.offsetWidth; hero.classList.add('locked');
         line.innerHTML = lockMessage(lv); return;
       }
-      SFX.play('tap'); vibrate(10);
-      Core.setHeat(lv);
+      SFX.play('tap'); vibrate(10); hero.classList.remove('locked');
+      Core.setHeat(lv); setHeatAttr(Core.heat());
       line.textContent = `Locked in: ${ptsLabel(lv)}.`;
     }));
+    const setHeatAttr = (h) => { hero.dataset.heat = String(Math.max(1, Math.min(3, h || 1))); };
     const sync = () => {
-      syncSteps();
+      syncSteps(); setHeatAttr(Core.heat());
       if (holding) return;
       const h = Core.heat(); shown = h;
       paint(h, 0); label(h);
@@ -233,7 +286,7 @@ const Intro = {
         label(done); vibrate(done === 3 ? [30, 30, 60, 30, 90] : 18); SFX.play('softtick');
         if (done === 1 && !blocked) line.textContent = `Flirty · ${ptsWord(pts(1))} penalty. Cute. Suspicious, but cute.`;
         if (done === 2 && !blocked) line.textContent = `Spicy · ${ptsWord(pts(2))} penalty. Somebody open a window.`;
-        if (done === 3) { line.textContent = `Hot · ${ptsWord(pts(3))} penalty. No locks tonight.`; Burn.play(hero); }
+        if (done === 3) { line.textContent = `${HOT} · ${ptsWord(pts(3))} penalty. No locks tonight.`; Burn.play(hero); }
       }
       paint(done, frac);
       if (done < 3) raf = requestAnimationFrame(step);
@@ -255,9 +308,9 @@ const Intro = {
       hero.classList.remove('holding'); app.classList.remove('warming');
       if (completed >= 1) {
         const set = Core.setHeat(completed);   // clamps to what this account may play, resets the ramp
-        shown = set; paint(set, 0); label(set);
+        shown = set; paint(set, 0); label(set); setHeatAttr(set);
         hero.classList.toggle('burning', set === 3);
-        if (!blocked) line.textContent = set === 3 ? `Hot it is · ${ptsWord(pts(3))} penalty. Behave. Or don’t.` : `Locked in: ${ptsLabel(set)}.`;
+        if (!blocked) line.textContent = set === 3 ? `${HOT} it is · ${ptsWord(pts(3))} penalty. Behave. Or don’t.` : `Locked in: ${ptsLabel(set)}.`;
         const pick = $('#pick');
         if (pick) setTimeout(() => pick.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' }), 160);
       } else {
@@ -276,19 +329,24 @@ const Intro = {
       const r = e.target.closest('[data-lock]'); if (!r) return;
       SFX.play('tap');
       UI.lockAct(r.dataset.lock, null, () => {
-        if (Taste.armed) { sub.textContent = 'free Hot card armed'; line.textContent = 'Armed. Pick a game: its first card is Hot.'; vibrate(20); }
+        if (Taste.armed) { sub.textContent = `free ${HOT} card armed`; line.textContent = `Armed. Pick a game: its first card is ${HOT}.`; vibrate(20); }
         else Intro.refresh();
       });
     });
     $('#ringReset').onclick = () => {
       const from = Core.heat();
-      Core.resetHeat(); Taste.armed = false; shown = 1;
+      Core.resetHeat(); Taste.armed = false; shown = 1; setHeatAttr(1);
       hero.classList.remove('burning', 'locked'); Burn.stop(hero);
       line.textContent = `Back to Flirty · ${ptsWord(pts(1))} penalty. Ramp counter reset.`;
       sweep(from, 1); vibrate(12); SFX.play('tap');
     };
     this.ring = { sync, sweep };
-    const off = Bus.on((type) => { if (type === 'heat' && !holding) { const to = Core.heat(); if (to !== shown) { sweep(shown, to); shown = to; } hero.classList.toggle('burning', to === 3 && Core.heatCap() === 3); } });
+    // Idle loops (ring spin, glow breath, HOT flow) only run while the hero is on screen
+    if ('IntersectionObserver' in window) {
+      const vis = new IntersectionObserver((es) => es.forEach((e) => hero.classList.toggle('offscreen', !e.isIntersecting)));
+      vis.observe(hero); this._cleanup.push(() => vis.disconnect());
+    }
+    const off = Bus.on((type) => { if (type === 'heat' && !holding) { const to = Core.heat(); setHeatAttr(to); if (to !== shown) { sweep(shown, to); shown = to; } hero.classList.toggle('burning', to === 3 && Core.heatCap() === 3); } });
     sync();
     this._cleanup.push(() => { holding = false; cancelAnimationFrame(raf); off(); app.classList.remove('warming'); Burn.stop(hero); this.ring = null; });
   },
@@ -298,6 +356,13 @@ const Intro = {
      which is what made "Pick your poison" and the cards blank out on fast scrolls). */
   bindStack() {
     const stack = $('#stack'); if (!stack) return;
+    const pick = $('#pick');
+    if (pick && !pick.classList.contains('drawn')) {
+      if ('IntersectionObserver' in window && !reducedMotion()) {
+        const po = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { pick.classList.add('go'); po.disconnect(); } }, { rootMargin: '0px 0px -10% 0px' });
+        po.observe(pick); this._cleanup.push(() => po.disconnect());
+      } else pick.classList.add('drawn');
+    }
     // 60 fps: idle loops only run on tiles in view; sheens pause while the page scrolls
     if ('IntersectionObserver' in window) {
       const vis = new IntersectionObserver((es) => es.forEach((e) => e.target && e.target.classList.toggle('offscreen', !e.isIntersecting)), { rootMargin: '80px 0px' });
