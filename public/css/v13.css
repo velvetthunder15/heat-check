@@ -1,0 +1,126 @@
+/* Heat Check v13 polish: back navigation, the We're-all-in screen, the HOT heading,
+   the hold ring and the Pick-your-poison label. Loaded last.
+   Palette only: flirty accent #ff2e63, hot accent #ff7a3c, their tints, and the
+   white-hot highlight #fff4e0 already used by the burn. Idle loops are transform or
+   opacity only, pause offscreen / while scrolling, and stop for low-end + reduced motion. */
+:root { --fl: #ff2e63; --fl-tint: #ffb3c6; --fl-deep: #d61f6e; --ht: #ff7a3c; --wh: #fff4e0; }
+
+/* ---------- 1. Shared back control ---------- */
+.view-top { display: flex; align-items: center; gap: 4px; min-height: 44px; margin: 0 0 12px calc(-10px + env(safe-area-inset-left)); }
+#app > .view-top { margin: 0; padding: 8px 18px 0 calc(8px + env(safe-area-inset-left)); }
+.nav-back { width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; border-radius: 50%; border: 0; background: transparent; color: var(--fg);
+  cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  transition: transform var(--dur-xs) var(--ease-out), background-color var(--dur-s) var(--ease-out); }
+.nav-back svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.nav-back:active { transform: scale(.9); background-color: #ffffff14; }
+.nav-back:focus-visible { outline: 2px solid var(--fl); outline-offset: 2px; }
+.setup .view-top h1 { margin: 0; }
+
+/* Forward slides in from the right; back plays it in reverse */
+html.vt-fwd::view-transition-old(root) { animation: vtOutL var(--dur-s) var(--ease-in) both; }
+html.vt-fwd::view-transition-new(root) { animation: vtInR var(--dur-m) var(--ease-out) both; }
+html.vt-back::view-transition-old(root) { animation: vtOutR var(--dur-s) var(--ease-in) both; }
+html.vt-back::view-transition-new(root) { animation: vtInL var(--dur-m) var(--ease-out) both; }
+@keyframes vtInR { from { opacity: 0; transform: translateX(28px); } }
+@keyframes vtInL { from { opacity: 0; transform: translateX(-28px); } }
+@keyframes vtOutL { to { opacity: 0; transform: translateX(-18px); } }
+@keyframes vtOutR { to { opacity: 0; transform: translateX(18px); } }
+#app.fx-back > :not(.modal-wrap):not(.controls):not(#amb) { animation: fxBack var(--dur-m) var(--ease-out) both; }
+@keyframes fxBack { from { opacity: 0; transform: translateX(-18px); } }
+
+/* ---------- 2. We're all in: one screen, no scroll ---------- */
+.screen.allin { min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); padding: 8px 22px 20px; overflow: hidden; }
+.allin-body { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: stretch; gap: 14px; text-align: center; padding-bottom: 8vh; }
+#app .allin-h { font-size: clamp(38px, 11vw, 50px); }
+.allin-sub { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.4; }
+.allin-names { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-height: 70px; overflow: hidden; margin: 2px 0 4px; }
+.allin-names .chip { padding: 4px 11px; font-size: 13px; }
+.allin-fine { margin: 0; font-size: 12px; color: var(--muted); opacity: .6; }
+
+/* ---------- 3. "How HOT is tonight?" ---------- */
+#app .hero-title { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 0; line-height: 1; font-style: normal; letter-spacing: 0; }
+.ht-l1 { display: flex; align-items: center; gap: .2em; }
+#app .hero-title .ht-soft { font-size: clamp(26px, 7.6vw, 34px); font-weight: 300; font-style: italic; letter-spacing: -.01em; color: var(--fg); }
+.ht-l2 { margin-top: -2px; }
+.ht-q { display: inline-block; margin-left: .05em; color: var(--fl); font-weight: 600; transform: rotate(8deg); transform-origin: 50% 80%; }
+.ht-hot { position: relative; display: inline-block; isolation: isolate; }
+.ht-svg { display: block; height: clamp(64px, 19vw, 84px); width: auto; aspect-ratio: 260 / 124; overflow: visible; }
+.ht-t { font-size: 104px; font-weight: 900; font-style: italic; }
+/* Per-level gradients: Flirty underneath, Spicy / HOT fade in over it (opacity only) */
+.ht-flow rect { opacity: 0; transition: opacity .4s var(--ease-out); }
+.ht-flow .l1, .hc-hero[data-heat="2"] .ht-flow .l2, .hc-hero[data-heat="3"] .ht-flow .l3 { opacity: 1; }
+.ht-flow { animation: htFlow 8s linear infinite; }
+@keyframes htFlow { to { transform: translateX(-260px); } }
+/* Glow strength follows the level */
+.ht-glow { position: absolute; inset: -28% -22%; z-index: -1; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, #ff7a3c5c, #ff2e6324 55%, transparent 74%); opacity: .3; transition: opacity .4s var(--ease-out); }
+.hc-hero[data-heat="2"] .ht-glow { opacity: .62; }
+.hc-hero[data-heat="3"] .ht-glow { opacity: 1; }
+/* The wave under HOT draws in once */
+.ht-wave { stroke-dasharray: 100; stroke-dashoffset: 100; animation: drawIn .6s var(--ease-out) .2s forwards; }
+.hero-title.drawn .ht-wave { animation: none; stroke-dashoffset: 0; }
+@keyframes drawIn { to { stroke-dashoffset: 0; } }
+
+/* ---------- 4. Hold ring ---------- */
+.hold-btn::after { display: none; }              /* replaced by .ring-glow */
+.ring-base { opacity: 0; }                        /* the gradient ring shows the level now */
+.ring-svg .ring-fill { stroke-width: 8; }
+.ring-spark { opacity: 0; transition: opacity .15s linear; }
+.ring-spark.on { opacity: 1; }
+.ring-rot { position: absolute; inset: -9px; border-radius: 50%; pointer-events: none; animation: ringSpin 7s linear infinite; will-change: transform; }
+.ring-rot i, .ring-glow i { position: absolute; inset: 0; border-radius: 50%; opacity: 0; transition: opacity .4s var(--ease-out); }
+.ring-rot i { -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5.5px)); }
+.ring-rot .l1 { background: conic-gradient(var(--fl), var(--fl-deep) 35%, var(--fl-tint) 62%, var(--fl)); }
+.ring-rot .l2 { background: conic-gradient(var(--fl), var(--ht) 50%, var(--fl)); }
+.ring-rot .l3 { background: conic-gradient(var(--ht), var(--wh) 50%, var(--ht)); }
+.ring-glow { position: absolute; inset: -36px; z-index: -1; border-radius: 50%; pointer-events: none; animation: ringBreath 3s ease-in-out infinite alternate; }
+.ring-glow .l1 { background: radial-gradient(closest-side, #ff2e6352, #d61f6e1f 60%, transparent 72%); }
+.ring-glow .l2 { background: radial-gradient(closest-side, #ff7a3c4d, #ff2e631f 60%, transparent 72%); }
+.ring-glow .l3 { background: radial-gradient(closest-side, #ff7a3c66, #fff4e01f 58%, transparent 72%); }
+/* Palette: the committed level at rest, the level being reached while holding */
+.ring-rot .l1, .ring-glow .l1,
+.hc-hero:not(.holding)[data-heat="2"] .ring-rot .l2, .hc-hero:not(.holding)[data-heat="2"] .ring-glow .l2,
+.hc-hero:not(.holding)[data-heat="3"] .ring-rot .l3, .hc-hero:not(.holding)[data-heat="3"] .ring-glow .l3,
+.hc-hero.holding[data-level="2"] .ring-rot .l2, .hc-hero.holding[data-level="2"] .ring-glow .l2,
+.hc-hero.holding[data-level="3"] .ring-rot .l3, .hc-hero.holding[data-level="3"] .ring-glow .l3 { opacity: 1; }
+.hc-hero.holding .ring-glow { animation: none; opacity: 1; }
+@keyframes ringSpin { to { transform: rotate(360deg); } }
+@keyframes ringBreath { from { opacity: .5; } to { opacity: 1; } }
+/* Locked level: dim ring, small lock */
+.ring-lock { position: absolute; top: -12px; right: 10px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; z-index: 2;
+  background: var(--card); border: 1px solid var(--line); color: var(--fg); opacity: 0; transform: scale(.6); pointer-events: none;
+  transition: opacity var(--dur-s) var(--ease-out), transform var(--dur-s) var(--spring); }
+.ring-lock .ico { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.hc-hero.locked .ring-lock { opacity: 1; transform: none; }
+.hc-hero.locked .ring-rot { opacity: .35; transition: opacity var(--dur-s) var(--ease-out); }
+.hc-hero.locked .ring-glow { animation: none; opacity: .25; }
+
+/* ---------- 5. "Pick your poison": a stamp, not a gradient ---------- */
+.pick-sec { position: relative; margin: 20px 18px 0; padding: 22px 0 0; border-top: 1px solid #ffffff17; display: flex; flex-direction: column; align-items: center; text-align: center; scroll-margin-top: 12px; }
+#app .pick-title { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 0; font-style: normal; letter-spacing: 0; line-height: 1; }
+#app .pick-title .pk-small { font-size: 12px; font-weight: 600; font-style: normal; letter-spacing: .28em; text-transform: uppercase; color: var(--muted); padding-left: .28em; }
+#app .pick-title .pk-big { position: relative; display: inline-block; padding: 0 2px 13px; font-size: clamp(42px, 12.5vw, 54px); font-weight: 900; font-style: normal; letter-spacing: .02em; line-height: .9; color: var(--fl); transform: rotate(-2deg); }
+.pk-line { position: absolute; left: 0; bottom: 0; width: 100%; height: 9px; overflow: visible; }
+.pk-line path { fill: none; stroke: var(--fl); stroke-width: 8; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.pick-sec.go .pk-line path { animation: drawIn .42s var(--ease-out) forwards; }
+.pick-sec.go .pk-line .pk-b { animation-duration: .26s; animation-delay: .36s; }
+.pick-sec.drawn .pk-line path { animation: none; stroke-dashoffset: 0; }
+.pk-chev { display: block; width: 22px; height: 22px; margin-top: 10px; color: var(--fl); opacity: .75; animation: pkBob 2s ease-in-out infinite; }
+.pk-chev svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes pkBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+/* ---------- Budget: pause offscreen / while scrolling; static for low-end + reduced motion ---------- */
+.hc-hero.offscreen .ht-flow, .hc-hero.offscreen .ring-rot, .hc-hero.offscreen .ring-glow,
+html.is-scrolling .ht-flow, html.is-scrolling .pk-chev { animation-play-state: paused; }
+html.low-end .ht-flow, html.low-end .ring-rot, html.low-end .ring-glow, html.low-end .pk-chev,
+html[data-motion="reduce"] .ht-flow, html[data-motion="reduce"] .ring-rot, html[data-motion="reduce"] .ring-glow, html[data-motion="reduce"] .pk-chev { animation: none; }
+html.low-end .ring-glow, html[data-motion="reduce"] .ring-glow { opacity: .85; }
+html[data-motion="reduce"] .ht-wave, html[data-motion="reduce"] .pk-line path { animation: none; stroke-dashoffset: 0; }
+html[data-motion="reduce"]::view-transition-old(root), html[data-motion="reduce"]::view-transition-new(root) { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .ht-flow, html:not([data-motion="full"]) .ring-rot, html:not([data-motion="full"]) .ring-glow, html:not([data-motion="full"]) .pk-chev { animation: none; }
+  html:not([data-motion="full"]) .ring-glow { opacity: .85; }
+  html:not([data-motion="full"]) .ht-wave, html:not([data-motion="full"]) .pk-line path { animation: none; stroke-dashoffset: 0; }
+  html:not([data-motion="full"])::view-transition-old(root), html:not([data-motion="full"])::view-transition-new(root) { animation: none; }
+  html:not([data-motion="full"]) #app.fx-back > * { animation: none; }
+}
