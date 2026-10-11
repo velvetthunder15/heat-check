@@ -35,6 +35,8 @@ const SITE_URL = pickSiteUrl();
 const CONTACT_EMAIL = (process.env.CONTACT_EMAIL || '').trim();
 if (CONTACT_EMAIL && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(CONTACT_EMAIL)) throw new Error('CONTACT_EMAIL looks wrong');
 
+// UI copy names the top heat level HOT through the formatter only. A stray Hot/hot fails the build.
+execFileSync(process.execPath, [join(root, 'tools/hot-lint.mjs')], { stdio: 'inherit' });
 rmSync(out, { recursive: true, force: true });
 cpSync(src, out, { recursive: true });
 // Cards: lint content/ and write the Lv1-2 deck. A lint failure fails the build.
