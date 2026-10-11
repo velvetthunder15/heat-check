@@ -5,6 +5,7 @@ const TILE_EXTRA = { redflag: '<span class="onair">ON AIR</span>' };
 const App = {
   pendingGame: null,
   async init() {
+    window.Nav && Nav.init();
     Core.load();
     try { await Core.loadCards(); } catch (e) { console.error(e); }
     this.bind();
@@ -30,25 +31,40 @@ const App = {
       <p class="note">By continuing you confirm you're of legal age where you live, and of legal drinking age if you play drinking mode.</p>
     </div>`);
     $('#y18').onclick = () => { SFX.unlock(); SFX.play('tap'); localStorage.setItem('hc_age', 'yes'); this.home(); };
-    $('#n18').onclick = () => { this.set('home', `<div class="gate"><div class="logo" style="font-size:40px">Come back later</div><p>This one's for grown-ups. See you in a few years.</p></div>`); };
+    $('#n18').onclick = () => {
+      const onBack = () => { onBack.handled = true; Nav.go(() => this.ageGate(), 'back'); };
+      Nav.enter('under18', onBack);
+      Nav.go(() => this.set('home', `<div class="view-top">${Nav.button()}</div><div class="gate"><div class="logo" style="font-size:40px">Come back later</div><p>This one's for grown-ups. See you in a few years.</p></div>`));
+    };
   },
   /* Shown once per session, before the first game */
+  // One screen, no scrolling: back, headline, one subline, names, start, one small line
   consent(next) {
-    this.set('home', `<div class="gate">
-      <div class="flame">🤝</div>
-      <div class="consent-quote">“Anyone can skip or stop at any time, no questions asked.”</div>
-      <p>Anyone can Chicken Out of a card, no penalty, once a round. Check in with each other, keep it clothed when a card says so, and only play with people who are all in.</p>
-      <button class="btn block" id="agree">We're all in</button>
-    </div>`);
-    $('#agree').onclick = () => {
-      SFX.unlock(); SFX.play('reveal');
-      try { sessionStorage.setItem('hc_consent', '1'); } catch (e) {}
-      next ? next() : this.home();
-    };
+    Nav.enter('consent', () => { this.pendingGame = null; });
+    Nav.go(() => {
+      const names = Core.players().map((p) => p.name).filter(Boolean);
+      const drink = (Core.isGroup() ? Core.S.group.mode : Core.S.settings.mode) === 'drink';
+      this.set('home', `<main class="screen allin">
+        <div class="view-top">${Nav.button()}</div>
+        <div class="allin-body">
+          <h1 class="allin-h">Everyone in?</h1>
+          <p class="allin-sub">Anyone can skip a card or stop, any time.</p>
+          ${names.length ? `<div class="allin-names">${names.map((n) => `<span class="chip">${esc(n)}</span>`).join('')}</div>` : ''}
+          <button class="btn block" id="agree">We're all in</button>
+          <p class="allin-fine">${drink ? '18+ only. Pace yourselves, nobody drives.' : '18+ only. Keep it kind.'}</p>
+        </div>
+      </main>`);
+      $('#agree').onclick = () => {
+        SFX.unlock(); SFX.play('reveal');
+        try { sessionStorage.setItem('hc_consent', '1'); } catch (e) {}
+        next ? next() : this.home();
+      };
+    });
   },
 
   /* ---------- home (intro + game picker, see intro.js) ---------- */
   home() {
+    window.Nav && Nav.leave();
     Core.game = null;
     window.Taste && (Taste.showing = null);
     this.set('home', Intro.html());
@@ -72,7 +88,7 @@ const App = {
     if (!consented) return this.consent(() => this.choose(id));
     if (Core.players().length < this.minPlayers()) { this.pendingGame = id; return this.setup(); }
     if (window.Taste && Taste.armed) {
-      if (!Taste.canClaim(id)) { Taste.armed = false; Core.toast(Taste.used(id) ? 'This game’s free Hot card is used. Still at Spicy.' : 'Hot stays locked'); }
+      if (!Taste.canClaim(id)) { Taste.armed = false; Core.toast(Taste.used(id) ? `This game’s free ${HOT} card is used. Still at Spicy.` : `${HOT} stays locked`); }
     }
     this.play(id);
   },
@@ -80,6 +96,7 @@ const App = {
   play(id) {
     if (Core.players().length < this.minPlayers()) { this.pendingGame = id; return this.setup(); }
     SFX.unlock(); SFX.play('tap');
+    window.Nav && Nav.enter('game');
     Core.game = id;
     Core.dealt = {};
     gateWait = null;
@@ -101,11 +118,18 @@ const App = {
     Object.assign(Core.S, { scores: {}, layers: {}, named: {}, chicken: {}, round: 0, turn: 0, heat: 1, rampCount: 0, night: Core.freshNight() });
     Core.used = {}; Core.recent = {}; Core.cardHeat = 0;
     window.Prefs && Prefs.applyNightDefaults(); Core.save();
-    Night.show(summary);
+    Nav.enter('night');
+    Nav.go(() => Night.show(summary));
   },
 
   /* ---------- setup: couples (pairs) or a group roster ---------- */
   setup() {
+    if (Nav.view() === 'setup') return this._setup();
+    // Back (chevron or the system gesture) saves what's typed and keeps every setting
+    Nav.enter('setup', () => { this._setupRead && this._setupRead(); this.pendingGame = null; });
+    Nav.go(() => this._setup());
+  },
+  _setup() {
     const S = Core.S, st = S.settings, group = Core.isGroup();
     const unlimited = !!(window.Ent && Ent.unlimitedPlayers());
     const savedNames = unlimited && window.Prefs ? Prefs.get().savedNames : [];
@@ -123,10 +147,8 @@ const App = {
         <button class="icon-btn" data-gdel="${i}" aria-label="Remove player" ${S.group.players.length <= HC.GROUP_MIN ? 'style="visibility:hidden"' : ''}>✕</button></div>`;
     const seg = (key, opts, obj = st) => `<div class="seg" data-seg="${key}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(obj[key]) === String(v) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
     const sw = (key, label, note) => `<div class="toggle"><div><b>${label}</b>${note ? `<div class="note">${note}</div>` : ''}</div><button class="switch ${st[key] ? 'on' : ''}" data-sw="${key}" aria-label="${label}"></button></div>`;
-    const canBack = Core.players().length >= this.minPlayers();
     this.set('home', `<main class="screen setup ${group ? 'is-group' : ''}" style="padding-bottom:40px">
-      <div class="row" style="justify-content:space-between;margin-bottom:16px"><h1 style="font-size:34px">${group ? 'Who’s in?' : 'Who’s playing?'}</h1>
-        ${canBack ? '<button class="icon-btn" id="back" aria-label="Back">✕</button>' : ''}</div>
+      <div class="view-top">${Nav.button('Back to games')}<h1 style="font-size:34px">${group ? 'Who’s in?' : 'Who’s playing?'}</h1></div>
       <h3 class="set-h first">Players</h3>
       ${group ? `
         <p class="note">${HC.GROUP_MIN} to ${HC.GROUP_MAX} players. Everyone plays for themselves.</p>
@@ -142,7 +164,7 @@ const App = {
         <div class="field"><label>How do penalties work?</label>
           ${group ? seg('mode', [['drink', '🍸 Sips'], ['water', '💧 No alcohol']], S.group) : seg('mode', [['drink', '🍸 Drinks'], ['water', '💧 Water'], ['dare', '🎲 Dares']])}
           <p class="note" id="modeNote"></p></div>
-        <p class="note">Penalty points: Flirty ${HC.PENALTY_PTS[1]}, Spicy ${HC.PENALTY_PTS[2]}, Hot ${HC.PENALTY_PTS[3]}. Each penalty is taken on the spot and its points land on the scoreboard. Anyone can Chicken Out once a round, no penalty.</p></section>
+        <p class="note">Penalty points: Flirty ${HC.PENALTY_PTS[1]}, Spicy ${HC.PENALTY_PTS[2]}, ${HOT} ${HC.PENALTY_PTS[3]}. Each penalty is taken on the spot and its points land on the scoreboard. Anyone can Chicken Out once a round, no penalty.</p></section>
 
       <section class="set-sec"><h3 class="set-h">Timer</h3>
         <div class="field">${seg('timer', HC.TIMER_OPTIONS.map((n) => [n, n + 's']))}<p class="note">Every timed game uses this clock.</p></div></section>
@@ -167,24 +189,25 @@ const App = {
     const readCouples = () => { if (!group) S.couples = $$('.couple').map((r) => ({ a: $('[data-k=a]', r).value, b: $('[data-k=b]', r).value })); };
     const readGroup = () => { if (group) S.group.players = $$('.grow-row [data-k=p]').map((i) => i.value); };
     const read = () => { readCouples(); readGroup(); Core.save(); };
+    this._setupRead = read;
     $('#addc') && ($('#addc').onclick = () => {
       read();
       if (cappedCouples) return window.UI ? UI.paywall({ reason: 'players' }) : Core.toast(`Free plays up to ${HC.FREE_PLAYERS} people`);
-      S.couples.push({ a: '', b: '' }); Core.save(); this.setup();
+      S.couples.push({ a: '', b: '' }); Core.save(); this._setup();
     });
     $('#addp') && ($('#addp').onclick = () => {
       read();
       if (S.group.players.length >= HC.GROUP_MAX) return Core.toast(`${HC.GROUP_MAX} players max`);
       if (cappedGroup) return window.UI ? UI.paywall({ reason: 'players' }) : Core.toast(`Free plays up to ${HC.FREE_PLAYERS} people`);
-      S.group.players.push(''); Core.save(); this.setup();
+      S.group.players.push(''); Core.save(); this._setup();
     });
     $$('[data-name]').forEach((b) => (b.onclick = () => {
       const empty = $$(group ? '.grow-row input' : '.couple input').find((i) => !i.value.trim());
       if (!empty) return Core.toast(group ? 'Add a player first' : 'Add a couple first');
       empty.value = b.dataset.name; SFX.play('tap');
     }));
-    $$('[data-del]').forEach((b) => (b.onclick = () => { read(); S.couples.splice(+b.dataset.del, 1); Core.save(); this.setup(); }));
-    $$('[data-gdel]').forEach((b) => (b.onclick = () => { read(); S.group.players.splice(+b.dataset.gdel, 1); Core.save(); this.setup(); }));
+    $$('[data-del]').forEach((b) => (b.onclick = () => { read(); S.couples.splice(+b.dataset.del, 1); Core.save(); this._setup(); }));
+    $$('[data-gdel]').forEach((b) => (b.onclick = () => { read(); S.group.players.splice(+b.dataset.gdel, 1); Core.save(); this._setup(); }));
     $$('[data-seg]').forEach((g) => g.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
       const k = g.dataset.seg; const v = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v;
@@ -210,7 +233,6 @@ const App = {
       S.rampCount = 0; $('#cpr').textContent = st.cardsPerRamp; SFX.play('tap');
       window.Prefs && Prefs.set({ cards_per_ramp: st.cardsPerRamp });
     }));
-    $('#back') && ($('#back').onclick = () => { read(); this.home(); });
     $('#save').onclick = () => {
       read();
       let names;
@@ -283,6 +305,7 @@ const Night = {
     const cardsTotal = Object.values(s.cards).reduce((a, b) => a + b, 0);
     const showPaywall = s.limitHit && window.Ent && Ent.tier() !== 'premium';
     App.set('home', `<main class="screen night">
+      <div class="view-top">${Nav.button('Back to games')}</div>
       <div class="night-logo"><img src="/logo-wordmark.webp" width="694" height="289" alt="Heat Check" draggable="false" decoding="async" /></div>
       <p class="night-kicker">That’s a wrap</p>
       <h1 class="night-title">Tonight’s damage</h1>
