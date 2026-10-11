@@ -8,7 +8,7 @@
   const SPRING = () => css('--spring') || 'cubic-bezier(.34,1.4,.64,1)';
   const SPRING_SOFT = () => css('--spring-soft') || 'cubic-bezier(.3,1.2,.6,1)';
   const EASE = 'cubic-bezier(.16,1,.3,1)';
-  const HEAT_COLORS = ['#ffd166', '#ff7a3c', '#ff2e63'];
+  const HEAT_COLORS = ['#ff2e63', '#ff7a3c', '#fff4e0'];
   const buzz = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 
   /* ---------------- Ambience: gradient mesh + grain, heat reactive ---------------- */
