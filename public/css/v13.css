@@ -233,3 +233,7 @@ html.low-end .av-ring::before, html[data-motion="reduce"] .av-ring::before { ani
 .pf-ring.tier-lite span { background: linear-gradient(160deg, #fff3c9, #f6d47e 40%, #e2ad48 70%, #fff3c9); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
 html.low-end .pf-metal::before, html[data-motion="reduce"] .pf-metal::before { animation: none; }
 @media (prefers-reduced-motion: reduce) { html:not([data-motion="full"]) .pf-metal::before { animation: none; } }
+
+/* "tried Premium yet?": Premium in the titanium silver of the Premium pill */
+.micro-prem { font-weight: 800; background: linear-gradient(180deg, #fbfdff 0%, #dbe7f3 22%, #aebfd2 48%, #7e93aa 54%, #c9d8e7 62%, #eef4fa 82%, #9cb0c5 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 6px #a9c2db55); }
