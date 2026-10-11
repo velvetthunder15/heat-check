@@ -75,15 +75,18 @@
   /* ---------------- View transitions: tile ⇄ game morph ---------------- */
   const canVT = typeof document.startViewTransition === 'function';
   let lastGame = null;
-  const navigate = (update, { from, back } = {}) => {
+  const navigate = (update, { from, back, dir } = {}) => {
     const r = app();
     window.SFX && SFX.play('whoosh');
+    // dir: 'fwd' slides the new view in from the right, 'back' plays it in reverse (from the left)
+    const d = dir || (back ? 'back' : '');
     if (!canVT) {
       update();
-      if (!reduced()) { r.classList.remove('fx-in'); void r.offsetWidth; r.classList.add('fx-in'); setTimeout(() => r.classList.remove('fx-in'), 500); }
+      if (!reduced()) { const c = d === 'back' ? 'fx-back' : 'fx-in'; r.classList.remove('fx-in', 'fx-back'); void r.offsetWidth; r.classList.add(c); setTimeout(() => r.classList.remove(c), 500); }
       return;
     }
     const html = document.documentElement;
+    if (d) html.classList.add('vt-' + d);
     if (from && !reduced()) from.style.viewTransitionName = 'hero';
     if (back && !reduced()) r.style.viewTransitionName = 'hero';
     html.classList.add('vt-run');
@@ -95,9 +98,9 @@
         update();
         if (back && lastGame && !reduced()) { const tile = r.querySelector(`.tile[data-game="${lastGame}"]`); if (tile) tile.style.viewTransitionName = 'hero'; }
       });
-    } catch (e) { update(); html.classList.remove('vt-run'); return; }
+    } catch (e) { update(); html.classList.remove('vt-run', 'vt-fwd', 'vt-back'); return; }
     t.finished.finally(() => {
-      html.classList.remove('vt-run');
+      html.classList.remove('vt-run', 'vt-fwd', 'vt-back');
       r.style.viewTransitionName = '';
       $$('.tile').forEach((x) => (x.style.viewTransitionName = ''));
     });
