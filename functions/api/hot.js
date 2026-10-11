@@ -7,12 +7,13 @@ import { requireUser, rpc } from '../../lib/supabase.js';
 import { limit } from '../../lib/ratelimit.js';
 import { isGame } from '../../lib/games.js';
 import { LIMITS } from '../../lib/limits.js';
+import { HOT } from '../../lib/heat.js';
 import { cleanOrigins, cleanExclude } from '../../lib/cards.js';
 
 const MSG = {
-  locked: 'Hot needs Lite or Premium.',
-  used_up: `${LIMITS.lite.hot} Hot cards used here. Premium has unlimited.`,
-  empty: 'No Hot cards match your Hollywood / Bollywood settings.',
+  locked: `${HOT} needs Lite or Premium.`,
+  used_up: `${LIMITS.lite.hot} ${HOT} cards used here. Premium has unlimited.`,
+  empty: `No ${HOT} cards match your Hollywood / Bollywood settings.`,
   no_profile: 'Your account is still being set up. Try again in a moment.',
 };
 
