@@ -6,10 +6,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const rand = (a) => a[Math.floor(Math.random() * a.length)];
 const vibrate = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 
+const HOT = HC.HOT; // every UI string writes the top heat level through this
 const HEAT = {
-  1: { name: 'Flirty', emoji: '😏' },
-  2: { name: 'Spicy', emoji: '🌶️' },
-  3: { name: 'Hot', emoji: '🔥' },
+  1: { name: HC.heatName(1), emoji: '😏' },
+  2: { name: HC.heatName(2), emoji: '🌶️' },
+  3: { name: HC.heatName(3), emoji: '🔥' },
 };
 const pts = (h) => HC.PENALTY_PTS[h] || h;
 const ptsWord = (n) => `${n} pt${n === 1 ? '' : 's'}`;
