@@ -7,6 +7,7 @@ import { requireUser, rpc } from '../../lib/supabase.js';
 import { limit } from '../../lib/ratelimit.js';
 import { isGame } from '../../lib/games.js';
 import { cleanOrigins } from '../../lib/cards.js';
+import { HOT } from '../../lib/heat.js';
 
 export const onRequestPost = handle(async ({ request, env }) => {
   requireEnv(env, ['SUPABASE_URL', 'SUPABASE_SERVICE_KEY']);
@@ -16,6 +17,6 @@ export const onRequestPost = handle(async ({ request, env }) => {
   const game = String(body.game || '');
   if (!isGame(game)) throw new HttpError(400, 'bad_game', 'Unknown game.');
   const r = await rpc(env, 'claim_taste', { p_user: user.id, p_game: game, p_origins: cleanOrigins(body.origins) });
-  if (!r || !r.card) throw new HttpError(403, 'taste_used', 'This game’s free Hot card is already used.');
+  if (!r || !r.card) throw new HttpError(403, 'taste_used', `This game’s free ${HOT} card is already used.`);
   return json({ card: r.card, used_at: r.used_at });
 });
