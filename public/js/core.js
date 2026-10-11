@@ -51,7 +51,7 @@ const Core = {
       night: this.freshNight(),
     };
   },
-  freshNight() { return { started: 0, cards: {}, games: [], topHeat: 0, limitHit: false }; },
+  freshNight() { return { started: 0, cards: {}, games: [], topHeat: 0, limitHit: false, heat: {}, chickens: {}, penalties: 0, last: 0 }; },
   load() {
     const d = this.defaults();
     let saved = {};
@@ -244,6 +244,7 @@ const Core = {
     n.cards[c.game] = (n.cards[c.game] || 0) + 1;
     if (!n.games.includes(c.game)) n.games.push(c.game);
     n.topHeat = Math.max(n.topHeat || 0, c.heat);
+    n.heat = n.heat || {}; n.heat[c.heat] = (n.heat[c.heat] || 0) + 1; n.last = Date.now();
     this.save();
     window.Stats && Stats.heat(c.heat);
     this.updateHud();
@@ -257,7 +258,9 @@ const Core = {
   score(i) { return this.S.scores[this.name(i)] || 0; },
   addPts(i, n) {
     const k = this.name(i); if (k === '?' || !n) return;
-    this.S.scores[k] = (this.S.scores[k] || 0) + n; this.save(); this.updateHud();
+    this.S.scores[k] = (this.S.scores[k] || 0) + n;
+    if (this.S.night) this.S.night.penalties = (this.S.night.penalties || 0) + 1;
+    this.save(); this.updateHud();
     const chip = $(`.chip[data-i="${i}"]`);
     if (chip) {
       chip.classList.remove('bump'); void chip.offsetWidth; chip.classList.add('bump');
@@ -284,6 +287,7 @@ const Core = {
     const k = this.name(i); if (k === '?' || this.chickenLeft(i) <= 0) return false;
     const c = this.S.chicken[k], lap = this.lap();
     this.S.chicken[k] = { lap, n: c && c.lap === lap ? c.n + 1 : 1 };
+    if (this.S.night) { const ch = (this.S.night.chickens = this.S.night.chickens || {}); ch[k] = (ch[k] || 0) + 1; }
     this.save(); this.updateChicken();
     return true;
   },
