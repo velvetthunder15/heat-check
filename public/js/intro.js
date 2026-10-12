@@ -113,7 +113,8 @@ const Intro = {
       <div class="session-bar">
         <button class="sb-chip sb-who" data-act="players" aria-label="Players">${ps.length >= need ? `👥 ${who}` : '👥 Add players'}</button>
         <span class="sb-chip">${mode}</span>
-        ${App.nightActive() ? '<button class="btn sm end-night" id="endNight">End night</button>' : ''}</div>
+        ${App.nightActive() ? '<button class="btn sm end-night" id="endNight">End night</button>' : ''}
+        <button class="signin-tab" data-act="signin" aria-label="Sign in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.3-3.4 3.9-5.1 7-5.1s5.7 1.7 7 5.1"/></svg><span>Sign in</span></button></div>
       <div id="passBanner" class="pass-banner-slot"></div>
 
       <div class="side-switch" role="tablist" aria-label="Who's playing">
