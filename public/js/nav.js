@@ -8,6 +8,9 @@ const Nav = {
   _silent: 0,
   view() { return (history.state && history.state.hc) || 'home'; },
   init() {
+    // v14: we restore scroll ourselves (home where you left it, every other screen at the top).
+    // The browser's own restore landed late, after the transition, and made home jump.
+    try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
     try { history.replaceState({ hc: 'home' }, ''); } catch (e) {}
     window.addEventListener('popstate', (e) => this.pop(e));
     document.addEventListener('click', (e) => {
