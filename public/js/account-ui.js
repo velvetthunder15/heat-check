@@ -435,17 +435,24 @@ const UI = {
   passState() {
     if (Admin.active()) return { cls: 'admin', text: `Admin · ${fmtLeft(Admin.exp - Cfg.now())}`, act: 'admin' };
     const t = Ent.profileTier();
-    if (t === 'premium') return { cls: 'premium', text: 'Premium • Lifetime • ∞', act: 'profile' };
+    if (t === 'premium') return { cls: 'premium', text: 'Premium', act: 'profile' };
     if (t === 'lite') { const left = Ent.liteLeft(); return { cls: 'lite' + (left <= 5 * 60 * 1000 ? ' warn' : ''), text: `Lite · ${fmtMin(left)}`, act: 'profile' }; }
     return { cls: 'none', text: 'No pass active', act: 'paywall' };
   },
+  passHtml(st) {
+    return `<button class="pass-banner ${st.cls}" data-act="${st.act}"><span class="pb-sheen" aria-hidden="true"></span><span class="pb-text">${esc(st.text)}</span>${st.cls === 'none' ? '<span class="pb-go">See plans</span>' : ''}${st.cls.includes('warn') ? '<span class="pb-warn">Ends soon</span>' : ''}</button>`;
+  },
+  // v16.2: Premium's pill lives in the header (#passHead, under the sound/settings/profile circles);
+  // Lite, admin and No pass keep the old slot under the session chips (#passBanner).
+  headPill(st) { return st.cls === 'premium'; },
   updatePassChip() {
     const st = this.passState();
-    const slot = document.getElementById('passBanner');
-    if (slot) {
-      const html = `<button class="pass-banner ${st.cls}" data-act="${st.act}"><span class="pb-sheen" aria-hidden="true"></span><span class="pb-text">${esc(st.text)}</span>${st.cls === 'none' ? '<span class="pb-go">See plans</span>' : ''}${st.cls.includes('warn') ? '<span class="pb-warn">Ends soon</span>' : ''}</button>`;
-      if (slot.dataset.k !== st.cls + '|' + st.text) { slot.dataset.k = st.cls + '|' + st.text; slot.innerHTML = html; slot.dataset.pill = /^(lite|premium)/.test(st.cls) ? '1' : ''; }
-    }
+    const k = st.cls + '|' + st.text, inHead = this.headPill(st);
+    const head = document.getElementById('passHead'), slot = document.getElementById('passBanner');
+    const box = inHead && head ? head : slot, other = box === head ? slot : head;
+    if (other && other.innerHTML) { other.innerHTML = ''; other.dataset.k = ''; other.dataset.pill = ''; }
+    if (box && box.dataset.k !== k) { box.dataset.k = k; box.innerHTML = this.passHtml(st); box.dataset.pill = /^(lite|premium)/.test(st.cls) ? '1' : ''; }
+    const hh = $('.home-head'); if (hh) hh.classList.toggle('has-hpill', !!(head && head.innerHTML));
     // In a game: a small chip only while a Lite or admin clock is running
     const hudTop = $('.hud-top');
     if (hudTop) {
