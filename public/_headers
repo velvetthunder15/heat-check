@@ -19,11 +19,26 @@
   Content-Type: application/manifest+json
   Cache-Control: public, max-age=300, must-revalidate
 
+# v14: CSS and JS are versioned (?v=N on every reference, bumped together with sw.js VERSION on
+# each release; the vendor file has its version in its name), so they cache for a year.
 /css/*
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=31536000, immutable
 
 /js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML: always revalidate (the service worker serves the shell offline)
+/
   Cache-Control: public, max-age=0, must-revalidate
+/privacy
+  Cache-Control: public, max-age=0, must-revalidate
+/terms
+  Cache-Control: public, max-age=0, must-revalidate
+/refund
+  Cache-Control: public, max-age=0, must-revalidate
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+# Brotli/gzip: Cloudflare Pages compresses text assets automatically (no header needed).
 
 
 /fonts/*
