@@ -40,7 +40,7 @@ Setup, environment variables and test steps: **[SETUP.md](SETUP.md)**.
 | `POST /api/auth/otp` | Turnstile | Emails a 6-digit code (rate limited per email and IP). |
 | `POST /api/taste` | user (Base) | Spends this account's one free Hot card for a game (atomic SQL; second call 403). |
 | `POST /api/hot` | user (Lite) | One Hot card, counted: 3 per game per Lite pass (atomic SQL; 4th call 403 `used_up`). |
-| `POST /api/flirty` | user (Base) | Counts one Flirty card: 5 per game per day, IST (403 past the limit). `{sync}` carries guest counters up on sign-in. |
+| `POST /api/flirty` | user (Base) | Counts one Flirty card: 10 per game per day, IST (403 past the limit). `{sync}` carries guest counters up on sign-in. |
 | `POST /api/create-order` | user | `{product: 'lite' \| 'premium'}`. The server sets the amount from `lib/pricing.js`. Refuses anything on a Premium account. |
 | `POST /api/verify-payment` | user | Checks the Checkout signature, confirms with Razorpay, grants. Idempotent. |
 | `POST /api/razorpay-webhook` | signature | Same grant path, from Razorpay. Raw body is read before parsing. |
@@ -53,7 +53,7 @@ Setup, environment variables and test steps: **[SETUP.md](SETUP.md)**.
 
 ## Rules this codebase keeps
 
-- Tiers: guest (5 Flirty per game), Base (5 Flirty + 1 free Hot card per game), Lite (Flirty + Spicy unlimited, 3 Hot per game, 1 hour), Premium (everything, lifetime). Limits live in `lib/limits.js` and are enforced by the server for anything paid.
+- Tiers: guest (10 Flirty per game), Base (10 Flirty + 1 free Hot card per game), Lite (Flirty + Spicy unlimited, 5 Hot per game, Velvet sounds, Ember look only, 1 hour), Premium (everything incl. the Midnight and Neon looks, lifetime). Guests can't change settings (read-only, sign-in prompt) and see a Sign in tab instead of the session chips. Limits live in `lib/limits.js` and are enforced by the server for anything paid.
 - Spicy and Hot text only come from the server: Spicy via RLS (`has_lite`), Hot via RLS for Premium (`has_premium`), `/api/hot` for Lite and `/api/taste` for Base. It lives in memory only. The bundle has Flirty only.
 - Heat can never sit above what the account may play (`Core.levelCap()`).
 - Premium never expires: `plan = 'premium'`, `premium_until` null, no expiry check anywhere.
