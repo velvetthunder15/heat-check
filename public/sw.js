@@ -1,11 +1,11 @@
 /* Heat Check service worker: offline app shell, cache-first assets.
    Never touches /api or other origins (Supabase, Razorpay, Turnstile), so Spicy/Hot cards
    and account data are never cached here. */
-const VERSION = 'hc-v33';
+const VERSION = 'hc-v34';
 const SHELL = [
   '/', '/privacy', '/terms', '/refund', '/cards.json', '/site.webmanifest',
-  '/css/base.css?v=33', '/css/themes.css?v=33', '/css/fixes.css?v=33', '/css/motion.css?v=33', '/css/polish.css?v=33', '/css/intro.css?v=33', '/css/account.css?v=33', '/css/buttons.css?v=33', '/css/tiers.css?v=33', '/css/perf.css?v=33', '/css/v13.css?v=33', '/css/v14.css?v=33', '/css/v15.css?v=33',
-  '/js/config.js?v=33', '/js/audio.js?v=33', '/js/core.js?v=33', '/js/games.js?v=33', '/js/account.js?v=33', '/js/app.js?v=33', '/js/intro.js?v=33', '/js/account-ui.js?v=33', '/js/motion.js?v=33', '/js/nav.js?v=33', '/js/boot.js?v=33',
+  '/css/base.css?v=34', '/css/themes.css?v=34', '/css/fixes.css?v=34', '/css/motion.css?v=34', '/css/polish.css?v=34', '/css/intro.css?v=34', '/css/account.css?v=34', '/css/buttons.css?v=34', '/css/tiers.css?v=34', '/css/perf.css?v=34', '/css/v13.css?v=34', '/css/v14.css?v=34', '/css/v15.css?v=34',
+  '/js/config.js?v=34', '/js/audio.js?v=34', '/js/core.js?v=34', '/js/games.js?v=34', '/js/account.js?v=34', '/js/app.js?v=34', '/js/intro.js?v=34', '/js/account-ui.js?v=34', '/js/motion.js?v=34', '/js/nav.js?v=34', '/js/boot.js?v=34',
   '/fonts/inter-var-4.woff2', '/fonts/inter-var-italic-4.woff2',
   '/logo-wordmark.webp', '/favicon.ico', '/favicon.svg', '/favicon-96x96.png', '/apple-touch-icon.png', '/web-app-manifest-192x192.png', '/web-app-manifest-512x512.png',
 ];
