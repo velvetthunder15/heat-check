@@ -19,6 +19,7 @@ function stageHTML(html) {
   // v14: restart the card entrance without a forced reflow; skipped while a screen transition runs
   if (!document.documentElement.classList.contains('hc-nav')) {
     if (s.classList.contains('hc-entered')) s.classList.remove('hc-entered');   // first card after a transition: the entrance starts fresh
+    window.SFX && SFX.play('deal');   // v16: Velvet's soft deal (Classic has no deal sound); the first card of a screen rides the transition whoosh
     const an = s.getAnimations ? s.getAnimations() : null;
     if (an && an.length) an.forEach((a) => { a.cancel(); a.play(); });
     else if (!an) { s.style.animation = 'none'; void s.offsetWidth; s.style.animation = ''; }
