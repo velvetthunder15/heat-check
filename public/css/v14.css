@@ -1,0 +1,127 @@
+/* Heat Check v14: performance + transition pass. Loaded last. Smoothness only:
+   no colour, copy or content changes. Rules of the road:
+   - one screen transition: the old screen leaves in ~120ms, the new one arrives in ~200ms
+     (transform + opacity), the two are never both at full opacity
+   - every late element of a game screen has its space reserved before the transition runs
+   - home ambience is transform/opacity only and pauses during transitions, scrolling and in
+     a hidden tab (html.hc-nav / html.is-scrolling / html.tab-hidden) */
+
+/* ---------- 1. Screen transitions ---------- */
+/* The motion itself lives in Motion.navigate (motion.js): #app fades out (120ms, WAAPI), the
+   swap happens while nothing is on show, then the new screen's children come in (200ms): */
+@keyframes hcInR { from { opacity: 0; transform: translateX(24px); } }
+@keyframes hcInL { from { opacity: 0; transform: translateX(-24px); } }
+/* View Transitions are no longer started; a leftover named snapshot never animates on its own */
+::view-transition-group(hero) { animation-duration: 1ms; }
+/* Incoming screen: 200ms fade + 24px slide (forward from the right, back from the left) */
+#app.fx-in > :not(.modal-wrap):not(#amb):not(.toast) { animation: hcInR 200ms cubic-bezier(.16, 1, .3, 1) both; }
+#app.fx-back > :not(.modal-wrap):not(#amb):not(.toast) { animation: hcInL 200ms cubic-bezier(.16, 1, .3, 1) both; }
+#app.fx-in > .controls, #app.fx-back > .controls { animation: hcFade 200ms linear both; }
+@keyframes hcFade { from { opacity: 0; } }
+/* during a transition nothing inside the incoming screen plays its own entrance */
+html.hc-nav #app .screen, html.hc-nav #app .tile, html.hc-nav #app .home-head, html.hc-nav #app .home-sub,
+html.hc-nav #app .lower-third, html.hc-nav #app .playing, html.hc-nav #app .side, html.hc-nav #app .verdict { animation: none; }
+/* ...and do not replay once it ends */
+#app .hc-entered { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) #app.fx-in > *, html:not([data-motion="full"]) #app.fx-back > * { animation: none !important; }
+}
+html[data-motion="reduce"] #app.fx-in > *, html[data-motion="reduce"] #app.fx-back > * { animation: none !important; }
+
+/* ---------- 2. Stable viewport + game screen shell ---------- */
+/* svh, not dvh: the Android URL bar collapsing never resizes a screen mid-animation.
+   The strip the URL bar uncovers keeps the screen colour (a static offset shadow, no layout). */
+#app { min-height: 100svh; box-shadow: 0 120px 0 0 var(--bg); }
+.screen.allin { min-height: calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+.gate { min-height: 100svh; }
+.arena { min-height: 56svh; }
+/* Header: sticky, covers the status bar area when scrolled (never slides under it) */
+.hud { margin-top: calc(-1 * env(safe-area-inset-top)); padding-top: calc(10px + env(safe-area-inset-top)); }
+.hud-top { min-height: 44px; }
+.hud .heat { min-height: 28px; }
+.hud .scores { min-height: 36px; }
+/* The limit counter line always holds its row, shown or not, so a plan loading late never moves the card */
+.hud .limit-line { height: 16px; line-height: 16px; margin-top: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.hud .limit-line[hidden] { display: block !important; visibility: hidden; }
+/* Bottom bar: fixed height, safe-area padding; game content keeps matching room below it */
+#app { --hc-bar: 80px; }
+.controls { min-height: calc(var(--hc-bar) + env(safe-area-inset-bottom)); align-items: stretch; contain: layout style; }
+.controls .btn { min-height: 56px; }
+#app > #stage.screen { padding-bottom: calc(var(--hc-bar) + 32px + env(safe-area-inset-bottom)); }
+/* A card that comes from the server (Spicy/HOT) holds its space while it loads */
+#stage:empty::before { content: ""; display: block; height: 200px; border-radius: 22px; background: #ffffff0a; }
+/* cards lay out on their own (layout containment only: paint containment would clip their
+   shadows and neon glows, which is a visual change) */
+.lower-third, .neon-sign, .casefile, .bulb-frame, .playing, .arena, .mirror, #stage > .card, .night-card, .frames, .flagbtns { contain: layout style; }
+
+/* ---------- 3. Red Flag / Green Flag: curved cloth flags in their own row above the card ---------- */
+.rf-banner { position: relative; display: flex; justify-content: space-between; align-items: flex-start; height: 48px; padding: 4px 26px 0; margin: 0 0 -8px; pointer-events: none; contain: layout paint style; }
+.rff { position: relative; width: 90px; height: 44px; }
+.rff-r { transform: scaleX(-1); }
+.rff-pole { position: absolute; left: 0; top: 0; width: 4px; height: 44px; border-radius: 2px; background: linear-gradient(90deg, #ffe58a, #c99a1a); box-shadow: 0 4px 10px #0007; }
+.rff-pole::before { content: ""; position: absolute; left: -2px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #ffe58a; }
+.rff-cloth { position: absolute; left: 4px; top: 1px; width: 84px; height: 36px; transform-origin: 0 50%; }
+.rff-cloth svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.rf-banner.pending .rff-cloth { opacity: 0; transform: scaleX(.05); }
+.rf-banner.pending .rff-pole { opacity: 0; }
+.rf-banner.live .rff-cloth { animation: rffSway 3.4s ease-in-out infinite alternate; }
+.rf-banner.live .rff-r .rff-cloth { animation-delay: -1.7s; }
+@keyframes rffSway { from { transform: skewY(0deg) scaleX(1); } to { transform: skewY(-2.5deg) scaleX(.965); } }
+html.low-end .rf-banner .rff-cloth, html[data-motion="reduce"] .rf-banner .rff-cloth, html.tab-hidden .rf-banner .rff-cloth { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion="full"]) .rf-banner .rff-cloth { animation: none !important; } }
+/* the old full-screen flag overlay never shows again */
+.intro-redflag, .intro-nhie { display: none !important; }
+
+/* ---------- 4. Never Have I Ever: cups arrive in their own row (opacity until the intro runs) ---------- */
+#app.cups-wait .cups .cup { opacity: 0; }
+.cups { contain: layout style; }
+
+/* ---------- 5. Home ambience: transform/opacity only, and it rests when nobody is looking ---------- */
+/* The HOT word's gradient flow animated an SVG group under a mask: a main-thread repaint every
+   frame. It now holds still (the per-level gradients still crossfade). */
+.ht-flow { animation: none !important; }
+/* HOT standing effect: nothing runs unless HOT is the chosen level */
+.hc-hero:not([data-heat="3"]) .ring-hot *, .hc-hero.holding .ring-hot *, .hc-hero.locked .ring-hot * { animation: none !important; }
+/* Embers: the rotation is a static property, the keyframes hold plain numbers, so the
+   compositor runs them (the old var() keyframes ran on the main thread, 12 recalcs a frame) */
+.ring-hot i { rotate: var(--a); transform: translateY(-112px); width: calc(10px * var(--s)); height: calc(10px * var(--s)); margin: calc(-5px * var(--s)); animation-name: rhEmber2; }
+@keyframes rhEmber2 { 0% { opacity: 0; transform: translateY(-108px); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(-150px) scale(.3); } }
+/* HOT pill glow: a static shadow on a layer whose opacity breathes (was an animated box-shadow) */
+.heat-steps .hs { position: relative; }
+.heat-steps .hs.on[data-step="3"] { animation: none; }
+.heat-steps .hs.on[data-step="3"]::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 20px -2px #ff7a3ccc, inset 0 0 8px #fff4e026; opacity: 0; animation: hsGlow 2.6s ease-in-out infinite alternate; }
+@keyframes hsGlow { to { opacity: 1; } }
+html.low-end .heat-steps .hs.on[data-step="3"]::after, html[data-motion="reduce"] .heat-steps .hs.on[data-step="3"]::after { animation: none; opacity: .5; }
+/* Hold ring: the button's warm-up is a crossfade of one static layer (no per-frame repaint) */
+.hold-btn { background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent) 16%, #1e121d), #140b14 72%); }
+.hold-heat { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; opacity: 0; will-change: opacity;
+  background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent) 56%, #1e121d), #140b14 72%);
+  box-shadow: inset 0 1px 0 #ffffff26, inset 0 -6px 18px #00000080; }
+/* Pause every home loop during a transition, while scrolling and in a hidden tab. The list
+   names the animated elements themselves (not "everything under the hero"), so toggling the
+   class on <html> restyles a dozen nodes, not the whole page. */
+html.hc-nav .ring-rot, html.hc-nav .ring-glow, html.hc-nav .rh-corona, html.hc-nav .rh-halo, html.hc-nav .ring-hot i,
+html.hc-nav .heat-steps .hs::after, html.hc-nav .pk-chev, html.hc-nav .tile .t-art::before, html.hc-nav .tile .t-art::after,
+html.hc-nav .pb-sheen::before, html.hc-nav .pb-sheen::after, html.hc-nav .av-ring::before, html.hc-nav .burn .b-glow,
+html.is-scrolling .ring-rot, html.is-scrolling .ring-glow, html.is-scrolling .rh-corona, html.is-scrolling .rh-halo, html.is-scrolling .ring-hot i,
+html.is-scrolling .heat-steps .hs::after, html.is-scrolling .pk-chev, html.is-scrolling .tile .t-art::before, html.is-scrolling .tile .t-art::after,
+html.is-scrolling .pb-sheen::before, html.is-scrolling .pb-sheen::after, html.is-scrolling .av-ring::before, html.is-scrolling .burn .b-glow,
+html.tab-hidden .ring-rot, html.tab-hidden .ring-glow, html.tab-hidden .rh-corona, html.tab-hidden .rh-halo, html.tab-hidden .ring-hot i,
+html.tab-hidden .heat-steps .hs::after, html.tab-hidden .pk-chev, html.tab-hidden .tile .t-art::before, html.tab-hidden .tile .t-art::after,
+html.tab-hidden .pb-sheen::before, html.tab-hidden .pb-sheen::after, html.tab-hidden .av-ring::before, html.tab-hidden .burn .b-glow,
+html.tab-hidden .rf-banner .rff-cloth, html.tab-hidden .timer { animation-play-state: paused !important; }
+/* Low-end phones: no grain, no particles, one ambient layer */
+html.low-end #amb .grain, html.low-end #amb .b3, html.low-end #amb .glow, html.low-end .ring-hot i, html.low-end .ember { display: none !important; }
+/* Promoted layers: the stack tiles' idle art keeps its own layer only while on screen */
+.stack .tile.offscreen .t-art::before, .stack .tile.offscreen .t-art::after, .stack .tile.offscreen .onair { will-change: auto; }
+
+/* ---------- 6. Input ---------- */
+.tile, .cup, .flagbtn, .vsbtn, .ratepad button, .hold, .hs, .sb-chip, .nav-back { touch-action: manipulation; }
+
+/* ---------- 7. While a screen change runs, taps wait (no double navigation) ---------- */
+html.hc-nav #app { pointer-events: none; }
+/* The screen layer stays composited (from the first idle moment after load, so the first
+   paint isn't affected), so starting the 120ms fade-out never re-rasters the whole screen on
+   the tapped frame */
+html.hc-ready #app { will-change: opacity; }
