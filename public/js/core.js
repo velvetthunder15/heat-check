@@ -88,7 +88,11 @@ const Core = {
     this.save();
   },
   isGroup() { return this.S.side === 'group'; },
-  save() { try { localStorage.setItem('hc_state', JSON.stringify(this.S)); } catch (e) {} },
+  // v14: writes are coalesced (one JSON write per burst of changes, ~250ms) and flushed when
+  // the page is hidden or closed, so dealing a card never serialises state several times.
+  _saveT: 0, _noSave: false,
+  save() { if (this._noSave) return; clearTimeout(this._saveT); this._saveT = setTimeout(() => this.flush(), 250); },
+  flush() { clearTimeout(this._saveT); this._saveT = 0; if (this._noSave || !this.S) return; try { localStorage.setItem('hc_state', JSON.stringify(this.S)); } catch (e) {} },
 
   async loadCards() {
     const r = await fetch('cards.json', { cache: 'no-cache' }).catch(() => fetch('cards.json'));
@@ -223,9 +227,18 @@ const Core = {
     if (left !== null) Limits.countFlirty(game);
     return this.show(c);
   },
-  pick(game, h) {
+  // v14: the filtered pool per game + heat + Hollywood/Bollywood setting is built once and
+  // reused; it rebuilds only when the setting or the deck itself changes.
+  _pools: new Map(),
+  pool(game, h) {
     const src = h === 1 ? this.cards : ((window.Premium && Premium.cards) || []);
-    const pool = src.filter((c) => c.game === game && c.heat === h && this.originOk(c));
+    const key = game + '|' + h + '|' + this.origins().join(',');
+    let e = this._pools.get(key);
+    if (!e || e.src !== src || e.n !== src.length) { e = { src, n: src.length, list: src.filter((c) => c.game === game && c.heat === h && this.originOk(c)) }; this._pools.set(key, e); }
+    return e.list;
+  },
+  pick(game, h) {
+    const pool = this.pool(game, h);
     if (!pool.length) return null;
     const key = game + h;
     this.used[key] = this.used[key] || new Set();
@@ -501,6 +514,9 @@ const Core = {
   },
 };
 
+/* v14: pending state writes land before the page can be frozen or closed */
+window.addEventListener('pagehide', () => Core.flush());
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Core.flush(); });
 /* Re-acquire wake lock when returning to the tab */
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && Core._wantWake) Core.wake(true);
