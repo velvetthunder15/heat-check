@@ -78,6 +78,6 @@ const SFX = window.SFX = (() => {
     toggle() { muted = !muted; localStorage.setItem('hc_muted', muted ? '1' : '0'); return muted; },
     setMuted(m) { muted = !!m; localStorage.setItem('hc_muted', muted ? '1' : '0'); return muted; },
     setPack(p) { pack = p === 'velvet' ? 'velvet' : 'classic'; },
-    unlock() { try { ac(); } catch (e) {} },
+    unlock() { if (muted) return; try { ac(); } catch (e) {} },   // v14: no AudioContext while muted (it cost ~6ms of the open-game task; unmuting creates it on that tap)
   };
 })();
