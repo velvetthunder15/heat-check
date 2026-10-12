@@ -192,3 +192,16 @@ directly under the three header circles.
   CLS and fps unchanged within noise); premium home idle 412: v35 60.2 fps / v36 60.0-60.2 fps, 0 frames > 50 ms, CLS 0.
 - Screenshots: /workspace/work/heatcheck/shots162/ (v162_<state>_<width>_top|full.png, DPR 3; headless has no emoji
   font so the speaker emoji renders blank in the shots only).
+
+## v16.3 (Oct 13 2026, hc-v37 / ?v=37): Premium pill spans the circle row
+Chirag: "it should stretch the length of the 3 round pills, it looks asymmetric rn. also width should be about 8-10% more".
+- `css/v15.css` (end, v16.3 block): `.pass-head { left:0; right:-4px; transform:none }`, pill `width:100%`, 20px tall
+  (was 18, +11%), 11px type (was 10); `.has-hpill .head-actions { top:-12px }` (was -11) so circles + 4px + 20px pill
+  stay centred on the logo. The right edge follows the avatar's visible metal ring (.av-ring is inset -5px from the
+  avatar's padding box = 4px outside its 44px border box), so both ends line up optically. Gradient/sheen untouched.
+- Measured (premium, sound-left .. ring-right vs pill x): 360 194-346 vs 194-346; 390 224-376 vs 224-376;
+  412 246-398 vs 246-398 (pill y 68-88, chips at 100, header 92 unchanged). 320: circles wrap, pill stays in row 2
+  left of the avatar (x 163.8-250, right edge = sound button's right edge above; 4px to the ring). CLS 0 everywhere.
+  Lite/Base/Guest unchanged.
+- Tests: build ok, t4 155, fn12, sql/t12 47, audio16 69. Premium idle 412 (6x CPU): v36 60.0 / v37 60.2 fps, 0 > 50 ms.
+- Screenshots: /workspace/work/heatcheck/shots163/ (pw/v163.mjs, DPR 3).
