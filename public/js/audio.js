@@ -96,6 +96,68 @@ const SFX = window.SFX = (() => {
     }
     if (rev) { const f = Math.round(0.012 * SR), e = Math.min(b.n, i0 + n); for (let k = 0; k < f; k++) { const j = e - f + k; if (j < 0) continue; const m = 1 - k / f; L[j] *= m; if (R) R[j] *= m; } }
   }
+  // v16.1 fire: filtered noise with a slow random amplitude (flicker), low-pass sweeping lp[0] -> lp[1] over `sl`,
+  // plus a 1-4 kHz sizzle band (`hiss`) so phone speakers hear the fire. Stereo = decorrelated noise per side.
+  function* opFire(b, o) {
+    const i0 = Math.round((o.when || 0) * SR), n = Math.max(1, Math.round(o.dur * SR)), vol = o.vol, env = o.env || 'ad';
+    const atkN = Math.max(1, Math.round((o.atk || 0.002) * SR)), curve = o.curve || 1, kd = Math.exp(-1 / ((o.dec || 0.3) * SR)), fadeN = Math.round(0.006 * SR);
+    const [f0, f1] = o.lp || [800, 800], slN = Math.max(1, Math.round((o.sl || o.dur) * SR)), hiss = o.hiss || 0, flick = o.flick == null ? 0.5 : o.flick;
+    const L = b.L, R = b.R, end = Math.min(n, b.n - i0), hop = Math.max(1, Math.round(SR / ((o.rate || 7) * 2))), ks = 1 - Math.exp(-1 / (hop * 0.8));
+    const fl = new Float32Array(end), hs = new Float32Array(end);   // shared flicker (body) and a faster one (sizzle)
+    let tg = 1, cur = 1, tg2 = 1, cur2 = 1;
+    for (let i = 0; i < end; i++) {
+      if (i % hop === 0) tg = 1 - flick * Math.pow(rnd(), 1.4);
+      if (i % (hop >> 1 || 1) === 0) tg2 = 1 - flick * rnd();
+      cur += (tg - cur) * ks; cur2 += (tg2 - cur2) * ks * 2; fl[i] = cur; hs[i] = cur2;
+      if (!(i & 16383)) yield;
+    }
+    const sides = R ? [0, 1] : [-1], [gl, gr] = gainLR(o.pan || 0);
+    const hb = bq('bp', o.hf || 2400, 0.7), flat = env === 'flat', BL = 4096;
+    for (const side of sides) {
+      const out = side === 1 ? R : L, gs = side === 0 ? gl : side === 1 ? gr : 1, st = new Float64Array(10);   // filter + envelope state between blocks
+      st[9] = vol;
+      // plain function per block (hot loops inside a generator optimize poorly); the generator only yields between blocks
+      const block = (from, to) => {
+        let l1 = st[0], l2 = st[1], ly1 = st[2], ly2 = st[3], h1 = st[4], h2 = st[5], hy1 = st[6], hy2 = st[7], br = st[8], gd = st[9];
+        const [c0, c1, c2, c3, c4] = hb;
+        let k0 = 0, k1 = 0, k2 = 0, k3 = 0, k4 = 0;
+        for (let i = from; i < to; i++) {
+          if (!(i & 31) || i === from) { const c = bq('lp', f0 * Math.pow(f1 / f0, Math.min(1, i / slN)), 0.9); k0 = c[0]; k1 = c[1]; k2 = c[2]; k3 = c[3]; k4 = c[4]; }
+          const w = nz(); br = br * 0.985 + w * 0.15;                    // a little brown noise = rumble
+          let x = w * 0.8 + br * 0.45;
+          const y = k0 * x + k1 * l1 + k2 * l2 - k3 * ly1 - k4 * ly2; l2 = l1; l1 = x; ly2 = ly1; ly1 = y; x = y * fl[i];
+          if (hiss) { const z = nz(), hy = c0 * z + c1 * h1 + c2 * h2 - c3 * hy1 - c4 * hy2; h2 = h1; h1 = z; hy2 = hy1; hy1 = hy; x += hy * hiss * hs[i]; }
+          let a;
+          if (flat) a = vol;
+          else { if (i < atkN) a = vol * (curve === 1 ? i / atkN : Math.pow(i / atkN, curve)); else { a = gd; gd *= kd; } if (n - i < fadeN) a *= (n - i) / fadeN; }
+          out[i0 + i] += x * a * gs;
+        }
+        st[0] = l1; st[1] = l2; st[2] = ly1; st[3] = ly2; st[4] = h1; st[5] = h2; st[6] = hy1; st[7] = hy2; st[8] = br; st[9] = gd;
+      };
+      for (let i = 0; i < end; i += BL) { block(i, Math.min(end, i + BL)); yield; }
+    }
+  }
+  // v16.1 crackle: sparse random pops (1.5-5.5 ms bursts through a 2-6 kHz resonance, a few low woody snaps);
+  // density `rate` per second decaying with `rdec`, amplitude decaying with `adec`.
+  function* opPops(b, o) {
+    const i0 = Math.round((o.when || 0) * SR), dur = o.dur, vol = o.vol, [fa, fb] = o.f || [2000, 6000], L = b.L, R = b.R;
+    let t = 0, cnt = 0;
+    for (;;) {
+      const rate = Math.max(0.5, o.rate * (o.rdec ? Math.exp(-t / o.rdec) : 1));
+      t += -Math.log(1 - rnd() * 0.999) / rate; if (t >= dur) break;
+      const snapP = rnd() < (o.snap || 0.12), amp = vol * (0.25 + 0.75 * Math.pow(rnd(), 1.5)) * (o.adec ? Math.exp(-t / o.adec) : 1) * (snapP ? 0.8 : 1);
+      const len = Math.round((snapP ? 0.006 : 0.0015 + rnd() * 0.004) * SR), f = snapP ? 700 + rnd() * 700 : fa * Math.pow(fb / fa, rnd());
+      const c = bq('bp', f, snapP ? 1.2 : 1.6), [gl, gr] = gainLR((rnd() - 0.5) * (o.spread == null ? 1.2 : o.spread)), s0 = i0 + Math.round(t * SR);
+      let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+      for (let j = 0; j < len && s0 + j < b.n; j++) {
+        const x = (nz() + (j === 0 ? 3 : 0)) * Math.exp(-j / (len * 0.28));
+        const y = c[0] * x + c[1] * x1 + c[2] * x2 - c[3] * y1 - c[4] * y2; x2 = x1; x1 = x; y2 = y1; y1 = y;
+        const v = y * amp * 2.2;
+        if (!R) L[s0 + j] += v; else { L[s0 + j] += v * gl; R[s0 + j] += v * gr; }
+      }
+      if (!(++cnt % 12)) yield;
+    }
+  }
   // Small stereo plate (Freeverb-style: 4 damped combs + 2 allpasses per side), baked into Velvet buffers
   function* plate(b, wet, fb = 0.8) {
     const n = b.n, dry = new Float32Array(n), pre = Math.round(0.012 * SR), sc = SR / 44100;
@@ -127,6 +189,8 @@ const SFX = window.SFX = (() => {
       c: (fs, dur, type, vol, step = 0) => fs.forEach((f, i) => x.t(f, dur, type, vol, i * step)),
       sweep: (dur, vol) => ops.push({ k: 'n', dur, vol, when: 0, env: 'sin', bp: [400, 2400, 0.8] }),
       t2: (o) => ops.push({ k: 't', ...o }),
+      fire: (o) => ops.push({ k: 'f', ...o }),
+      pops: (o) => ops.push({ k: 'p', ...o }),
       n2: (o) => ops.push({ k: 'n', ...o }),
       click: (f, vol, when = 0, pan = 0) => ops.push({ k: 'n', dur: 0.008, vol, when, pan, atk: 0.0004, dec: 0.0016, bp: [f, f, 1.2] }),
       bell: (f, dur, when, vol, fmi = 1.6, pan = 0, ratio = 3.5) => ops.push({ k: 't', f, dur, when, vol, fm: ratio, fmi, fmd: dur * 0.3, atk: 0.002, dec: dur * 0.32, pan }),
@@ -134,6 +198,29 @@ const SFX = window.SFX = (() => {
     };
     return x;
   };
+  // v16.1 home hold ring: shared fire layers (both packs); each pack puts its own voice on top
+  const FIRE = {
+    ignite: (x, v = 1) => {                           // whoosh as it locks + punch + sub swell (saturated so phones hear it)
+      x.n2({ dur: 0.42, vol: 0.7 * v, atk: 0.014, curve: 1.5, dec: 0.12, bp: [380, 3400, 1.1] });
+      x.thump(0.8 * v, 140, 44);
+      x.t2({ f: 58, to: 45, sl: 1.3, dur: 1.4, type: 'sine', vol: 0.36 * v, atk: 0.05, dec: 0.5, sat: 2.6 });
+    },
+    roar: (x, dur, v, lp0, lp1, sl, o = {}) => x.fire({ dur, vol: v, atk: 0.03, dec: dur * 0.42, lp: [lp0, lp1], sl, flick: 0.6, rate: 8, hiss: 1.1, ...o }),
+    crackle: (x, dur, rate, v, when = 0, o = {}) => x.pops({ dur, rate, vol: v, when, rdec: dur * 0.6, adec: dur * 0.9, f: [2000, 6000], ...o }),
+    loop: (x, lp) => { x.fire({ dur: LOOP + XF, vol: 0.9, env: 'flat', lp: [lp, lp], flick: 0.55, rate: 6, hiss: 0.8 }); x.pops({ dur: LOOP + XF, rate: 12, vol: 0.5, f: [1800, 6000] }); },
+    tail: (x) => {                                     // embers: roar cooling down, crackle thinning out (~1.1 s)
+      x.fire({ dur: 1.15, vol: 0.5, atk: 0.12, curve: 1.5, dec: 0.45, lp: [1800, 650], sl: 1.1, flick: 0.7, rate: 6, hiss: 0.7 });
+      x.pops({ dur: 1.1, rate: 26, vol: 0.5, rdec: 0.7, adec: 0.9, f: [2000, 6000], snap: 0.18 });
+    },
+    burst: (x) => {                                    // release at the top level: flame burst
+      x.n2({ dur: 0.5, vol: 0.8, atk: 0.006, dec: 0.13, bp: [520, 2800, 1] });
+      x.fire({ dur: 0.85, vol: 1, atk: 0.008, dec: 0.24, lp: [3600, 900], sl: 0.7, flick: 0.5, rate: 10, hiss: 1.1 });
+      x.thump(0.65, 160, 55);
+      x.pops({ dur: 0.7, rate: 55, vol: 0.55, rdec: 0.35, adec: 0.5, f: [2000, 6000] });
+    },
+  };
+  const LOOP = 2, XF = 0.25;                          // roar bed loop length + crossfade (seamless)
+  const DRIVE = { lock3: 2, hotrelease: 1.6 };       // top-level sounds get soft saturation (more heat, less crest)
   // Classic: the original sounds, note for note (only the touch feedback is new in v16)
   const CLASSIC = {
     touch: [1, (x) => { x.click(3600, 1.1); x.t2({ f: 760, to: 660, sl: 0.012, dur: 0.07, type: 'triangle', vol: 0.8, atk: 0.0015, dec: 0.022 }); x.t2({ f: 1320, dur: 0.035, type: 'sine', vol: 0.45, atk: 0.001, dec: 0.01 }); x.t2({ f: 2640, dur: 0.02, type: 'sine', vol: 0.25, atk: 0.0008, dec: 0.005 }); }],
@@ -164,6 +251,15 @@ const SFX = window.SFX = (() => {
     wrong: [0.75, (x) => { x.t(220, 0.3, 'square', 0.1); x.t(196, 0.45, 'square', 0.1, 0.25); }],
     chip: [0.7, (x) => { x.t(2400, 0.04, 'triangle', 0.08); x.t(2000, 0.05, 'triangle', 0.06, 0.05); }, 1],
     shimmer: [0.6, (x) => x.c([1046, 1318, 1568, 2093], 0.6, 'sine', 0.05, 0.05), 1],
+    // v16.1 hold ring (Classic palette: triangle/square/saw, bright and game-show)
+    ringtick: [0.42, (x, k) => { const f = [988, 1109, 1245, 1319, 1480, 1661, 1865][k]; x.click(4200, 0.55); x.t2({ f, dur: 0.045, type: 'square', vol: 0.32, atk: 0.001, dec: 0.012, lp: 5200 }); x.t2({ f: f / 2, dur: 0.055, type: 'triangle', vol: 0.55, atk: 0.001, dec: 0.016 }); }, 0, 7],
+    lock1: [0.75, (x) => { x.click(5200, 0.5); [1318.5, 1760, 2637, 3520].forEach((f, i) => x.t2({ f, dur: 0.28, when: i * 0.035, type: 'triangle', vol: 0.5 - i * 0.06, atk: 0.001, dec: 0.07 })); x.t2({ f: 659.3, dur: 0.22, type: 'sine', vol: 0.32, atk: 0.002, dec: 0.06 }); x.n2({ dur: 0.38, vol: 0.12, atk: 0.03, dec: 0.1, hp: 6500 }); }],
+    lock2: [0.88, (x) => { x.thump(0.55, 175, 70); x.t2({ f: 1046.5, dur: 0.3, when: 0.01, type: 'triangle', vol: 0.3, atk: 0.002, dec: 0.08 }); x.fire({ dur: 0.4, vol: 0.25, atk: 0.01, dec: 0.12, lp: [1000, 2600], flick: 0.5, rate: 10, hiss: 0.8 }); [523.25, 783.99].forEach((f) => x.t2({ f, dur: 0.48, type: 'sawtooth', vol: 0.3, atk: 0.003, dec: 0.13, lp: 2300, sat: 1.3 })); x.t2({ f: 261.6, dur: 0.42, type: 'triangle', vol: 0.45, atk: 0.003, dec: 0.12 }); x.t2({ f: 130.8, dur: 0.35, type: 'square', vol: 0.18, atk: 0.003, dec: 0.1, lp: 900 }); x.pops({ dur: 0.36, rate: 70, vol: 0.22, rdec: 0.25, f: [3000, 7000], snap: 0 }); x.n2({ dur: 0.3, vol: 0.14, atk: 0.004, dec: 0.08, hp: 5000 }); }],
+    lock3: [1, (x) => { FIRE.ignite(x); FIRE.roar(x, 1.45, 0.95, 480, 3300, 0.42); FIRE.crackle(x, 1.35, 38, 0.55); [523.25, 783.99, 1046.5].forEach((f, i) => x.t2({ f, dur: 0.55, when: 0.01 + i * 0.03, type: 'sawtooth', vol: 0.2, atk: 0.004, dec: 0.16, lp: 3200 })); x.t2({ f: 1318.5, dur: 0.6, when: 0.1, type: 'triangle', vol: 0.18, atk: 0.003, dec: 0.18, trem: 0.4 }); x.t2({ f: 116.5, dur: 1.0, type: 'triangle', vol: 0.3, atk: 0.04, dec: 0.35, lp: 800 }); }],
+    hottail: [0.7, (x) => FIRE.tail(x)],
+    hotrelease: [0.95, (x) => { FIRE.burst(x); [783.99, 1046.5].forEach((f, i) => x.t2({ f, dur: 0.32, when: 0.02 + i * 0.05, type: 'sawtooth', vol: 0.22, atk: 0.003, dec: 0.09, lp: 3000 })); x.t2({ f: 1568, dur: 0.35, when: 0.1, type: 'triangle', vol: 0.18, atk: 0.002, dec: 0.1 }); }],
+    release: [0.7, (x) => { x.click(3800, 0.5); x.t2({ f: 784, dur: 0.12, type: 'triangle', vol: 0.6, atk: 0.0015, dec: 0.04 }); x.t2({ f: 1046.5, dur: 0.2, when: 0.06, type: 'triangle', vol: 0.6, atk: 0.0015, dec: 0.06 }); x.t2({ f: 2093, dur: 0.1, when: 0.06, type: 'sine', vol: 0.2, atk: 0.001, dec: 0.03 }); }],
+    roarloop: [0.6, (x) => FIRE.loop(x, 2600)],
   };
   const C5 = 523.25, D5 = 587.33, E5 = 659.26, G5 = 783.99, A5 = 880, C6 = 1046.5, D6 = 1174.66, E6 = 1318.51, G6 = 1567.98, A6 = 1760;
   const P5 = [C5, D5, E5, G5, A5], P6 = [C6, D6, E6, G6, A6], P4 = [392, 440, C5, D5, E5];
@@ -175,19 +271,22 @@ const SFX = window.SFX = (() => {
     touchBack: [0.95, (x) => { x.click(2400, 0.2, 0, 0.1); x.thump(0.3, 200, 90); [E5, C5].forEach((f, i) => { x.t2({ f, dur: 0.14, when: i * 0.05, type: 'sine', vol: 0.7, atk: 0.002, dec: 0.045, pan: 0.15 - i * 0.3, det: 3 }); x.bell(f * 2, 0.2, i * 0.05, 0.2, 1, 0.15 - i * 0.3); }); }, 1, 0.12],
     touchToggle: [0.95, (x, k) => { const ns = k ? [E5, C5] : [C5, E5]; x.click(3000, 0.2); ns.forEach((f, i) => { x.t2({ f, dur: 0.12, when: i * 0.035, type: 'sine', vol: 0.7, atk: 0.002, dec: 0.04, pan: i ? 0.2 : -0.2, det: 3 }); x.bell(f * 2, 0.18, i * 0.035, 0.22, 1, i ? -0.2 : 0.2); }); }, 2, 0.12],
     deal: [0.6, (x) => { x.n2({ dur: 0.07, vol: 0.7, atk: 0.002, dec: 0.022, bp: [3600, 1800, 0.9], pan: -0.25 }); x.thump(0.14, 210, 100, 0.012, 0.1); x.n2({ dur: 0.12, vol: 0.12, when: 0.01, atk: 0.01, dec: 0.04, hp: 5000, pan: 0.3 }); }, 1, 0.1],
-    ringtick: [0.35, (x, k) => { const f = P6[k]; x.t2({ f, dur: 0.06, type: 'sine', vol: 0.8, atk: 0.0015, dec: 0.016, pan: (k - 2) * 0.15 }); x.bell(f, 0.1, 0, 0.25, 0.6); }, 5, 0.1],
-    lock1: [0.8, (x) => { x.bell(E6, 0.7, 0, 0.6, 1.5, -0.25); x.bell(G6, 0.75, 0.045, 0.5, 1.4, 0.25); x.t2({ f: E5, dur: 0.5, type: 'sine', vol: 0.35, atk: 0.004, dec: 0.16, det: 4 }); x.n2({ dur: 0.3, vol: 0.12, atk: 0.03, dec: 0.08, hp: 5000, pan: 0.2 }); }, 1, 0.3],
-    lock2: [0.9, (x) => { x.thump(0.75, 180, 75); [C5, G5].forEach((f, i) => x.t2({ f, dur: 0.6, when: i * 0.02, type: 'triangle', vol: 0.55, atk: 0.006, dec: 0.18, lp: 2400, pan: i ? 0.3 : -0.3, det: 5 })); x.t2({ f: C5 / 2, dur: 0.5, type: 'sine', vol: 0.4, atk: 0.006, dec: 0.15, sat: 1.4 }); x.bell(C6, 0.8, 0.02, 0.45, 2, 0); }, 1, 0.26],
+    // v16.1 hold ring: ticks rise through C pentatonic within each turn (k = eighth of the turn)
+    ringtick: [0.32, (x, k) => { const f = [C6, D6, E6, G6, A6, C6 * 2, D6 * 2][k], p = (k - 3) * 0.1; x.n2({ dur: 0.012, vol: 0.3, atk: 0.0005, dec: 0.003, lp: 1800, pan: p }); x.click(2600, 0.22, 0, p); x.t2({ f, dur: 0.075, type: 'sine', vol: 0.8, atk: 0.0015, dec: 0.02, pan: p }); x.bell(f, 0.13, 0, 0.3, 0.7, -p); }, 7, 0.1],
+    lock1: [0.6, (x) => { x.thump(0.22, 260, 140); [E6, G6, C6 * 2].forEach((f, i) => x.bell(f, 0.75, i * 0.04, 0.55 - i * 0.08, 1.5, (i - 1) * 0.3)); x.t2({ f: E5, dur: 0.5, type: 'sine', vol: 0.32, atk: 0.004, dec: 0.16, det: 4 }); x.n2({ dur: 0.42, vol: 0.13, atk: 0.03, dec: 0.12, hp: 6500, pan: 0.2 }); }, 1, 0.3],
+    lock2: [1, (x) => { x.thump(0.75, 180, 75); [C5, G5].forEach((f, i) => x.t2({ f, dur: 0.6, when: i * 0.02, type: 'triangle', vol: 0.55, atk: 0.006, dec: 0.18, lp: 2400, pan: i ? 0.3 : -0.3, det: 5 })); x.t2({ f: C5 / 2, dur: 0.5, type: 'sine', vol: 0.42, atk: 0.006, dec: 0.15, sat: 1.4 }); x.bell(C6, 0.8, 0.02, 0.42, 2, 0); x.fire({ dur: 0.4, vol: 0.22, atk: 0.01, dec: 0.12, lp: [900, 2400], flick: 0.5, rate: 10, hiss: 0.5 }); x.pops({ dur: 0.38, rate: 55, vol: 0.18, rdec: 0.25, f: [2500, 6500], snap: 0 }); }, 1, 0.26],
     lock3: [1, (x) => {
-      x.t2({ f: 55, to: 46, sl: 1.6, dur: 1.7, type: 'sine', vol: 0.55, atk: 0.42, curve: 2, dec: 0.45, sat: 2.6 });          // sub swell (saturated so phones hear it)
-      x.t2({ f: 110, to: 98, sl: 1.4, dur: 1.4, type: 'triangle', vol: 0.3, atk: 0.4, curve: 2, dec: 0.3, lp: 700 });
-      x.n2({ dur: 0.75, vol: 0.55, atk: 0.48, curve: 2, dec: 0.12, bp: [300, 3200, 1.4] });                                    // ignition whoosh
-      x.thump(0.9, 130, 45, 0.48);
-      x.n2({ dur: 1.0, when: 0.48, vol: 0.35, crackle: 1, dec: 0.35, hp: 2500, pan: 0.15 });                                   // light crackle
-      [C6, E6, G6, A6, C6 * 2].forEach((f, i) => x.t2({ f, dur: 1.1, when: 0.5 + i * 0.03, type: 'sine', vol: 0.11, atk: 0.02, dec: 0.4, trem: 0.3, pan: (i - 2) * 0.22, det: 6 }));
-      x.bell(C6, 1.2, 0.5, 0.4, 2.2, 0);
-    }, 1, 0.3, 0.84],
+      FIRE.ignite(x, 0.65);                                                                                 // whoosh + punch + sub swell, at once
+      x.t2({ f: 110, to: 98, sl: 1.2, dur: 1.2, type: 'triangle', vol: 0.3, atk: 0.04, dec: 0.35, lp: 700 });
+      FIRE.roar(x, 1.5, 1.25, 450, 3000, 0.45);                                                               // fire roar opening up
+      FIRE.crackle(x, 1.4, 34, 0.5, 0.03);
+      [C6, E6, G6, A6, C6 * 2].forEach((f, i) => x.t2({ f, dur: 1.1, when: 0.04 + i * 0.03, type: 'sine', vol: 0.1, atk: 0.02, dec: 0.4, trem: 0.3, pan: (i - 2) * 0.22, det: 6 }));
+      x.bell(C6, 1.2, 0.03, 0.38, 2.2, 0);
+    }, 1, 0.28, 0.84],
+    hottail: [0.95, (x) => FIRE.tail(x), 1, 0.18],
+    hotrelease: [0.95, (x) => { FIRE.burst(x); [G5, C6].forEach((f, i) => { x.bell(f, 0.6, 0.03 + i * 0.07, 0.45, 1.4, i ? 0.25 : -0.25); x.t2({ f: f / 2, dur: 0.4, when: 0.03 + i * 0.07, type: 'triangle', vol: 0.28, atk: 0.004, dec: 0.12, lp: 1800 }); }); }, 1, 0.24],
     release: [0.7, (x) => { [G5, C6].forEach((f, i) => { x.bell(f, 0.45, i * 0.07, 0.55, 1.3, i ? 0.2 : -0.2); x.t2({ f: f / 2, dur: 0.3, when: i * 0.07, type: 'sine', vol: 0.3, atk: 0.003, dec: 0.09 }); }); }, 1, 0.22],
+    roarloop: [0.6, (x) => FIRE.loop(x, 2200)],
     reset: [0.6, (x) => { x.n2({ dur: 0.34, vol: 0.8, rev: 1, bp: [500, 3200, 1.1], pan: 0.1 }); x.thump(0.14, 200, 90, 0.33); x.bell(C6, 0.25, 0.33, 0.2, 1); }, 1, 0.16],
     endnight: [1, (x) => {
       [349.23, 440, C5, G5].forEach((f, i) => { x.t2({ f, dur: 0.75, when: i * 0.03, type: 'triangle', vol: 0.32, atk: 0.02, dec: 0.3, lp: 2200, pan: (i - 1.5) * 0.25, det: 5 }); x.bell(f * 2, 0.6, i * 0.03, 0.12, 1.2, (1.5 - i) * 0.25); });
@@ -226,7 +325,7 @@ const SFX = window.SFX = (() => {
     const v = p === 'velvet' && VELVET[name];
     if (v) return { p, name, g: v[0], r: v[1], vars: v[2] || 1, wet: v[3] || 0, fb: v[4] || 0.8 };
     const c = CLASSIC[name]; if (!c) return null;
-    if (p !== 'velvet') return { p, name, g: c[0], r: c[1], vars: 1, wet: 0 };
+    if (p !== 'velvet') return { p, name, g: c[0], r: c[1], vars: c[3] || 1, wet: 0 };
     return { p, name, g: Math.min(1, c[0] * 1.1), r: c[1], vars: 1, wet: c[2] ? 0.2 : 0.14, fb: 0.8, ui: !!c[2], vz: 1 };
   };
   // Render one sound to PCM (Float32 channels at SR), normalized to -3 dBFS peak. A generator, so the idle
@@ -238,12 +337,34 @@ const SFX = window.SFX = (() => {
     const st = def.p === 'velvet';
     const end = ops.reduce((m, o) => Math.max(m, (o.when || 0) + o.dur), 0) + 0.01, tail = def.wet ? 0.3 + def.wet * 2 : 0.01;
     const n = Math.ceil((end + tail) * SR), b = { n, L: new Float32Array(n), R: st ? new Float32Array(n) : null };
-    for (const o of ops) { (o.k === 't' ? opTone : opNoise)(b, o); yield; }
+    for (const o of ops) { if (o.k === 'f') yield* opFire(b, o); else if (o.k === 'p') yield* opPops(b, o); else { (o.k === 't' ? opTone : opNoise)(b, o); yield; } }
+    const dr = DRIVE[def.name];
+    if (dr) {                                           // soft saturation: the fire sounds denser/louder at the same -3 dBFS peak
+      let pk = 0; for (const c of [b.L, b.R]) if (c) for (let i = 0; i < n; i++) pk = Math.max(pk, Math.abs(c[i]));
+      yield;
+      const k = Math.tanh(dr), sat = (c, a, z) => { for (let i = a; i < z; i++) c[i] = Math.tanh(dr * c[i] / pk) / k * pk; };
+      if (pk > 0) for (const c of [b.L, b.R]) if (c) for (let i = 0; i < n; i += 8192) { sat(c, i, Math.min(n, i + 8192)); yield; }
+    }
     if (b.R && def.wet) yield* plate(b, def.wet, def.fb);
-    const chs = b.R ? [b.L, b.R] : [b.L];
-    let pk = 0; for (const c of chs) for (let i = 0; i < n; i++) { const a = Math.abs(c[i]); if (a > pk) pk = a; }
+    let chs = b.R ? [b.L, b.R] : [b.L];
+    if (def.name === 'roarloop') {                     // seamless loop: equal-power crossfade of the end into the start
+      const ln = Math.round(LOOP * SR), xf = Math.round(XF * SR);
+      const xfade = (c) => { const o = c.slice(0, ln); for (let i = 0; i < xf; i++) { const k = i / xf; o[i] = c[i] * Math.sqrt(k) + c[ln + i] * Math.sqrt(1 - k); } return o; };
+      const peak = (c) => { let m = 0; for (let i = 0; i < c.length; i++) { const v = Math.abs(c[i]); if (v > m) m = v; } return m; };
+      const xc = []; for (const c of chs) { xc.push(xfade(c)); yield; }
+      chs = xc; let pk = 0; for (const c of chs) pk = Math.max(pk, peak(c));
+      yield;
+      const scale = (c, g) => { for (let i = 0; i < c.length; i++) c[i] *= g; };
+      for (const c of chs) { scale(c, PEAK / pk); yield; }
+      return { sr: SR, ch: chs };
+    }
+    yield;
+    const pkOf = (c) => { let m = 0; for (let i = 0; i < n; i++) { const a = Math.abs(c[i]); if (a > m) m = a; } return m; };
+    const scl = (c, g) => { let l = 0; for (let i = 0; i < n; i++) { c[i] *= g; if (Math.abs(c[i]) > 0.0015) l = i; } return l; };
+    let pk = 0; for (const c of chs) pk = Math.max(pk, pkOf(c));
+    yield;
     const s = pk > 0 ? PEAK / pk : 1;
-    let last = 0; for (const c of chs) for (let i = 0; i < n; i++) { c[i] *= s; if (Math.abs(c[i]) > 0.0015) last = Math.max(last, i); }
+    let last = 0; for (const c of chs) { last = Math.max(last, scl(c, s)); yield; }
     const len = Math.min(n, last + Math.round(0.012 * SR)), fade = Math.round(0.01 * SR);
     const out = chs.map((c) => { const o = c.slice(0, Math.max(1, len)); for (let i = 0; i < fade && i < o.length; i++) o[o.length - 1 - i] *= i / fade; return o; });
     return { sr: SR, ch: out };
@@ -262,7 +383,7 @@ const SFX = window.SFX = (() => {
   /* ================= playback ================= */
   const AC = W.AudioContext || W.webkitAudioContext;
   let mode = AC ? 'web' : 'html';                     // 'html' = WAV blob URLs on <audio> (Web Audio missing or broken)
-  let ctx = null, master = null, comp = null, wet = null, dry = null, warm = false, armed = false, live = null, last = '', lastAt = 0, sil = null;
+  let ctx = null, master = null, comp = null, wet = null, dry = null, warm = false, armed = false, last = '', lastAt = 0, sil = null;
   const bufs = new Map(), urls = new Map(), lastPlay = {}, lastVar = {}, voices = [], hist = [];
   const MAX_VOICES = 8, DEDUPE_MS = 30;
   const level = () => (pack === 'velvet' ? 1 : 0.92);  // Velvet sits a little louder/fuller
@@ -338,17 +459,18 @@ const SFX = window.SFX = (() => {
     if (!b) { b = toBuf(render(def, k)); bufs.set(key, b); }
     return b;
   }
-  function start(def, k, buf) {
+  function start(def, k, buf, o) {
     if (!ctx || muted) return;
     while (voices.length >= MAX_VOICES) { const v = voices.shift(); try { v.g.gain.setTargetAtTime(0, ctx.currentTime, 0.008); v.s.stop(ctx.currentTime + 0.03); } catch (e) {} }
     const s = ctx.createBufferSource(), g = ctx.createGain();
     s.buffer = buf;
-    if (def.vars === 1) s.playbackRate.value = Math.pow(2, (Math.random() * 16 - 8) / 1200);   // ±8 cents so repeats never sound copy-pasted
+    if (o && o.rate) s.playbackRate.value = o.rate;
+    else if (def.vars === 1) s.playbackRate.value = Math.pow(2, (Math.random() * 16 - 8) / 1200);   // ±8 cents so repeats never sound copy-pasted
     g.gain.value = def.g;
     s.connect(g); g.connect(master);
     const v = { s, g, name: def.name }; voices.push(v);
     s.onended = () => { const i = voices.indexOf(v); if (i >= 0) voices.splice(i, 1); try { g.disconnect(); } catch (e) {} };
-    s.start(ctx.currentTime);
+    s.start(ctx.currentTime + ((o && o.delay) || 0));
   }
   const htmlVoices = [];
   function htmlPlay(def, k) {
@@ -384,9 +506,26 @@ const SFX = window.SFX = (() => {
     } catch (e) {}
   }
 
+  // Ring sounds pick their variant / pitch / delay (ticks rise with the ring; the ember tail starts after the lock)
+  function ringPlay(name, o = {}) {
+    try {
+      if (muted) return;
+      const t = now();
+      if (t - (lastPlay[name] || -1e9) < DEDUPE_MS) return;
+      const def = defOf(pack, name); if (!def) return;
+      const k = Math.max(0, Math.min(def.vars - 1, o.k || 0));
+      lastPlay[name] = t; last = name; lastAt = Date.now(); hist.push(name); if (hist.length > 40) hist.shift();
+      if (mode === 'html') { o.delay ? setTimeout(() => htmlPlay(def, k), o.delay * 1000) : htmlPlay(def, k); return dbg(); }
+      if (!ctx) return;
+      const buf = buffer(def, k);
+      if (ctx.state === 'running') start(def, k, buf, o); else waitRunning(350).then((ok) => ok && start(def, k, buf, o));
+      dbg();
+    } catch (e) {}
+  }
+
   /* ---------- pre-render at idle (never during a screen change) ---------- */
   let queue = [], qTimer = 0;
-  const ORDER = ['touch', 'touchTile', 'touchBack', 'touchToggle', 'softtick', 'whoosh', 'deal', 'reveal', 'ringtick', 'lock1', 'lock2', 'lock3', 'release', 'reset', 'buzzer', 'tick', 'count', 'go', 'win', 'endnight', 'unlock'];
+  const ORDER = ['touch', 'touchTile', 'touchBack', 'touchToggle', 'ringtick', 'roarloop', 'lock1', 'lock2', 'lock3', 'hottail', 'release', 'hotrelease', 'softtick', 'whoosh', 'deal', 'reveal', 'reset', 'buzzer', 'tick', 'count', 'go', 'win', 'endnight', 'unlock'];
   function schedule() {
     if (muted || (mode === 'web' && !ctx)) return;
     const names = [...new Set([...ORDER, ...Object.keys(CLASSIC), ...Object.keys(pack === 'velvet' ? VELVET : {})])].filter((n) => n !== 'preview' && has(pack, n));
@@ -413,35 +552,72 @@ const SFX = window.SFX = (() => {
           const r = job[1].next();
           if (r.done) { const key = job[0]; job = null; if (!dest.has(key)) dest.set(key, mode === 'web' ? toBuf(r.value) : URL.createObjectURL(new Blob([wav(r.value)], { type: 'audio/wav' }))); }
         } catch (e) { job = null; }
-      } while ((queue.length || job) && (dl.timeRemaining() > 3 || now() - t0 < 8));
+      } while ((queue.length || job) && now() - t0 < 8 && dl.timeRemaining() > 1);   // v16.1: hard 8 ms budget per idle callback
       dbg(); pump();
     });
   }
 
-  /* ---------- touch feedback: one delegated handler, on press ---------- */
+  /* ---------- touch feedback: one delegated handler, on a real tap (v16.1) ----------
+     v16 played on pointerdown, so a finger that started a scroll/swipe on a button made the press sound.
+     Now pointerdown only remembers the press; the sound plays on pointerup when it was a tap: same pointer,
+     moved < 10 px, no pointercancel, nothing scrolled in between, and the finger lifts on the same control.
+     A press rejected only for moving (a mouse drag inside a button) still sounds if the browser fires its click
+     on that control, so an action that happens always has its sound. Hover / pointerover / mouse moves never play. */
   const TOUCH = 'button, [role="button"], [role="tab"], a.btn, .tile, .chip, [data-nav], [data-back]';
   const SKIP = '#holdBtn, .hold, [data-nosfx], [disabled], [aria-disabled="true"]';
+  const SLOP = 10;
   const touchName = (el) => (el.matches('.tile') ? 'touchTile' : el.matches('[data-back], .nav-back, [data-nav="home"]') ? 'touchBack'
     : el.matches('.seg button, .side-switch [data-side], .heat-steps .hs, [role="tab"], [data-prefsw], [data-sw]') ? 'touchToggle' : 'touch');
-  let pressAt = -1e9, keyAt = -1e9;
-  function onPress(e) {
+  const ctl = (e) => { const el = e.target && e.target.closest && e.target.closest(TOUCH); return el && !el.closest(SKIP) ? el : null; };
+  const scrollPos = () => (W.scrollY || W.pageYOffset || 0) + (W.scrollX || W.pageXOffset || 0) * 1e4;
+  let press = null, pressAt = -1e9, upAt = -1e9, keyAt = -1e9, moved = null;
+  function onDown(e) {
     try {
-      const t = now();
-      if (e.type === 'pointerdown' && (e.button > 0 || e.isPrimary === false)) return;
-      const el = e.target && e.target.closest && e.target.closest(TOUCH);
-      if (!el || el.closest(SKIP)) return;
-      if (e.type === 'click') {
-        if (t - pressAt < 1500) { touchUntil = Math.max(touchUntil, t + 250); return; }   // pointer press already sounded
-        if (t - keyAt > 600) return;                     // a script's .click(), not the keyboard: the handler decides
-      } else pressAt = t;
-      if (armed) gesture();                              // first tap of the session: unlock before its own sound
-      play(touchName(el));
-      touchUntil = t + (e.type === 'click' ? 250 : 1500);
+      if (e.button > 0 || e.isPrimary === false) return;
+      pressAt = now(); moved = null;
+      const el = ctl(e);
+      press = el ? { el, id: e.pointerId, x: e.clientX || 0, y: e.clientY || 0, sp: scrollPos(), dead: false } : null;
+      if (el && armed) gesture();                       // unlock early (silent); the sound waits for the lift
+    } catch (err) { press = null; }
+  }
+  const same = (e) => press && (press.id == null || e.pointerId == null || e.pointerId === press.id);
+  function onMove(e) { if (same(e) && !press.dead && Math.hypot((e.clientX || 0) - press.x, (e.clientY || 0) - press.y) > SLOP) press.dead = 'move'; }
+  function onCancel(e) { if (same(e)) { press.dead = 'cancel'; press = null; } }
+  function onScroll() { if (press) press.dead = 'scroll'; }
+  function onUp(e) {
+    try {
+      if (!same(e)) return;
+      const p = press; press = null; const t = now(); upAt = t;
+      if (!p.dead && Math.hypot((e.clientX || 0) - p.x, (e.clientY || 0) - p.y) > SLOP) p.dead = 'move';
+      if (!p.dead && Math.abs(scrollPos() - p.sp) > 1) p.dead = 'scroll';
+      if (!p.dead && (ctl(e) !== p.el || !p.el.isConnected)) p.dead = 'off';
+      if (p.dead) { touchUntil = t + 400; moved = p.dead === 'move' ? p.el : null; return; }   // a swipe/scroll: silent
+      if (armed) gesture();                             // first tap of the session: unlock before its own sound
+      play(touchName(p.el));
+      touchUntil = t + 600;                             // the click handler's own SFX.play('tap') stays quiet
     } catch (err) {}
   }
-  D.addEventListener('pointerdown', onPress, { capture: true, passive: true });
-  D.addEventListener('click', onPress, { capture: true, passive: true });
-  D.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') keyAt = now(); }, { capture: true, passive: true });
+  function onClick(e) {
+    try {
+      const t = now(), el = ctl(e); if (!el) return;
+      if (t - upAt < 1000 || t - pressAt < 1000) {      // a pointer press already decided
+        if (moved && moved === el && t - upAt < 120) { moved = null; play(touchName(el)); }
+        touchUntil = Math.max(touchUntil, t + 250); return;
+      }
+      if (t - keyAt > 600) return;                      // a script's .click(), not the keyboard: the handler decides
+      if (armed) gesture();
+      play(touchName(el));
+      touchUntil = t + 250;
+    } catch (err) {}
+  }
+  const CP = { capture: true, passive: true };
+  D.addEventListener('pointerdown', onDown, CP);
+  D.addEventListener('pointermove', onMove, CP);
+  D.addEventListener('pointerup', onUp, CP);
+  D.addEventListener('pointercancel', onCancel, CP);
+  D.addEventListener('scroll', onScroll, CP);          // capture also sees scrolls of inner scrollers
+  D.addEventListener('click', onClick, CP);
+  D.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') keyAt = now(); }, CP);
 
   /* ---------- lifecycle: tab switch, bfcache, phone lock ---------- */
   D.addEventListener('visibilitychange', () => { if (D.hidden) { silentStop(); ringStop(); } else { wake(); silentStart(); } dbg(); });
@@ -449,32 +625,84 @@ const SFX = window.SFX = (() => {
   W.addEventListener('focus', wake);
   arm();
 
-  /* ---------- Velvet hold ring: a live tone that follows the ring ---------- */
-  function ringStart() {
-    if (muted || !ctx || mode !== 'web') return;
-    ringStop();
-    try {
-      const t = ctx.currentTime, o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), o2g = ctx.createGain(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
-      o1.type = 'sine'; o2.type = 'triangle'; o1.frequency.value = 392; o2.frequency.value = 784; o2g.gain.value = 0.22;
-      lp.type = 'lowpass'; lp.frequency.value = 1300; lp.Q.value = 0.5;
-      g.gain.setValueAtTime(0, t); g.gain.setTargetAtTime(0.3, t, 0.06);
-      o1.connect(lp); o2.connect(o2g); o2g.connect(lp); lp.connect(g); g.connect(master);
-      o1.start(t); o2.start(t);
-      live = { o1, o2, lp, g, f: 392, seg: 0 };
-      if (ctx.state !== 'running') waitRunning(350);
-    } catch (e) { live = null; }
+  /* ---------- home hold ring (v16.1, both packs) ----------
+     A live voice follows the ring: a tone rising over the three turns (every change via setTargetAtTime, so no
+     zipper noise) and, from the second turn on, a looped fire bed (pre-rendered) whose low-pass opens toward the
+     top level. Ticks per eighth of a turn rise with the ring; each level has its own lock; the top level locks with
+     ignition + roar + crackle and leaves an ember tail; letting go there is a flame burst. The voice only starts
+     once the ring has really turned (RING_GO), so a press that turns into a move/scroll stays silent. */
+  const RING_GO = 0.08;                               // turns (~100 ms at 1.2 s per turn)
+  // g = [level, change per turn]: the tone gets a touch quieter as it climbs (higher pitches sound louder), so each lock and the top-level climax stand above it
+  const VOICE = {
+    classic: { f0: 262, types: ['triangle', 'sawtooth', 'square'], mix: [1, 0.1, 0.05], mul: [1, 1.003, 0.5], lp: [900, 1000], q: 0.9, g: [0.12, -0.012], vib: 6, roar: 0.36 },
+    velvet: { f0: 392, types: ['sine', 'triangle', 'sine'], mix: [1, 0.2, 0.22], mul: [1, 2, 1.0015], lp: [1300, 700], q: 0.5, g: [0.12, -0.015], vib: 5, roar: 0.4 },
+  };
+  // Builds the voice on any context (live, or an OfflineAudioContext for the hold simulation)
+  function makeVoice(c, dest, p, roarBuf, t, turns) {
+    const V = VOICE[p] || VOICE.classic, fq = (v) => V.f0 * Math.pow(2, (2 * v) / 3);
+    const g = c.createGain(), lp = c.createBiquadFilter(), lfo = c.createOscillator(), dep = c.createGain(), oscs = [];
+    lp.type = 'lowpass'; lp.Q.value = V.q; lp.frequency.value = V.lp[0] + V.lp[1] * turns;
+    g.gain.setValueAtTime(0, t); g.gain.setTargetAtTime(V.g[0] + V.g[1] * turns, t, 0.05);
+    lfo.frequency.value = V.vib; dep.gain.value = 0; lfo.connect(dep);
+    V.types.forEach((type, i) => { const o = c.createOscillator(), og = c.createGain(); o.type = type; o.frequency.value = fq(turns) * V.mul[i]; og.gain.value = V.mix[i]; dep.connect(o.frequency); o.connect(og); og.connect(lp); o.start(t); oscs.push(o); });
+    lfo.start(t); oscs.push(lfo);
+    lp.connect(g); g.connect(dest);
+    let rs = null, rlp = null, rg = null;
+    if (roarBuf) {
+      rs = c.createBufferSource(); rs.buffer = roarBuf; rs.loop = true; rlp = c.createBiquadFilter(); rlp.type = 'lowpass'; rlp.Q.value = 0.7; rlp.frequency.value = 400; rg = c.createGain(); rg.gain.value = 0;
+      rs.connect(rlp); rlp.connect(rg); rg.connect(dest); rs.start(t); oscs.push(rs);
+    }
+    let lastF = 0, lastR = -1, top = false;
+    return {
+      set(v, at) {
+        if (top) return;
+        const f = fq(v);
+        if (Math.abs(f - lastF) / f > 0.002) {
+          lastF = f;
+          oscs.forEach((o, i) => { if (i < V.types.length) o.frequency.setTargetAtTime(f * V.mul[i], at, 0.03); });
+          lp.frequency.setTargetAtTime(V.lp[0] + V.lp[1] * v, at, 0.05);
+          dep.gain.setTargetAtTime(f * 0.005 * Math.max(0, v - 0.5) / 2.5, at, 0.1);     // vibrato grows with the heat
+          g.gain.setTargetAtTime(V.g[0] + V.g[1] * v, at, 0.05);
+        }
+        if (rg) { const r = v < 1.3 ? 0 : Math.pow((Math.min(3, v) - 1.3) / 1.7, 2); if (Math.abs(r - lastR) > 0.004) { lastR = r; rg.gain.setTargetAtTime(V.roar * r, at, 0.08); rlp.frequency.setTargetAtTime(400 + 3400 * r, at, 0.08); } }
+      },
+      lock(lv, at) {                                   // a small duck under each lock so it punches through
+        if (top) return;
+        if (lv >= 3) { top = true; g.gain.cancelScheduledValues(at); g.gain.setTargetAtTime(0, at, 0.06); if (rg) { rg.gain.cancelScheduledValues(at); rg.gain.setTargetAtTime(0, at + 0.05, 0.25); } return; }
+        const to = V.g[0] + V.g[1] * lv; g.gain.setTargetAtTime(to * 0.55, at, 0.01); g.gain.setTargetAtTime(to, at + 0.12, 0.08);
+      },
+      stop(at, tau = 0.04) {
+        try { g.gain.cancelScheduledValues(at); g.gain.setTargetAtTime(0, at, tau); if (rg) { rg.gain.cancelScheduledValues(at); rg.gain.setTargetAtTime(0, at, tau * 2); } oscs.forEach((o) => o.stop(at + tau * 10 + 0.1)); } catch (e) {}
+        return () => { try { g.disconnect(); rg && rg.disconnect(); } catch (e) {} };
+      },
+    };
   }
+  let ring = null;                                    // { seg, voice, lv }
+  const tickOf = (s) => ({ k: (s % 8) - 1, rate: Math.pow(2, (2 * Math.floor(s / 8)) / 12) });   // 7 ticks per turn, a whole tone up per level
+  function ringStart() { ringStop(); if (muted) return; ring = { seg: 0, voice: null, lv: 0 }; }
   function ringTurn(v) {
-    if (!live) return;
-    const turns = Math.max(0, Math.min(3, v)), f = 392 * Math.pow(2, (2 * turns) / 3), t = ctx.currentTime;
-    if (Math.abs(f - live.f) / f > 0.002) { live.f = f; live.o1.frequency.setTargetAtTime(f, t, 0.03); live.o2.frequency.setTargetAtTime(f * 2, t, 0.03); live.lp.frequency.setTargetAtTime(1300 + 700 * turns, t, 0.05); }
+    if (!ring || muted) return;
+    const turns = Math.max(0, Math.min(3, v));
+    if (!ring.voice && turns >= RING_GO && turns < 3 && ctx && mode === 'web') {
+      try {
+        const rb = ctx.state === 'running' ? buffer(defOf(pack, 'roarloop'), 0) : null;
+        ring.voice = makeVoice(ctx, master, pack, rb, ctx.currentTime, turns);
+      } catch (e) { ring.voice = null; }
+    }
+    if (ring.voice) ring.voice.set(turns, ctx.currentTime);
     const s = Math.floor(turns * 8);
-    if (s > live.seg) { live.seg = s; if (s % 8) play('ringtick'); }   // a soft tick per eighth of a turn; level marks get the lock sound
+    if (s > ring.seg) { ring.seg = s; if (s % 8 && turns >= RING_GO) ringPlay('ringtick', tickOf(s)); }   // level marks get the lock instead
   }
-  function ringStop() {
-    if (!live) return;
-    const l = live; live = null;
-    try { const t = ctx.currentTime; l.g.gain.cancelScheduledValues(t); l.g.gain.setTargetAtTime(0, t, 0.04); l.o1.stop(t + 0.3); l.o2.stop(t + 0.3); setTimeout(() => { try { l.g.disconnect(); } catch (e) {} }, 400); } catch (e) {}
+  function ringLevel(lv) {
+    lv = Math.max(1, Math.min(3, lv | 0));
+    if (ring) { ring.lv = lv; if (ring.voice) ring.voice.lock(lv, ctx.currentTime); }
+    ringPlay('lock' + lv);
+    if (lv === 3) ringPlay('hottail', { delay: 0.85 });
+  }
+  function ringStop(tau) {
+    const r = ring; ring = null;
+    if (!r || !r.voice || !ctx) return;
+    const done = r.voice.stop(ctx.currentTime, tau); setTimeout(done, 800);
   }
 
   /* ---------- debug strip (?sounddebug=1) ---------- */
@@ -512,16 +740,15 @@ const SFX = window.SFX = (() => {
       dbg();
     },
     unlock() { gesture(); },
-    // Home hold ring. Classic keeps its original sounds (tick per level, tap on reset); Velvet gets the full set.
+    // Home hold ring (v16.1): both packs get the full set (live voice, rising ticks, a lock per level, fiery top level)
     ring(ev, v) {
       try {
-        if (pack !== 'velvet') { if (ev === 'level') play('softtick'); else if (ev === 'reset') play('tap'); return; }
         if (ev === 'start') ringStart();
         else if (ev === 'turn') ringTurn(v);
-        else if (ev === 'level') { play('lock' + Math.max(1, Math.min(3, v | 0))); if (live) { const t = ctx.currentTime; live.g.gain.setTargetAtTime(0.3 + 0.04 * v, t, 0.05); } }
-        else if (ev === 'release') { ringStop(); play('release'); }
-        else if (ev === 'cancel') ringStop();
-        else if (ev === 'reset') play('reset');
+        else if (ev === 'level') ringLevel(v);
+        else if (ev === 'release') { const top = (v | 0) >= 3; ringStop(top ? 0.03 : 0.05); ringPlay(top ? 'hotrelease' : 'release'); }
+        else if (ev === 'cancel') ringStop();          // let go / moved before a full turn: no sound of its own
+        else if (ev === 'reset') play(pack === 'velvet' ? 'reset' : 'tap');
       } catch (e) {}
     },
     // Basic users tapping the locked Velvet option hear ~2 s of it before the paywall. Muted: no preview.
@@ -544,5 +771,28 @@ const SFX = window.SFX = (() => {
     _vars: (p, name) => { const d = defOf(p, name); return d ? d.vars : 0; },
     _wav: wav,
     _ctx: () => ({ ctx, master, comp, wet, dry }),
+    _ring: () => (ring ? { seg: ring.seg, voice: !!ring.voice, lv: ring.lv } : null),
+    // Offline render of a full hold (browser only): the live voice + ticks + locks + tail + release, through the same chain
+    _holdSim: async (p = pack, o = {}) => {
+      const rot = o.rot || 1.2, hold = o.hold || 4, after = o.after || 1.6, sr = o.sr || 48000;
+      const oc = new OfflineAudioContext(2, Math.ceil((hold + after) * sr), sr), cp = oc.createDynamicsCompressor(), m = oc.createGain();
+      cp.threshold.value = -18; cp.ratio.value = 4; cp.knee.value = 20; cp.attack.value = 0.003; cp.release.value = 0.15;
+      m.gain.value = p === 'velvet' ? 1 : 0.92; m.connect(cp); cp.connect(oc.destination);
+      const ob = (name, k = 0) => { const d = defOf(p, name), pcm = render(d, k), bf = oc.createBuffer(pcm.ch.length, pcm.ch[0].length, pcm.sr); pcm.ch.forEach((c, i) => bf.copyToChannel(c, i)); return [d, bf]; };
+      const fire = (name, at, x = {}) => { const [d, bf] = ob(name, x.k || 0), sN = oc.createBufferSource(), g = oc.createGain(); sN.buffer = bf; sN.playbackRate.value = x.rate || 1; g.gain.value = d.g; sN.connect(g); g.connect(m); sN.start(at); };
+      let voice = null, seg = 0, lv = 0;
+      for (let t = 0; t <= hold + 1e-9; t += 1 / 60) {
+        const turns = Math.min(3, t / rot);
+        if (!voice && turns >= RING_GO && turns < 3) voice = makeVoice(oc, m, p, ob('roarloop')[1], t, turns);
+        if (voice) voice.set(turns, t);
+        const s = Math.floor(turns * 8);
+        if (s > seg) { seg = s; if (s % 8) fire('ringtick', t, tickOf(s)); }
+        const done = Math.floor(turns + 1e-9);
+        if (done > lv) { lv = done; voice && voice.lock(lv, t); fire('lock' + lv, t); if (lv === 3) fire('hottail', t + 0.85); }
+      }
+      voice && voice.stop(hold, lv >= 3 ? 0.03 : 0.05); fire(lv >= 3 ? 'hotrelease' : 'release', hold);
+      const r = await oc.startRendering();
+      return { sr, ch: [r.getChannelData(0), r.getChannelData(1)] };
+    },
   };
 })();
