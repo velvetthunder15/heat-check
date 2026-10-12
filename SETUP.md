@@ -17,7 +17,7 @@ Run in this order: `supabase/migrations/20261010000000_heat_check_accounts.sql`,
 | `games` | One row per game, `mode` (`couples` / `group`), `enabled` (admin switch). Public read. |
 | `admin_actions` | Audit log of admin grants, card edits and game switches. No client access. |
 | `has_lite(uid)` / `has_premium(uid)` | `plan = 'lite' AND premium_until > now()` OR `plan = 'premium'` / `plan = 'premium'`. Premium has no expiry check. |
-| `bump_flirty`, `sync_flirty`, `claim_hot` | Service role only. Base Flirty counter (5 per game per day), guest counters on sign-in, Lite Hot cards (3 per game per pass). Row-locked, atomic. |
+| `bump_flirty`, `sync_flirty`, `claim_hot` | Service role only. Base Flirty counter (10 per game per day), guest counters on sign-in, Lite Hot cards (5 per game per pass). The limit is passed in as p_limit from lib/limits.js, so changing it needs no migration. Row-locked, atomic. |
 | `save_stats(stats)` | Signed-in users save their own stats; the `limits` block is always kept. |
 | `claim_taste(user, game, origins)` | Service role only. Locks the profile row, checks `taste_used`, marks it, returns one taste card. Returns nothing if already used. |
 | `grant_purchase(...)` | Service role only. Locks the purchase row, grants once per order and once per payment id, checks the amount. Premium: `plan = 'premium'`, `premium_until` null. Lite: +60 minutes (a new pass resets its Hot counters), never on a Premium account. |
@@ -55,11 +55,11 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 
 ## 3. Tiers, payments, admin: how it behaves
 
-- **Guest** (not signed in): 5 Flirty cards per game per day, no Spicy, no Hot, up to 4 players. Counters in localStorage.
-- **Base** (signed in, free): 5 Flirty per game per day, then one free Hot card per game from `/api/taste`, then the game locks with a soft "Unlock more" sheet. Counters live on the server (`/api/flirty`).
-- **Lite** (₹69, 1 hour): Flirty and Spicy unlimited, 3 Hot cards per game from `/api/hot`, the Velvet sounds and the Midnight look. Up to 4 players. At expiry the current card finishes, then Lite locks.
+- **Guest** (not signed in): 10 Flirty cards per game per day, no Spicy, no Hot, up to 4 players. Counters in localStorage.
+- **Base** (signed in, free): 10 Flirty per game per day, then one free Hot card per game from `/api/taste`, then the game locks with a soft "Unlock more" sheet. Counters live on the server (`/api/flirty`).
+- **Lite** (₹69, 1 hour): Flirty and Spicy unlimited, 5 Hot cards per game from `/api/hot` and the Velvet sounds. Lite uses the Ember look only (v15); Midnight and Neon are Premium. Up to 4 players. At expiry the current card finishes, then Lite locks.
 - **Premium** (₹99, one-time): everything, never expires. Unlimited players, saved names, every look.
-- **Counters**: a quiet line above the card ("Flirty 3/5 · Hot 0/1" or "Hot 2/3"), hidden for Premium. Limits only show when the next card is asked for, never mid-card.
+- **Counters**: a quiet line above the card ("Flirty 3/10 · Hot 0/1" or "Hot 2/5"), hidden for Premium. Limits only show when the next card is asked for, never mid-card.
 - **Sign-in**: email, Turnstile, then `/api/auth/otp` (rate limited) asks Supabase to email a code. On first login, preferences, stats and today's guest Flirty counts carry over.
 - **Paywall**: Lite and Premium side by side. Prices and durations come from `lib/pricing.js` through `/api/config`; the app sends only the product name. Guests sign in first, then come back to the paywall.
 - **Payment**: `/api/create-order`, Razorpay Checkout, `/api/verify-payment` (signature, confirm and capture, then `grant_purchase`). The webhook does the same thing. A payment id only ever grants once. Premium accounts can't buy Lite ("You already have Premium.").
@@ -100,7 +100,7 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 
 Use Razorpay test mode, Turnstile test keys if you like (`1x00000000000000000000AA` / `1x0000000000000000000000000000000AA`), and a private window.
 
-1. **Guest**: pass the 18+ gate. Hold the ring: one turn Flirty; the second turn shakes ("Spicy needs Lite or Premium."), keep holding and the third says "Sign in for a free Hot card". Play a game: the 6th card opens the "Unlock more" sheet.
+1. **Guest**: pass the 18+ gate. Hold the ring: one turn Flirty; the second turn shakes ("Spicy needs Lite or Premium."), keep holding and the third says "Sign in for a free Hot card". Play a game: the 11th card opens the "Unlock more" sheet.
 2. **Base + free Hot card**: signed in, play 5 Flirty cards in one game: the next request offers "Use your free Hot card?". After it, "Unlock more". The counter reads "Flirty 5/5 · Hot 1/1". `/api/taste` again answers 403.
 3. **Timer and Hollywood / Bollywood**: settings, pick 15s: Strip Charades, Would You Rather, Most Likely, Two Truths and the Red Flag debate all count from 15. Turn Hollywood off: no Hollywood charades or famous couples on the next card. The last toggle can't be turned off.
 4. **Email OTP**: profile, Sign in, email, wait for the check, "Email me a code". Wrong code: clear error. Resend unlocks after 30 seconds.
@@ -164,3 +164,9 @@ Smoothness only: no content, colour, copy, pricing or game-logic changes. New CS
 - **Delivery**: `_headers` caches `/css/*` and `/js/*` for a year (`immutable`; every reference is versioned with `?v=N`, so the release checklist bump is mandatory), HTML always revalidates. Cloudflare applies Brotli itself. The service worker precaches the shell (now including v14.css) and the free cards; it never touches `/api` or other origins.
 - **Not done (would break the non-module app or its tests)**: per-game code splitting (games.js is 10.6 KB gz; the open cost was rendering, not script), JS/CSS minification (the build has no npm dependencies; initial JS is ~76 KB gz, under the 120 KB target).
 - **Measuring**: `pw/perf14.mjs` (6x CPU, Slow 4G load, rAF frame gaps, long tasks, layout shifts, ghosting, scroll restore, buttons under the bar), `pw/trace14.mjs`, `pw/idle14.mjs`, `pw/prof14.mjs` in the workspace (not in the repo).
+
+## 10. v15 (Oct 12 2026): looks, guest header, limits
+
+- **Limits**: guest and Base 10 Flirty per game per day (was 5); Base keeps 1 free HOT per game; Lite Flirty + Spicy unlimited and 5 HOT per game (was 3); Premium unchanged. `lib/limits.js` + the `public/js/config.js` mirror; `/api/hot` and `/api/flirty` pass the limit to SQL as `p_limit`, so no migration was needed.
+- **Looks**: Ember is everyone's look. Midnight and Neon are Premium only (`Prefs.lookOk`). A saved Midnight/Neon on a Lite, Base or guest device shows Ember (the pref is kept, so Premium gets it back). Both looks are in `css/v15.css`: per-look level palette through `--fl-tint/--fl/--fl-deep/--ht/--wh`, SVG gradient stops (`#htg1-3`, `#rfg1-3`, `#pkg`) overridden with CSS `stop-color`, ring core/glow/corona, level pills, side pill, header glass, tile hairline frames (`.stack .tile::after`), and in games a hairline under the HUD and over the bar plus tinted `#amb`. Midnight: sapphire night, moon glow, twinkling stars (`#amb::after`, opacity), drifting aurora (`.home-head::after`, transform). Neon: synthwave floor (`#amb::before`, transform scroll by one 44px cell), light scan (`#amb::after`), rare tube buzz on the HOT glow. All loops pause under hc-nav / is-scrolling / tab-hidden and stop for low-end + reduced motion.
+- **Guests**: `Guest.is()` (account.js) = no session and (auth ready or no saved `hc_auth`); `html.is-guest` hides the session chips row and shows the `.signin-tab` (absolute, inside the same 32px row, so guest and account layouts are pixel-identical below the header). The settings screen (gear) shows Penalties/Timer/Content/Heat/Layers read-only with a lock card + Sign in; taps nudge the card. Players stay editable. Mute stays usable.
