@@ -28,9 +28,9 @@ const HC = {
   ],
   // Per game. null = unlimited. LIMITS_START
   LIMITS: {
-    guest:   { flirty: 5, spicy: 0, hot: 0, taste: 0 },
-    base:    { flirty: 5, spicy: 0, hot: 0, taste: 1 },
-    lite:    { flirty: null, spicy: null, hot: 3, taste: 0 },
+    guest:   { flirty: 10, spicy: 0, hot: 0, taste: 0 },
+    base:    { flirty: 10, spicy: 0, hot: 0, taste: 1 },
+    lite:    { flirty: null, spicy: null, hot: 5, taste: 0 },
     premium: { flirty: null, spicy: null, hot: null, taste: 0 },
   },
   // LIMITS_END
