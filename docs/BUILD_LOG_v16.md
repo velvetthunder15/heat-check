@@ -170,3 +170,25 @@ render of the full hold through the same voice + chain). WAVs in `/workspace/wor
 ## Not verifiable from the sandbox
 How it sounds on a real phone speaker and how it feels in the hand: touch slop differs per device. The 10 px threshold
 is ours; when the browser itself starts a scroll it fires pointercancel, which also keeps the sound off.
+
+## v16.2 (Oct 13 2026, hc-v36 / ?v=36): Premium pill in the header
+Chirag asked (screenshot, Android Chrome, 412 CSS px) for the Premium pill to move from under the session chips to
+directly under the three header circles.
+- `js/intro.js`: `.head-actions` gets `<span id="passHead" class="pass-head">` between the settings button and the
+  avatar; for Premium it is rendered with the home markup (and `.home-head.has-hpill`), so the first paint is final.
+- `js/account-ui.js`: `passState()` Premium text = "Premium"; new `passHtml(st)` + `headPill(st)` (Premium only);
+  `updatePassChip()` puts the pill in `#passHead` or `#passBanner` and empties the other, toggling `.has-hpill`.
+- `css/v15.css` (end): `.head-actions` position relative, lifted `top:-11px` when `.has-hpill`; `.pass-head` absolute at
+  `top: calc(100% + 4px)`, centred (`left:50%; translateX(-50%)`), pill 18px tall, 10px/800/.08em uppercase, padding 0 10px.
+  Gradient, border, shadows, sheen untouched (tiers.css). `.has-hpill + .session-bar` margin-top 8px (4px below 324px).
+  `@media (max-width: 323.98px)`: circles wrap to two rows there (measured: wrap below 324px), pill goes static in row 2.
+- Measured (premium): 360 header 88px (unchanged), circles 19-63, pill 67-85 x 228-308 (group 194-342), chips 96;
+  412 header 92 (unchanged), circles 21-65, pill 69-87 x 280-360 (group 246-394), chips 100; 320 header 124
+  (unchanged), pill 87-105 left of the avatar. Logo never overlapped. CLS 0 in every state at 320/360/390/412.
+- Lite stays in the old slot: "Lite · 47 min left" pill is 164px, "Ends soon" 243px, both wider than the 148px circle
+  group, and at 320px only ~86px is free beside the avatar. Guest (.signin-tab row), Base and No pass unchanged.
+- Tests: build ok, t4 155 ok (new: Premium pill in #passHead under the circles, #passBanner empty, Lite keeps the old
+  slot), fn12 51, sql/t12 47, audio16 69. Perf (6x CPU): perf16 guest 360x800 parity with v35 (load/scroll/ring/redflag
+  CLS and fps unchanged within noise); premium home idle 412: v35 60.2 fps / v36 60.0-60.2 fps, 0 frames > 50 ms, CLS 0.
+- Screenshots: /workspace/work/heatcheck/shots162/ (v162_<state>_<width>_top|full.png, DPR 3; headless has no emoji
+  font so the speaker emoji renders blank in the shots only).
