@@ -248,3 +248,15 @@ html.low-end #app[data-look="neon"] .ht-svg { filter: drop-shadow(0 0 6px #00e5f
   .pass-head { position: static; transform: none; }
 }
 @media (max-width: 323.98px) { .home-head.has-hpill + .session-bar { margin-top: 4px; } }
+
+/* ---------- v16.3: Premium pill spans the whole row of circles (Chirag: "stretch the length of the 3 round pills") ---------- */
+/* Left edge = sound button's left edge; right edge = the avatar's visible outer metal ring (.av-ring is inset -5px from the avatar's padding box,
+   so its outer edge is 4px past the 44px avatar), so it reads optically aligned. 20px tall (was 18), 11px type (was 10); circles lift 12px = (4 + 20) / 2. */
+.home-head.has-hpill .head-actions { top: -12px; }
+.pass-head { left: 0; right: -4px; transform: none; max-width: none; }
+.pass-head .pass-banner { width: 100%; min-height: 20px; height: 20px; font-size: 11px; }
+@media (max-width: 323.98px) {
+  .home-head.has-hpill .head-actions { top: 0; }
+  .pass-head { position: static; transform: none; }
+  .pass-head .pass-banner { width: auto; }
+}
