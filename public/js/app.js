@@ -133,6 +133,8 @@ const App = {
     const S = Core.S, st = S.settings, group = Core.isGroup();
     const unlimited = !!(window.Ent && Ent.unlimitedPlayers());
     const savedNames = unlimited && window.Prefs ? Prefs.get().savedNames : [];
+    // v15: guests see their settings read-only; players stay editable so they can still play
+    const locked = !!(window.Guest && Guest.is());
     const coupleCap = HC.FREE_PLAYERS / 2;
     const cappedCouples = !unlimited && S.couples.length >= coupleCap;
     const filledGroup = S.group.players.length;
@@ -160,6 +162,8 @@ const App = {
         <button class="btn ghost sm" id="addc" style="margin-top:12px;align-self:flex-start">+ Add a couple${cappedCouples ? ' <span class="pro-tag">Premium</span>' : ''}</button>
         ${!unlimited && S.couples.length > coupleCap ? `<p class="note">This plan plays the first ${coupleCap} couples. Premium brings everyone.</p>` : ''}`}
       ${savedNames.length ? `<div class="saved-names"><span class="note">Saved names, tap to add</span><div class="chips-row">${savedNames.map((n) => `<button class="chip" data-name="${esc(n)}">${esc(n)}</button>`).join('')}</div></div>` : ''}
+      <div class="set-lockwrap${locked ? ' locked' : ''}"${locked ? ' aria-disabled="true"' : ''}>
+      ${locked ? `<div class="set-lock" role="note"><span class="sl-ico" aria-hidden="true">${typeof icon === 'function' ? icon('lock') : '🔒'}</span><div class="sl-txt"><b>Settings are locked</b><span>Sign in free to change them.</span></div><button class="btn sm sl-go" id="setSignIn">Sign in</button></div>` : ''}
       <section class="set-sec"><h3 class="set-h">Penalties</h3>
         <div class="field"><label>How do penalties work?</label>
           ${group ? seg('mode', [['drink', '🍸 Sips'], ['water', '💧 No alcohol']], S.group) : seg('mode', [['drink', '🍸 Drinks'], ['water', '💧 Water'], ['dare', '🎲 Dares']])}
@@ -180,6 +184,7 @@ const App = {
       ${group ? '' : `
       <section class="set-sec"><h3 class="set-h">Strip Charades</h3>
         <div class="field"><label>Layers each</label>${seg('layers', [[3, '3'], [4, '4'], [5, '5'], [6, '6']])}</div></section>`}
+      </div>
 
       <button class="btn block" id="save">Let’s play →</button>
     </main>`);
@@ -190,6 +195,14 @@ const App = {
     const readGroup = () => { if (group) S.group.players = $$('.grow-row [data-k=p]').map((i) => i.value); };
     const read = () => { readCouples(); readGroup(); Core.save(); };
     this._setupRead = read;
+    // Guests: every settings control is read-only. A tap nudges the lock card instead.
+    const nudge = () => {
+      const c = $('.set-lock'); SFX.play('buzzer'); vibrate([20, 30, 20]);
+      if (c) { c.classList.remove('nudge'); void c.offsetWidth; c.classList.add('nudge'); }
+      return true;
+    };
+    const lockedNow = () => locked && window.Guest && Guest.is() && nudge();
+    $('#setSignIn') && ($('#setSignIn').onclick = () => { read(); SFX.play('tap'); window.UI && UI.signIn({ reason: 'Sign in free to change settings. No passwords, just a code.', then: () => { if (Nav.view() === 'setup') this._setup(); } }); });
     $('#addc') && ($('#addc').onclick = () => {
       read();
       if (cappedCouples) return window.UI ? UI.paywall({ reason: 'players' }) : Core.toast(`Free plays up to ${HC.FREE_PLAYERS} people`);
@@ -210,6 +223,7 @@ const App = {
     $$('[data-gdel]').forEach((b) => (b.onclick = () => { read(); S.group.players.splice(+b.dataset.gdel, 1); Core.save(); this._setup(); }));
     $$('[data-seg]').forEach((g) => g.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
+      if (lockedNow()) return;
       const k = g.dataset.seg; const v = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v;
       const obj = group && k === 'mode' ? S.group : st;
       obj[k] = v; SFX.play('tap');
@@ -218,6 +232,7 @@ const App = {
       refreshNote();
     }));
     $$('[data-sw]').forEach((b) => (b.onclick = () => {
+      if (lockedNow()) return;
       const k = b.dataset.sw; SFX.play('tap');
       if (k === 'hollywood' || k === 'bollywood') {
         // Recalculates the deck right away. At least one stays on.
@@ -229,6 +244,7 @@ const App = {
       if (k === 'autoRamp') { S.rampCount = 0; window.Prefs && Prefs.set({ auto_ramp: st.autoRamp }); }
     }));
     $$('[data-step]').forEach((b) => (b.onclick = () => {
+      if (lockedNow()) return;
       st.cardsPerRamp = Math.min(HC.RAMP_MAX, Math.max(HC.RAMP_MIN, st.cardsPerRamp + +b.dataset.step));
       S.rampCount = 0; $('#cpr').textContent = st.cardsPerRamp; SFX.play('tap');
       window.Prefs && Prefs.set({ cards_per_ramp: st.cardsPerRamp });
@@ -263,6 +279,7 @@ const App = {
       const a = act.dataset.act;
       if (a === 'mute') { const m = SFX.toggle(); act.textContent = m ? '🔇' : '🔊'; window.Prefs && Prefs.set({}); }
       if (a === 'profile') window.UI && UI.profile();
+      if (a === 'signin') { SFX.play('tap'); window.UI && UI.signIn({ then: () => window.Intro && Intro.refresh() }); }
       if (a === 'account') window.UI && UI.account();
       if (a === 'paywall') window.UI && UI.paywall({ game: act.dataset.game || Core.game || null });
       if (a === 'standings') Core.standings();
