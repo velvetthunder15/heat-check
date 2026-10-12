@@ -35,8 +35,8 @@ const icon = (k) => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I
 const perkList = (items) => `<ul class="perk-list">${items.map(([k, t]) => `<li>${icon(k)}<span>${esc(t)}</span></li>`).join('')}</ul>`;
 const GUEST_PERKS = [['flame', `Free ${HOT} card per game`], ['sync', 'Sync your progress'], ['bag', 'Buy Lite or Premium']];
 // Paywall rows: Lite shows its first three, the fourth (Premium's) dimmed. Premium shows all four of its own.
-const LITE_ROWS = [['flame', 'Flirty and Spicy, unlimited', true], ['heat', `${HC.LIMITS.lite.hot} ${HOT} cards per game`, true], ['music', 'Themes and sounds', true], ['infinity', `Unlimited ${HOT}`, false]];
-const PREMIUM_ROWS = [['infinity', `Unlimited ${HOT}, every game`, true], ['group', 'Unlimited players', true], ['bookmark', 'Saved player names', true], ['sparkle', 'All themes unlocked', true]];
+const LITE_ROWS = [['flame', 'Flirty and Spicy, unlimited', true], ['heat', `${HC.LIMITS.lite.hot} ${HOT} cards per game`, true], ['music', 'Velvet sound pack', true], ['infinity', `Unlimited ${HOT}`, false]];
+const PREMIUM_ROWS = [['infinity', `Unlimited ${HOT}, every game`, true], ['group', 'Unlimited players', true], ['bookmark', 'Saved player names', true], ['sparkle', 'Midnight and Neon looks', true]];
 
 const fmtDate = (iso, time = true) => {
   if (!iso) return '';
@@ -281,7 +281,7 @@ const UI = {
   paywall({ game = null, reason = null } = {}) {
     if (Ent.tier() === 'premium') { Core.toast('You already have Premium. Everything’s open.'); return null; }
     const sub = reason === 'players' ? `Up to ${HC.FREE_PLAYERS} people on this plan. Premium brings the whole group.`
-      : reason === 'look' ? 'Lite opens Midnight and the Velvet sounds. Premium opens every look.'
+      : reason === 'look' ? 'Midnight and Neon are Premium looks. Ember stays free for everyone.'
         : game && TEASER[game] ? `${Games[game] ? Games[game].title + ': ' : ''}${TEASER[game]}` : 'Flirty stays free. Lite and Premium open up the rest.';
     const s = this.sheet(`
       <div class="pw">
@@ -552,7 +552,7 @@ const UI = {
         ${sw('haptics', prefs.haptics, 'Haptics')}
         <div class="field"><label>Reduced motion</label>${seg('motion', [['system', 'Phone setting'], ['reduce', 'On'], ['full', 'Off']], prefs.motion)}</div>
         <div class="field"><label>Sound pack ${paid ? '' : '<span class="pro-tag">Lite</span>'}</label>${seg('soundPack', [['classic', 'Classic'], ['velvet', 'Velvet', !paid]], paid ? prefs.soundPack : 'classic')}</div>
-        <div class="field"><label>Home look ${prem ? '' : '<span class="pro-tag">Premium</span>'}</label>${seg('look', [['ember', 'Ember'], ['midnight', 'Midnight', !paid], ['neon', 'Neon', !prem]], Prefs.lookOk(prefs.look) ? prefs.look : 'ember')}</div>
+        <div class="field"><label>Home look ${prem ? '' : '<span class="pro-tag">Premium</span>'}</label>${seg('look', [['ember', 'Ember'], ['midnight', 'Midnight', !prem], ['neon', 'Neon', !prem]], Prefs.lookOk(prefs.look) ? prefs.look : 'ember')}</div>
         <div class="field"><label>Saved player names ${prem ? '' : '<span class="pro-tag">Premium</span>'}</label>
           ${prem ? `<div class="chips-row" id="pfNames">${prefs.savedNames.length ? prefs.savedNames.map((n) => `<button class="chip" data-delname="${esc(n)}">${esc(n)} ✕</button>`).join('') : '<span class="note">Names you play with get saved here.</span>'}</div>
             <div class="row" style="margin-top:8px"><input class="input" id="pfNameIn" maxlength="14" placeholder="Add a name"><button class="btn sm" id="pfNameAdd">Add</button></div>`
