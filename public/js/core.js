@@ -515,6 +515,7 @@ const Core = {
 };
 
 /* v14: pending state writes land before the page can be frozen or closed */
+window.Core = Core;
 window.addEventListener('pagehide', () => Core.flush());
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Core.flush(); });
 /* Re-acquire wake lock when returning to the tab */
