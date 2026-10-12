@@ -128,6 +128,7 @@ const Intro = {
         <div class="ring-row">
           <span class="ring-side" aria-hidden="true"></span>
           <button class="hold-btn" id="holdBtn" aria-describedby="holdLine" aria-label="Hold to set the heat level">
+            <span class="hold-heat" aria-hidden="true"></span>
             <span class="ring-glow" aria-hidden="true"><i class="l1"></i><i class="l2"></i><i class="l3"></i></span>
             <span class="ring-hot" aria-hidden="true"><b class="rh-corona"></b><b class="rh-halo"></b>${Array.from({ length: 12 }, (_, k) => `<i style="--a:${k * 30 + (k % 3) * 7}deg;--d:${(2.4 + (k * 7 % 5) * 0.35).toFixed(2)}s;--w:${(-(k * 0.53) % 3).toFixed(2)}s;--s:${(0.6 + (k * 5 % 4) * 0.18).toFixed(2)}"></i>`).join('')}</span>
             <span class="ring-rot" aria-hidden="true"><i class="l1"></i><i class="l2"></i><i class="l3"></i></span>
@@ -212,7 +213,7 @@ const Intro = {
     const btn = $('#holdBtn'), hero = $('#hero'), app = document.getElementById('app');
     if (!btn) return;
     const ROT = HC.ROTATION_MS;
-    const fill = $('.ring-fill', btn), base = $('.ring-base', btn), spark = $('.ring-spark', btn), word = $('#holdWord'), sub = $('#holdSub'), line = $('#holdLine');
+    const heat = $('.hold-heat', btn), fill = $('.ring-fill', btn), base = $('.ring-base', btn), spark = $('.ring-spark', btn), word = $('#holdWord'), sub = $('#holdSub'), line = $('#holdLine');
     let raf = 0, t0 = 0, holding = false, completed = 0, blocked = 0, shown = 0;
 
     const paint = (level, frac) => {
@@ -232,7 +233,12 @@ const Intro = {
       }
       // Per frame we only touch the ring and one variable on the hero (not #app), so style
       // recalculation stays local. Page-wide ambience changes once per level, not per frame.
-      hero.style.setProperty('--hold', ((lv + frac) / 3).toFixed(3));
+      // v14: the button warming up is an opacity crossfade on one composited layer (.hold-heat);
+      // it used to be a custom property on the hero that restyled the whole hero and repainted
+      // the button's gradient every frame. Same colours: the crossfade of the 16% and 56% mixes
+      // equals the srgb color-mix in between.
+      const hv = (lv + frac) / 3; hero._hold = hv;
+      if (heat) heat.style.opacity = hv.toFixed(3);
       if (hero.dataset.level !== String(lv)) {
         hero.dataset.level = lv;
         $$('.heat-steps .hs', hero).forEach((d) => d.classList.toggle('on', +d.dataset.step === lv));
@@ -330,7 +336,7 @@ const Intro = {
         if (pick) setTimeout(() => pick.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' }), 160);
       } else {
         // Let go before the first full turn: keep the current level, ease the ring back
-        const fromV = parseFloat(hero.style.getPropertyValue('--hold') || '0') * 3;
+        const fromV = (hero._hold || 0) * 3;
         line.textContent = 'Hold it. A full turn sets the level.';
         sweep(fromV, shown);
       }
@@ -388,12 +394,14 @@ const Intro = {
     const onScroll = () => { if (!st) document.documentElement.classList.add('is-scrolling'); clearTimeout(st); st = setTimeout(() => { st = 0; document.documentElement.classList.remove('is-scrolling'); }, 140); };
     window.addEventListener('scroll', onScroll, { passive: true });
     this._cleanup.push(() => { window.removeEventListener('scroll', onScroll); clearTimeout(st); document.documentElement.classList.remove('is-scrolling'); });
-    if (stack.dataset.fanned || reducedMotion() || !('IntersectionObserver' in window)) { stack.classList.add('fanned', 'no-anim'); stack.dataset.fanned = '1'; return; }
+    // v14: once fanned in a session it stays fanned on every redraw (coming back from a game
+    // re-fanned the stack, which moved every card while the transition played)
+    if (this._fanned || stack.dataset.fanned || reducedMotion() || !('IntersectionObserver' in window)) { stack.classList.add('fanned', 'no-anim'); stack.dataset.fanned = '1'; this._fanned = true; return; }
     const io = new IntersectionObserver((entries) => {
       if (!entries.some((e) => e.isIntersecting)) return;
       io.disconnect();
       if (stack.dataset.fanned) return;
-      stack.dataset.fanned = '1';
+      stack.dataset.fanned = '1'; this._fanned = true;
       stack.classList.add('fanned');
     }, { rootMargin: '0px 0px -15% 0px' });
     io.observe(stack);
