@@ -370,8 +370,7 @@
       window.SFX && SFX.play('tap');
       navigate(() => App.home(), { back: true });
     }, true);
-    // soft tick on button press (sound is off by default)
-    document.addEventListener('pointerdown', (e) => { if (e.target.closest('.btn, .tile, .icon-btn')) window.SFX && SFX.play('softtick'); }, { passive: true });
+    // v16: press feedback lives in audio.js (one delegated pointerdown handler for every button, tile and tab)
   };
 
   hook();
