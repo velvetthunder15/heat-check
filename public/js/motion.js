@@ -5,8 +5,10 @@
   const reduced = () => { const m = document.documentElement.dataset.motion; return m === 'reduce' || (m !== 'full' && RM.matches); };
   const app = () => document.getElementById('app');
   const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const SPRING = () => css('--spring') || 'cubic-bezier(.34,1.4,.64,1)';
-  const SPRING_SOFT = () => css('--spring-soft') || 'cubic-bezier(.3,1.2,.6,1)';
+  // v14: read once (getComputedStyle here forced a full style recalc inside every card deal)
+  let _spring = '', _springSoft = '';
+  const SPRING = () => _spring || (_spring = css('--spring') || 'cubic-bezier(.34,1.4,.64,1)');
+  const SPRING_SOFT = () => _springSoft || (_springSoft = css('--spring-soft') || 'cubic-bezier(.3,1.2,.6,1)');
   const EASE = 'cubic-bezier(.16,1,.3,1)';
   const HEAT_COLORS = ['#ff2e63', '#ff7a3c', '#fff4e0'];
   const buzz = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
@@ -72,69 +74,72 @@
     Promise.race([Promise.all([fontsReady, minT]), new Promise((r) => setTimeout(r, 1150))]).then(() => finish(false));
   };
 
-  /* ---------------- View transitions: tile ⇄ game morph ---------------- */
-  const canVT = typeof document.startViewTransition === 'function';
-  let lastGame = null;
-  const navigate = (update, { from, back, dir } = {}) => {
-    const r = app();
-    window.SFX && SFX.play('whoosh');
-    // dir: 'fwd' slides the new view in from the right, 'back' plays it in reverse (from the left)
-    const d = dir || (back ? 'back' : '');
-    if (!canVT) {
-      update();
-      if (!reduced()) { const c = d === 'back' ? 'fx-back' : 'fx-in'; r.classList.remove('fx-in', 'fx-back'); void r.offsetWidth; r.classList.add(c); setTimeout(() => r.classList.remove(c), 500); }
-      return;
-    }
-    const html = document.documentElement;
-    if (d) html.classList.add('vt-' + d);
-    if (from && !reduced()) from.style.viewTransitionName = 'hero';
-    if (back && !reduced()) r.style.viewTransitionName = 'hero';
-    html.classList.add('vt-run');
-    let t;
-    try {
-      t = document.startViewTransition(() => {
-        if (from) r.style.viewTransitionName = reduced() ? '' : 'hero';
-        if (back) r.style.viewTransitionName = '';
-        update();
-        if (back && lastGame && !reduced()) { const tile = r.querySelector(`.tile[data-game="${lastGame}"]`); if (tile) tile.style.viewTransitionName = 'hero'; }
-      });
-    } catch (e) { update(); html.classList.remove('vt-run', 'vt-fwd', 'vt-back'); return; }
-    t.finished.finally(() => {
-      html.classList.remove('vt-run', 'vt-fwd', 'vt-back');
-      r.style.viewTransitionName = '';
-      $$('.tile').forEach((x) => (x.style.viewTransitionName = ''));
+  /* ---------------- Screen transitions (v14) ----------------
+     One transition for every screen change, transform + opacity only, on the compositor:
+       1. the old screen fades out (~120ms) while the main thread is idle
+       2. the swap: the new screen is built, its first card dealt and the page scrolled to its
+          place (home: where you left it; anything else: the top) while nothing is on show
+       3. the new screen fades/slides in (~200ms), fully laid out, nothing moves after it.
+     The two screens are never visible together. No View Transitions: their snapshot capture
+     froze the full old screen for 300ms+ on a throttled phone, and the tile -> game "hero"
+     snapshot stretched the old text on the way back. Reduced motion: an instant swap. */
+  const lowEnd = () => document.documentElement.classList.contains('low-end');
+  const isHome = () => !!document.getElementById('stack');
+  let homeScroll = 0, pendingIntro = null, navSeq = 0, pendingSwap = null;
+  const ENTER_SEL = '.screen, .tile, .home-head, .home-sub, .lower-third, .playing, .side, .verdict';
+  const settled = async () => {
+    for (let i = 0; i < 12; i++) await null;    // a Flirty deal resolves within a few microtasks: no macrotask hop
+    const st = document.getElementById('stage');
+    if (!st || st.childElementCount) return;
+    await new Promise((res) => {
+      let t = 0;
+      const mo = new MutationObserver(() => { if (st.childElementCount) { mo.disconnect(); clearTimeout(t); res(); } });
+      mo.observe(st, { childList: true });
+      t = setTimeout(() => { mo.disconnect(); res(); }, 280);
     });
+  };
+  // Home comes back exactly where it was left; every other screen starts at the top
+  const place = (back) => { const y = back && isHome() ? homeScroll : 0; if (Math.abs(window.scrollY - y) > 0.5) window.scrollTo(0, y); };
+  const navigate = (update, { back, dir } = {}) => {
+    if (pendingSwap) pendingSwap();            // a screen still leaving: finish that change first
+    const d = dir || (back ? 'back' : 'fwd'), isBack = d === 'back';
+    const html = document.documentElement, r = app(), seq = ++navSeq;
+    window.SFX && SFX.play('whoosh');
+    if (isHome()) homeScroll = window.scrollY;
+    html.classList.add('hc-nav');
+    const quiet = reduced() || !r.animate;
+    let exit = null;
+    const upd = () => { backNav = isBack; try { update(); } finally { backNav = false; } };
+    const finish = () => {
+      if (seq !== navSeq) return;
+      // entrances that stood down during the transition must not replay when it ends
+      $$(ENTER_SEL, r).forEach((el) => el.classList.add('hc-entered'));
+      html.classList.remove('hc-nav');
+      r.classList.remove('fx-in', 'fx-back');
+      place(isBack);
+      runPendingIntro();
+    };
+    const swap = () => {
+      if (pendingSwap !== swap) return;
+      pendingSwap = null;
+      try { upd(); } catch (e) { if (exit) exit.cancel(); html.classList.remove('hc-nav'); throw e; }
+      settled().then(() => {
+        place(isBack);
+        if (exit) { exit.cancel(); exit = null; }
+        if (quiet || seq !== navSeq) return finish();
+        r.classList.remove('fx-in', 'fx-back'); r.classList.add(isBack ? 'fx-back' : 'fx-in');
+        setTimeout(finish, 220);
+      });
+    };
+    pendingSwap = swap;
+    if (quiet) return swap();
+    exit = r.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' });
+    exit.finished.then(swap, swap);
+    setTimeout(swap, 400);                     // never wait on a paused animation (hidden tab)
   };
 
   /* ---------------- Game intros (0.6–0.8 s, genre specific, palette only) ---------------- */
   const INTROS = {
-    // Two cloth flags (SVG, S-curve edges) unfurl from their poles with a spring, then wave.
-    // The wave is vertical slices of the same SVG moving on transform only: no path morphing.
-    redflag: [(() => {
-      const svg = (id, a, b) => `<svg viewBox="0 0 120 80" preserveAspectRatio="none"><defs><linearGradient id="${id}" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><path d="M0 8C30 0 60 16 120 6L118 72C88 82 50 64 0 76Z" fill="url(#${id})"/><path d="M30 7C40 30 34 50 44 73" stroke="#fff" stroke-opacity=".22" stroke-width="6" fill="none"/><path d="M80 10C88 30 82 52 92 70" stroke="#000" stroke-opacity=".16" stroke-width="8" fill="none"/></svg>`;
-      const flag = (side, a, b) => `<div class="rf-wrap rf-${side}"><i class="rf-pole"></i><div class="rf-flag">${Array.from({ length: 6 }, (_, k) => `<div class="rf-sl" style="--k:${k}"><div class="rf-in">${svg('rfg' + side + k, a, b)}</div></div>`).join('')}</div></div>`;
-      return flag('l', '#ff5a68', '#b0101f') + flag('r', '#5ff0a0', '#13995a');
-    })(), (o) => {
-      if (reduced()) return 700; // static flags
-      $$('.rf-flag', o).forEach((f, k) => f.animate([
-        { transform: 'scaleX(0) skewY(0)', opacity: 0 }, { transform: 'scaleX(1.06) skewY(-5deg)', opacity: 1, offset: .5 },
-        { transform: 'scaleX(.97) skewY(3deg)', offset: .75 }, { transform: 'scaleX(1) skewY(0)', opacity: 1 }], { duration: 620, delay: 80 + k * 70, easing: EASE, fill: 'both' }));
-      $$('.rf-pole', o).forEach((p) => p.animate([{ transform: 'translateY(40px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 280, easing: EASE, fill: 'both' }));
-      $$('.rf-sl', o).forEach((sl) => {
-        const k = +sl.style.getPropertyValue('--k'), amp = 2 + k * 1.4;
-        sl.animate([{ transform: 'translateY(0)' }, { transform: `translateY(${-amp}px)` }, { transform: 'translateY(0)' }, { transform: `translateY(${amp}px)` }, { transform: 'translateY(0)' }],
-          { duration: 760, delay: 560 + k * 55, easing: 'ease-in-out', iterations: 1 });
-      });
-      return 1360;
-    }],
-    nhie: ['<i class="cup l"></i><i class="cup r"></i><i class="clink"></i>', (o) => {
-      const [l, r] = $$('.cup', o);
-      l.animate([{ transform: 'translateX(-60vw) rotate(-20deg)' }, { transform: 'translateX(0) rotate(14deg)', offset: .55 }, { transform: 'translateX(-6px) rotate(8deg)', offset: .75 }, { transform: 'translateX(0) rotate(10deg)' }], { duration: 640, easing: EASE, fill: 'both' });
-      r.animate([{ transform: 'translateX(60vw) rotate(20deg)' }, { transform: 'translateX(0) rotate(-14deg)', offset: .55 }, { transform: 'translateX(6px) rotate(-8deg)', offset: .75 }, { transform: 'translateX(0) rotate(-10deg)' }], { duration: 640, easing: EASE, fill: 'both' });
-      $('.clink', o).animate([{ opacity: 0, transform: 'scale(.3)' }, { opacity: 0, transform: 'scale(.3)', offset: .5 }, { opacity: 1, transform: 'scale(.8)', offset: .58 }, { opacity: 0, transform: 'scale(1.6)' }], { duration: 700, easing: 'ease-out', fill: 'both' });
-      setTimeout(() => { buzz(15); window.SFX && SFX.play('softtick'); }, 350);
-      return 760;
-    }],
     charades: ['<i class="curtain l"></i><i class="curtain r"></i><i class="valance"></i>', (o) => {
       $('.curtain.l', o).animate([{ transform: 'translateX(0) scaleX(1)' }, { transform: 'translateX(-90%) scaleX(.45)' }], { duration: 760, delay: 60, easing: 'cubic-bezier(.7,0,.2,1)', fill: 'both' });
       $('.curtain.r', o).animate([{ transform: 'translateX(0) scaleX(1)' }, { transform: 'translateX(90%) scaleX(.45)' }], { duration: 760, delay: 60, easing: 'cubic-bezier(.7,0,.2,1)', fill: 'both' });
@@ -173,13 +178,58 @@
     }],
   };
   const intro = (theme) => {
-    const def = INTROS[theme]; if (!def || !document.body.animate) return;
-    if (reduced() && theme !== 'redflag') return; // reduced motion: only the static flags show
+    const def = INTROS[theme]; if (!def || !document.body.animate || reduced()) return;
     const o = document.createElement('div');
     o.className = 'intro intro-' + theme; o.setAttribute('aria-hidden', 'true'); o.innerHTML = def[0];
     app().appendChild(o);
     const ms = def[1](o);
     setTimeout(() => o.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' }).onfinish = () => o.remove(), ms);
+  };
+
+  /* Red Flag / Green Flag (v14): two curved cloth flags (S-curve top and bottom edges, fold
+     shading) on poles, in their own reserved row above the question card. They unfurl in
+     ~500ms after the screen is stable, then sway gently (transform only). Reduced motion and
+     low-end phones get them static. Never overlaps the card or the player tiles. */
+  const CLOTH = 'M0 6C16 -1 31 13 50 6S84 -1 100 8C96 19 103 30 99 41C82 48 67 34 48 41S15 48 0 43Z';
+  const flagSVG = (id, a, b) => `<svg viewBox="0 0 100 48" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>
+      <linearGradient id="${id}c" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>
+      <linearGradient id="${id}f" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".2"/><stop offset=".2" stop-color="#fff" stop-opacity=".24"/><stop offset=".45" stop-color="#000" stop-opacity=".2"/><stop offset=".7" stop-color="#fff" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity=".24"/></linearGradient></defs>
+      <path d="${CLOTH}" fill="url(#${id}c)"/><path d="${CLOTH}" fill="url(#${id}f)"/></svg>`;
+  const rfBanner = () => `<div class="rf-banner${reduced() || lowEnd() ? '' : ' pending'}" aria-hidden="true">
+      <div class="rff rff-l"><i class="rff-pole"></i><div class="rff-cloth">${flagSVG('rffl', '#ff5a68', '#b0101f')}</div></div>
+      <div class="rff rff-r"><i class="rff-pole"></i><div class="rff-cloth">${flagSVG('rffr', '#5ff0a0', '#13995a')}</div></div></div>`;
+  const IN_PLACE = {
+    redflag() {
+      const bn = $('.rf-banner'); if (!bn) return;
+      const still = reduced() || lowEnd() || !bn.animate;
+      bn.classList.remove('pending');
+      if (still) return;
+      $$('.rff-pole', bn).forEach((p) => p.animate([{ transform: 'translateY(10px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 200, easing: EASE, fill: 'backwards' }));
+      const an = $$('.rff-cloth', bn).map((c, k) => c.animate([
+        { transform: 'scaleX(.05) skewY(6deg)', opacity: 0 },
+        { transform: 'scaleX(1.05) skewY(-3deg)', opacity: 1, offset: 0.6 },
+        { transform: 'scaleX(1) skewY(0deg)', opacity: 1 }], { duration: 500, delay: 120 + k * 60, easing: EASE, fill: 'backwards' }));
+      Promise.all(an.map((x) => x.finished)).then(() => bn.classList.add('live')).catch(() => {});
+    },
+    // Never Have I Ever (v14): the players' own cups slide into their row below the
+    // instruction text (~350ms), then one clink. Transform/opacity only, nothing overlaps.
+    nhie() {
+      const r = app(), cups = $$('.cups .cup');
+      r.classList.remove('cups-wait');
+      if (reduced() || !cups.length || !cups[0].animate) return;
+      cups.forEach((c, k) => { const side = k % 2 ? 1 : -1; c.animate([{ transform: `translateX(${side * 36}px) rotate(${side * 12}deg)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 350, delay: Math.min(k, 5) * 40, easing: EASE, fill: 'backwards' }); });
+      setTimeout(() => {
+        if (!r.contains(cups[0])) return;
+        buzz(15); window.SFX && SFX.play('softtick');
+        cups.slice(0, 2).forEach((c, k) => { const s = $('.solo', c); if (s && !c.classList.contains('tilted')) s.animate([{ transform: 'none' }, { transform: `rotate(${k ? -9 : 9}deg)` }, { transform: 'none' }], { duration: 220, easing: 'ease-out' }); });
+      }, 330 + Math.min(cups.length - 1, 5) * 40);
+    },
+  };
+  const playIntro = (theme) => (IN_PLACE[theme] ? IN_PLACE[theme]() : intro(theme));
+  // Intros wait for the transition to finish and the final layout to paint
+  const runPendingIntro = () => {
+    const th = pendingIntro; pendingIntro = null; if (!th) return;
+    requestAnimationFrame(() => requestAnimationFrame(() => { if (app().dataset.theme === th && document.getElementById('stage')) playIntro(th); else app().classList.remove('cups-wait'); }));
   };
 
   /* ---------------- Cards: spring flip in, drag with tilt, swipe to Chicken Out ---------------- */
@@ -264,7 +314,7 @@
   };
 
   /* ---------------- Hook everything up ---------------- */
-  let backNav = false;
+  let backNav = false;   // set by navigate() for the length of a back update: home skips its entrance stagger
   const hook = () => {
     // updateHud: transform-based heat fill, heat-reactive ambience, counting scores
     const origHud = Core.updateHud.bind(Core);
@@ -292,18 +342,25 @@
     };
     // game screens: intro on mount, flip-in + drag for each new card
     const origMount = window.mount;
-    window.mount = function (theme, ...rest) { const s = origMount(theme, ...rest); ensureAmb(); intro(theme); return s; };
+    window.mount = function (theme, ...rest) {
+      const s = origMount(theme, ...rest); ensureAmb();
+      if (theme === 'redflag' && s) s.insertAdjacentHTML('beforebegin', rfBanner());
+      if (theme === 'nhie' && !reduced()) app().classList.add('cups-wait');
+      pendingIntro = theme;
+      if (!document.documentElement.classList.contains('hc-nav')) runPendingIntro();
+      return s;
+    };
     const origStage = window.stageHTML;
     window.stageHTML = function (html) { const s = origStage(html); enhanceStage(s); return s; };
     // navigation: tile → game morph, game → home collapse
     const origPlay = App.play.bind(App);
     App.play = function (id) {
       if (Core.players().length < 2) return origPlay(id);
-      lastGame = id;
-      navigate(() => origPlay(id), { from: document.querySelector(`.tile[data-game="${id}"]`) });
+      navigate(() => origPlay(id), { dir: 'fwd' });
     };
     const origSet = App.set.bind(App);
     App.set = function (theme, html) {
+      app().classList.remove('cups-wait');
       origSet(theme, html); ensureAmb();
       if (theme === 'home') { app().classList.toggle('no-stagger', backNav); setHeat(Core.heatProgress()); $$('.tile').forEach((t, k) => t.style.setProperty('--i', k)); }
     };
@@ -311,16 +368,19 @@
       const nav = e.target.closest('[data-nav="home"]'); if (!nav) return;
       e.stopImmediatePropagation(); e.preventDefault();
       window.SFX && SFX.play('tap');
-      backNav = true;
       navigate(() => App.home(), { back: true });
-      setTimeout(() => (backNav = false), 50);
     }, true);
     // soft tick on button press (sound is off by default)
     document.addEventListener('pointerdown', (e) => { if (e.target.closest('.btn, .tile, .icon-btn')) window.SFX && SFX.play('softtick'); }, { passive: true });
   };
 
   hook();
+  // Hidden tab: every loop rests (html.tab-hidden, v14.css)
+  document.addEventListener('visibilitychange', () => document.documentElement.classList.toggle('tab-hidden', document.hidden));
   ensureAmb();
+  // Idle warm-up: the easing tokens and the first two games' decks are ready before any tap
+  const idle = window.requestIdleCallback || ((f) => setTimeout(f, 600));
+  idle(() => { document.documentElement.classList.add('hc-ready'); SPRING(); SPRING_SOFT(); try { if (Core.cards && Core.cards.length) HC.GAMES.slice(0, 2).forEach((g) => Core.pool(g.id, 1)); } catch (e) {} }, { timeout: 2500 });
   startMesh();
   // rateLoop(); (v12.2: ambience is static, nothing to retime)
   setHeat(Core.S ? Core.heatProgress() : 0);
