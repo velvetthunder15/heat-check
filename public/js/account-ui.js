@@ -43,12 +43,14 @@ const fmtDate = (iso, time = true) => {
   const d = new Date(iso);
   return d.toLocaleString('en-IN', time ? { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' } : { day: 'numeric', month: 'short', year: 'numeric' });
 };
+const FOREVER = 365 * 864e5; // test grants (premium_until years out) read as forever, not millions of minutes
 const fmtLeft = (ms) => {
+  if (ms > FOREVER) return 'Forever';
   const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
   return h >= 1 ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}:${String(ss).padStart(2, '0')}`;
 };
 // "42 min left" on the banner: whole minutes, rounded up
-const fmtMin = (ms) => { const m = Math.ceil(Math.max(0, ms) / 60000); return m <= 1 ? (ms > 0 ? '1 min left' : 'ending') : `${m} min left`; };
+const fmtMin = (ms) => { if (ms > FOREVER) return 'forever'; const m = Math.ceil(Math.max(0, ms) / 60000); return m <= 1 ? (ms > 0 ? '1 min left' : 'ending') : `${m} min left`; };
 const rupees = (v) => '₹' + (Number(v) % 1 ? Number(v).toFixed(2) : String(Number(v)));
 
 const UI = {
