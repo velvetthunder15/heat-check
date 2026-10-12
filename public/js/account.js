@@ -132,7 +132,7 @@ const Auth = {
   // Signing out leaves this phone like a fresh guest: everything the account put here goes.
   // Kept: the 18+ answer and the guest's own Flirty counters (so signing in and out can't reset them).
   wipeDevice(msg) {
-    if (window.Core) { Core._noSave = true; clearTimeout(Core._saveT); }   // a pending state write must not outlive the wipe
+    if (typeof Core !== 'undefined') { Core._noSave = true; clearTimeout(Core._saveT); }   // a pending state write must not outlive the wipe
     const keep = new Set(['hc_age', 'hc_limits', 'hc_visits', 'hc_visit_counted']);
     try { Object.keys(localStorage).forEach((k) => { if (k.startsWith('hc_') && !keep.has(k)) localStorage.removeItem(k); }); } catch (e) {}
     try { const lit = sessionStorage.getItem('hc_lit'); sessionStorage.clear(); if (lit) sessionStorage.setItem('hc_lit', lit); if (msg) sessionStorage.setItem('hc_flash', msg); } catch (e) {}
