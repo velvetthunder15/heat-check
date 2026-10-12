@@ -621,9 +621,17 @@ const UI = {
     $$('[data-pref]', el).forEach((g) => g.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
       const k = g.dataset.pref, v = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v;
-      if (b.classList.contains('lk')) return this.paywall({ reason: k === 'look' ? 'look' : null });
+      if (b.classList.contains('lk')) {
+        if (k !== 'soundPack') return this.paywall({ reason: k === 'look' ? 'look' : null });
+        // v16: a locked Velvet tap plays ~2 s of Velvet first, then the same paywall as before
+        if (this._velvetPreview) return;
+        this._velvetPreview = true;
+        return SFX.preview().then(() => { this._velvetPreview = false; this.paywall({ reason: null }); });
+      }
       $$('button', g).forEach((x) => x.classList.toggle('on', x === b)); SFX.play('tap');
+      const packWas = SFX.pack;
       Prefs.set({ [k]: v });
+      if (k === 'soundPack' && v === 'velvet' && packWas !== 'velvet' && SFX.pack === 'velvet') SFX.play('unlock');   // v16: short flourish when a paid user picks Velvet
       if (k === 'mode' || k === 'timer') Prefs.applyNightDefaults();
     }));
     $$('[data-prefsw]', el).forEach((b) => (b.onclick = () => {
