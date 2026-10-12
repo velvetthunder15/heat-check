@@ -220,3 +220,13 @@ html.low-end #app[data-look="neon"] .ht-svg { filter: drop-shadow(0 0 6px #00e5f
   html:not([data-motion="full"]) #amb::before, html:not([data-motion="full"]) #amb::after, html:not([data-motion="full"]) .home-head::after, html:not([data-motion="full"]) .ht-glow { animation: none !important; }
   html:not([data-motion="full"]) #app[data-look="neon"] #amb::after { display: none; }
 }
+
+/* v15.1: both home headings on one line */
+#app .hero-title { flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: center; gap: .22em; white-space: nowrap; }
+#app .hero-title .ht-l1 { gap: .22em; }
+#app .hero-title .ht-l2 { margin-top: 0; }
+#app .hero-title .ht-soft { font-size: clamp(20px, 6.2vw, 30px); }
+#app .hero-title .ht-svg { height: clamp(46px, 13.5vw, 66px); }
+#app .pick-title { flex-direction: row; flex-wrap: nowrap; align-items: baseline; justify-content: center; gap: .3em; white-space: nowrap; }
+#app .pick-title .pk-small { font-size: clamp(20px, 6vw, 26px); }
+#app .pick-title .pk-big { font-size: clamp(30px, 9.4vw, 44px); padding-bottom: 10px; }
