@@ -215,7 +215,7 @@ const Intro = {
     if (!btn) return;
     const ROT = HC.ROTATION_MS;
     const heat = $('.hold-heat', btn), fill = $('.ring-fill', btn), base = $('.ring-base', btn), spark = $('.ring-spark', btn), word = $('#holdWord'), sub = $('#holdSub'), line = $('#holdLine');
-    let raf = 0, t0 = 0, holding = false, completed = 0, blocked = 0, shown = 0;
+    let raf = 0, t0 = 0, holding = false, completed = 0, blocked = 0, shown = 0, px = null, py = 0, pid = null;
 
     const paint = (level, frac) => {
       // base ring = the last completed level in full; fill = progress into the next turn
@@ -317,6 +317,7 @@ const Intro = {
       if (holding) return;
       if (e && e.cancelable) e.preventDefault();
       if (e && e.pointerId != null) { try { btn.setPointerCapture(e.pointerId); } catch (err) {} }
+      px = e && e.clientX != null && e.pointerId != null ? e.clientX : null; py = e && e.clientY; pid = e && e.pointerId;
       SFX.unlock(); SFX.ring('start');
       holding = true; completed = 0; blocked = 0; t0 = performance.now();
       hero.classList.remove('locked', 'burning'); Burn.stop(hero); hero.classList.add('holding'); app.classList.add('warming');
@@ -344,6 +345,11 @@ const Intro = {
       }
     };
     btn.addEventListener('pointerdown', start);
+    // v16.1: a finger that moves > 10 px before the ring has really started turning was not a hold: cancel silently
+    btn.addEventListener('pointermove', (e) => {
+      if (!holding || px == null || e.pointerId !== pid || completed) return;
+      if (performance.now() - t0 < ROT * 0.08 && Math.hypot(e.clientX - px, e.clientY - py) > 10) end();
+    });
     ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => btn.addEventListener(ev, end));
     btn.addEventListener('contextmenu', (e) => e.preventDefault());
     btn.addEventListener('keydown', (e) => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) start(e); });
