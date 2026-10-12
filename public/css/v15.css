@@ -231,3 +231,20 @@ html.low-end #app[data-look="neon"] .ht-svg { filter: drop-shadow(0 0 6px #00e5f
 #app .pick-title { flex-direction: row; flex-wrap: nowrap; align-items: baseline; justify-content: center; gap: .3em; white-space: nowrap; }
 #app .pick-title .pk-small { font-size: clamp(20px, 6vw, 26px); }
 #app .pick-title .pk-big { font-size: clamp(30px, 9.4vw, 44px); padding-bottom: 10px; }
+
+/* ---------- v16.2: Premium pill in the header, centred under the sound / settings / profile circles ---------- */
+/* Out of flow (absolute) so the header keeps its height; the circles lift 11px so circles + 4px gap + 18px pill
+   sit centred on the logo. Rendered with the home markup (Intro.html) so nothing shifts after paint. */
+.home-head .head-actions { position: relative; }
+.home-head.has-hpill .head-actions { top: -11px; }
+.home-head.has-hpill + .session-bar { margin-top: 8px; }
+.pass-head { position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); display: flex; justify-content: center; max-width: 100%; }
+.pass-head:empty { display: none; }
+.pass-head .pass-banner { width: auto; min-height: 18px; height: 18px; padding: 0 10px; gap: 6px; border-radius: 99px; justify-content: center;
+  font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; line-height: 1; }
+/* Below 324px the three circles already wrap to two rows (avatar on row 2): the pill sits in row 2, left of the avatar */
+@media (max-width: 323.98px) {
+  .home-head.has-hpill .head-actions { top: 0; }
+  .pass-head { position: static; transform: none; }
+}
+@media (max-width: 323.98px) { .home-head.has-hpill + .session-bar { margin-top: 4px; } }
