@@ -132,6 +132,7 @@ const Auth = {
   // Signing out leaves this phone like a fresh guest: everything the account put here goes.
   // Kept: the 18+ answer and the guest's own Flirty counters (so signing in and out can't reset them).
   wipeDevice(msg) {
+    if (window.Core) { Core._noSave = true; clearTimeout(Core._saveT); }   // a pending state write must not outlive the wipe
     const keep = new Set(['hc_age', 'hc_limits', 'hc_visits', 'hc_visit_counted']);
     try { Object.keys(localStorage).forEach((k) => { if (k.startsWith('hc_') && !keep.has(k)) localStorage.removeItem(k); }); } catch (e) {}
     try { const lit = sessionStorage.getItem('hc_lit'); sessionStorage.clear(); if (lit) sessionStorage.setItem('hc_lit', lit); if (msg) sessionStorage.setItem('hc_flash', msg); } catch (e) {}
@@ -592,7 +593,13 @@ const Account = {
     Prefs.apply();
     await Cfg.load();
     Bus.emit('config');
-    if (Cfg.accounts) await Auth.init(); else Auth.ready = true;
+    // v14: the account library (~55 KB gz) loads when the phone is idle, never during the first
+    // paint, first tap or a transition. A saved session loads it sooner.
+    if (Cfg.accounts) {
+      let saved = true; try { saved = !!localStorage.getItem('hc_auth'); } catch (e) {}
+      const go = () => Auth.init().catch((e) => { console.warn('auth init', e && e.message); Auth.ready = true; });
+      if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: saved ? 1200 : 3500 }); else setTimeout(go, saved ? 0 : 1200);
+    } else Auth.ready = true;
     Ent._was = Ent.tier();
     setInterval(() => Ent.tick(), 1000);
     window.addEventListener('online', () => { if (Auth.signedIn()) Auth.refresh().then(() => Premium.load()); });
