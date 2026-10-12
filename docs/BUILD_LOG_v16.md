@@ -99,3 +99,74 @@ active pack is rendered).
 ## Not verifiable from the sandbox
 Real-device Android and iOS playback, the iOS ring/silent switch, lock screen / call interruptions, Bluetooth
 routing, and how the sounds actually feel on phone speakers. These need a phone.
+
+# v16.1 (Oct 12 2026, hc-v35 / ?v=35): tap-only press sounds, new hold-ring sounds
+
+No visual, layout, copy, paywall or limit changes. `base.css` / `themes.css` untouched.
+
+## 1. "Don't make a sound when I just glide over buttons"
+**Cause.** v16 played the press sound in a delegated capture `pointerdown` handler. On a phone, a finger that lands
+on a button or tile and then scrolls fires `pointerdown` first; the browser only decides it is a scroll afterwards
+(`pointercancel`, no click). So every scroll/swipe that started on a control made a press sound. Confirmed in real
+Chromium with CDP touch drags on the v34 build: a 30 px drag, an 80 px page scroll from a tile and a 60 px drag from
+the Couples/Groups toggle each made 1 sound. Hover was never a source (no hover/pointerover/pointerenter listener plays
+sound; motion.js lost its pointerdown tick in v16; `:hover` styles are CSS only).
+
+**Fix (audio.js).** `pointerdown` now only remembers the press (control, pointer id, position, scroll position) and
+unlocks the AudioContext silently. The press sound plays on `pointerup` only when it was a tap: same pointer, moved
+< 10 px (tracked on `pointermove` too), no `pointercancel`, no `scroll` event (capture, so inner scrollers count) and no
+scroll-position change in between, and the finger lifts on the same, still-connected control. A rejected press keeps
+the click handler's own `SFX.play('tap')` quiet. One exception, so an action never happens silently: a press rejected
+only for moving (a mouse drag inside a button) still gets its one sound if the browser fires the click on that same
+control within 120 ms. Keyboard Enter/Space still sounds through click; a script's `.click()` still only gets the
+handler's tap; 30 ms dedupe unchanged. Hold ring (`#holdBtn`, `.hold`) stays excluded and keeps starting on press, but
+its voice only starts after the ring has turned 0.08 of a turn (~100 ms); `intro.js` cancels the hold silently when the
+finger moves > 10 px before that.
+
+## 2. Hold-ring sounds (both packs)
+Classic keeps its palette (triangle/square/saw, bright, game-show); Velvet stays warm (sine/triangle, FM bells, plate).
+- Live voice (real-time oscillators, every change through `setTargetAtTime`, so no zipper noise): Classic triangle + saw
+  + sub square from C4 to C6, Velvet sine + triangle octave + light chorus from G4 to G6, low-pass opening with the ring,
+  vibrato growing with the heat, level slightly falling as it climbs so the locks stand above it; a short duck under each
+  lock. From turn 1.3 a pre-rendered 2 s seamless fire-bed loop (flickering filtered noise + crackle) fades in, its
+  low-pass opening 400 -> 3800 Hz toward the top level.
+- Ticks: 7 per turn rising (Classic B5 major run, Velvet C pentatonic C6-D7), a whole tone up per level (playbackRate).
+- Flirty lock: light, airy sparkle (Classic triangle arpeggio E6-A7 + air; Velvet bell triad E6 G6 C7 + air).
+- Spicy lock: warmer with body and a little sizzle (thump, C5+G5 chord, sub, short fire + sparse crackle).
+- HOT lock: ignition whoosh as it locks + punch + saturated sub swell (58 -> 45 Hz, harmonics for phone speakers),
+  fire roar (filtered noise with slow random amplitude, low-pass sweeping 450 -> 3300 Hz, 1-4 kHz sizzle band), sparse
+  2-6 kHz crackle with a few woody snaps, plus the pack's chord (Classic saw C-major stab, Velvet shimmer + bell), soft
+  saturation (drive 2) so it is the loudest moment. Then a ~1.1 s ember tail (roar cooling, crackle thinning) starts
+  0.85 s later. Release at HOT = flame burst (whoosh + fire with the low-pass falling + crackle + thump; Classic saw stab,
+  Velvet bells). Release below HOT keeps a short confirm (new for Classic).
+- Everything except the oscillators is pre-rendered at idle, -3 dBFS peak, through the master + compressor.
+- Rendered loudness in the 4 s hold simulation (RMS per segment, dBFS) Classic / Velvet: tone -20 / -18, Flirty lock
+  -16 / -15, Spicy lock -17.5 / -15.6, fire bed end of turn 3 -21 / -19, HOT lock -10.1 / -12.6, flame burst -12.5 /
+  -13.2, embers -18.6 / -23. 1-4 kHz share: HOT lock 19 % / 31 %, fire bed 40 % / 38 % (phone speakers hear it).
+
+## Perf
+New ops `opFire` / `opPops`; hot loops moved out of generator bodies into plain block functions (V8 optimizes them far
+better), and each idle callback now has a hard 8 ms budget. Pre-render at 6x CPU: 0 long tasks (two runs), Velvet set
+(55 buffers) in 4.2 s. Memory: Classic 2.4 MB, Velvet 12.0 MB.
+| run (360x640, 6x CPU, redflag/nhie/wyr) | open fps | back fps | scroll fps | ring fps |
+|---|---|---|---|---|
+| v16 recorded (muted / sound) | 52.7 / 52.2 | 48.8 / 49.2 | 53.8 / 53.9 | 51.8 / 51.6 |
+| v16 re-run today (muted / sound) | 51.4 / 52.1 | 48.8 / 48.0 | 50.2 / 50.0 | 51.4 / 51.6 |
+| v16.1 sound on (3 runs) | 51.7 / 52.6 / 52.1 | 48.0 / 48.6 / 48.4 | 54.4 / 54.3 / 53.9 | 51.6 / 51.6 / 50.9 |
+| v16.1 muted (2 runs) | 51.0 / 51.9 | 48.4 / 49.4 | 53.9 / 54.1 | 51.6 / 49.6 |
+Within run-to-run noise; CLS 0; no page errors.
+
+## Tests
+`node tools/build.mjs` (HOT lint ok, 49 files). `t4.js` 153 ok, `fn12.mjs` 51 ok, `sql/t12.mjs` 47 ok,
+`audio16.mjs` 69 ok (new: pointerdown alone silent, tap on pointerup, scroll gesture pointerdown + 30 px move +
+pointercancel silent, 40 px swipe silent, scroll between down/up silent, hover/pointerover/pointerenter/mousemove
+silent, < 10 px wobble = one sound, drag-then-click = one sound, lift on another control silent; ring: nothing before
+0.08 turn, early cancel silent, voice + fire bed, rising ticks, per-level locks, HOT tail scheduled +0.85 s, flame burst,
+muted ring inert), `audio_render.mjs` 98 buffers all -3.00 dBFS (`wav161` writes the ring set), `pw/audio16.mjs` 39 ok
+(real Chromium touch scrolls from a tile and a toggle silent, hover over 12 controls silent, tap = one sound, Classic and
+Velvet full rings, early-move cancel on the ring), `pw/audio16.mjs ... cpu` 0 long tasks, `pw/holdsim161.mjs` (offline
+render of the full hold through the same voice + chain). WAVs in `/workspace/work/heatcheck/sounds161/`.
+
+## Not verifiable from the sandbox
+How it sounds on a real phone speaker and how it feels in the hand: touch slop differs per device. The 10 px threshold
+is ours; when the browser itself starts a scroll it fires pointercancel, which also keeps the sound off.
