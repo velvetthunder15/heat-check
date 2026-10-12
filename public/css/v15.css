@@ -1,0 +1,222 @@
+/* Heat Check v15: guest header + locked settings, and the Premium looks (Midnight, Neon).
+   Loaded last. Rules of the road (v14): only transform/opacity animate, nothing changes layout
+   after first paint, every loop pauses under html.hc-nav / html.is-scrolling / html.tab-hidden
+   and stops for low-end phones and reduced motion. Ember (the default look) is untouched. */
+
+/* =====================================================================================
+   1. Guest header: the session chips row turns into a "Sign in" tab under the 3 buttons.
+   The row keeps the same reserved height for guests and accounts, so nothing moves.
+   ===================================================================================== */
+.session-bar { position: relative; min-height: 32px; }
+.signin-tab { display: none; }
+html.is-guest .session-bar > :not(.signin-tab) { display: none !important; }
+html.is-guest .signin-tab {
+  position: absolute; top: -6px; right: 18px; width: 148px; height: 30px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 99px; border: 1px solid transparent; color: #ffd2a8; font-size: 13px; font-weight: 800; letter-spacing: .02em;
+  background: linear-gradient(180deg, #2a1622, #1a0f18) padding-box, linear-gradient(120deg, #ff7a3c, #ff2e63 55%, #ff7a3c99) border-box;
+  box-shadow: inset 0 1px 0 #ffffff1f, 0 6px 16px -8px #000c, 0 0 18px -8px #ff5a3c88;
+  cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: transform var(--dur-xs, .12s) ease; }
+html.is-guest .signin-tab svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+html.is-guest .signin-tab:active { transform: scale(.95); }
+html.is-guest .signin-tab:focus-visible { outline: 2px solid #ff7a3c; outline-offset: 2px; }
+
+/* =====================================================================================
+   2. Settings: guests see them read-only with one sign-in prompt
+   ===================================================================================== */
+.set-lock { display: flex; align-items: center; gap: 12px; margin: 22px 0 4px; padding: 12px 12px 12px 14px; border-radius: 18px;
+  background: linear-gradient(120deg, #ff7a3c1f, #ff2e6314 60%, #ffffff05); border: 1px solid #ff8a5c40;
+  box-shadow: inset 0 1px 0 #ffffff14; }
+.set-lock .sl-ico { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; background: #00000040; color: #ffd2a8; }
+.set-lock .sl-ico .ico { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.set-lock .sl-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.25; }
+.set-lock .sl-txt b { font-size: 15px; }
+.set-lock .sl-txt span { font-size: 13px; color: var(--muted); }
+.set-lock .sl-go { flex: none; min-height: 38px; padding: 0 16px; font-size: 14px; }
+.set-lock.nudge { animation: slNudge .42s cubic-bezier(.36, .07, .19, .97); }
+@keyframes slNudge { 20% { transform: translateX(-6px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+.set-lockwrap.locked .set-sec { opacity: .5; }
+.set-lockwrap.locked .set-sec .seg, .set-lockwrap.locked .set-sec .switch, .set-lockwrap.locked .set-sec .stepper { cursor: not-allowed; filter: saturate(.4); }
+html[data-motion="reduce"] .set-lock.nudge { animation: none; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion="full"]) .set-lock.nudge { animation: none; } }
+
+/* =====================================================================================
+   3. MIDNIGHT (Premium): a moonlit sapphire night. Silver hairlines, a moon glow, a slow
+   aurora drift and twinkling stars. Levels: lavender -> violet -> rose -> champagne.
+   ===================================================================================== */
+#app[data-look="midnight"] { --fl-tint: #e4ddff; --fl: #a48bff; --fl-deep: #6c5cff; --ht: #ff7ab8; --wh: #ffe6c7; }
+/* [data-side] outranks the old v12 couples-only look backgrounds in intro.css */
+#app[data-look="midnight"][data-theme="home"][data-side] {
+  --accent: #a48bff; --accent2: #7fb2ff; --card: #121a44; --line: #cdd8ff26; --muted: #aab4dc; --bg: #060b23;
+  background: #060b23; }
+/* the look's sky is painted on the fixed ambience layer (viewport-sized), never on the whole
+   scrolled page: a page-tall gradient re-rasterised on every back-to-home cost ~12fps (v15 perf) */
+#app[data-look="midnight"][data-theme="home"] #amb {
+  background:
+    radial-gradient(42% 26% at 86% 3%, #f4f1ff33, transparent 70%),
+    radial-gradient(120% 55% at 8% -6%, #3b4cc059, transparent 62%),
+    radial-gradient(90% 50% at 100% 100%, #6a4bff38, transparent 66%),
+    linear-gradient(176deg, #0e1a4d 0%, #0a1236 42%, #060b23 100%); }
+/* ambience: the shared blobs in sapphire / violet, plus stars and an aurora band */
+#app[data-look="midnight"] #amb .b1 { background: radial-gradient(closest-side, #4a5cff40, transparent); }
+#app[data-look="midnight"] #amb .b2 { background: radial-gradient(closest-side, #8a5cff33, transparent); }
+#app[data-look="midnight"] #amb .b3 { background: radial-gradient(closest-side, #7fb2ff1f, transparent); }
+#app[data-look="midnight"] #amb .glow { background: radial-gradient(closest-side, #ff7ab84d, transparent); }
+#app[data-look="midnight"] #amb::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .85;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='640'%3E%3Ccircle cx='386' cy='7' r='0.94' fill='%23dfe6ff' opacity='0.96'/%3E%3Ccircle cx='96' cy='35' r='0.98' fill='%23dfe6ff' opacity='0.93'/%3E%3Ccircle cx='400' cy='153' r='0.70' fill='%23e4ddff' opacity='0.64'/%3E%3Ccircle cx='105' cy='146' r='1.01' fill='%23e4ddff' opacity='0.90'/%3E%3Ccircle cx='89' cy='592' r='0.81' fill='%23dfe6ff' opacity='0.79'/%3E%3Ccircle cx='336' cy='313' r='0.78' fill='%23e4ddff' opacity='0.72'/%3E%3Ccircle cx='126' cy='444' r='0.77' fill='%23ffffff' opacity='0.75'/%3E%3Ccircle cx='378' cy='12' r='0.58' fill='%23dfe6ff' opacity='0.81'/%3E%3Ccircle cx='314' cy='540' r='0.51' fill='%23cfd9ff' opacity='0.58'/%3E%3Ccircle cx='342' cy='571' r='0.74' fill='%23ffffff' opacity='0.73'/%3E%3Ccircle cx='336' cy='355' r='0.74' fill='%23dfe6ff' opacity='0.59'/%3E%3Ccircle cx='379' cy='226' r='0.64' fill='%23e4ddff' opacity='0.58'/%3E%3Ccircle cx='250' cy='248' r='0.79' fill='%23cfd9ff' opacity='0.89'/%3E%3Ccircle cx='303' cy='536' r='0.66' fill='%23dfe6ff' opacity='0.56'/%3E%3Ccircle cx='197' cy='241' r='1.00' fill='%23ffffff' opacity='0.64'/%3E%3Ccircle cx='17' cy='572' r='1.07' fill='%23dfe6ff' opacity='0.91'/%3E%3Ccircle cx='226' cy='558' r='0.80' fill='%23ffffff' opacity='0.74'/%3E%3Ccircle cx='33' cy='615' r='0.64' fill='%23cfd9ff' opacity='0.85'/%3E%3Ccircle cx='102' cy='54' r='0.51' fill='%23e4ddff' opacity='0.88'/%3E%3Ccircle cx='334' cy='278' r='0.53' fill='%23e4ddff' opacity='0.80'/%3E%3Ccircle cx='125' cy='526' r='0.98' fill='%23cfd9ff' opacity='0.51'/%3E%3Ccircle cx='268' cy='223' r='0.73' fill='%23ffffff' opacity='0.57'/%3E%3Ccircle cx='100' cy='631' r='0.70' fill='%23dfe6ff' opacity='0.84'/%3E%3Ccircle cx='126' cy='204' r='0.86' fill='%23dfe6ff' opacity='0.67'/%3E%3Ccircle cx='24' cy='110' r='1.02' fill='%23ffffff' opacity='0.99'/%3E%3Ccircle cx='290' cy='255' r='1.02' fill='%23dfe6ff' opacity='0.67'/%3E%3Ccircle cx='126' cy='293' r='0.87' fill='%23cfd9ff' opacity='0.79'/%3E%3Ccircle cx='49' cy='594' r='0.85' fill='%23ffffff' opacity='0.89'/%3E%3Ccircle cx='62' cy='420' r='1.00' fill='%23dfe6ff' opacity='0.79'/%3E%3Ccircle cx='220' cy='481' r='0.72' fill='%23dfe6ff' opacity='0.99'/%3E%3Ccircle cx='259' cy='402' r='1.10' fill='%23cfd9ff' opacity='0.79'/%3E%3Ccircle cx='332' cy='439' r='1.05' fill='%23cfd9ff' opacity='0.93'/%3E%3Ccircle cx='395' cy='424' r='0.74' fill='%23e4ddff' opacity='0.67'/%3E%3Ccircle cx='304' cy='229' r='0.61' fill='%23cfd9ff' opacity='0.96'/%3E%3Ccircle cx='279' cy='502' r='0.56' fill='%23e4ddff' opacity='0.60'/%3E%3Ccircle cx='271' cy='508' r='0.93' fill='%23dfe6ff' opacity='0.94'/%3E%3Ccircle cx='92' cy='101' r='1.02' fill='%23ffffff' opacity='0.68'/%3E%3Ccircle cx='90' cy='473' r='0.60' fill='%23dfe6ff' opacity='0.75'/%3E%3Ccircle cx='192' cy='303' r='0.78' fill='%23dfe6ff' opacity='0.72'/%3E%3Ccircle cx='169' cy='592' r='1.09' fill='%23dfe6ff' opacity='0.83'/%3E%3Ccircle cx='391' cy='289' r='0.74' fill='%23dfe6ff' opacity='0.52'/%3E%3Ccircle cx='234' cy='2' r='0.91' fill='%23cfd9ff' opacity='0.52'/%3E%3Ccircle cx='180' cy='297' r='0.97' fill='%23cfd9ff' opacity='0.73'/%3E%3Ccircle cx='177' cy='446' r='0.80' fill='%23ffffff' opacity='0.58'/%3E%3Ccircle cx='381' cy='288' r='0.79' fill='%23cfd9ff' opacity='0.76'/%3E%3Ccircle cx='85' cy='141' r='0.96' fill='%23cfd9ff' opacity='0.83'/%3E%3C/svg%3E") 0 0 / 400px 640px repeat; will-change: transform; transform: translateZ(0); }
+/* a second, brighter set of stars twinkles (one composited layer, opacity only) */
+#app[data-look="midnight"] #amb::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .25;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='640'%3E%3Ccircle cx='278' cy='437' r='1.29' fill='%23ffffff' opacity='0.63'/%3E%3Ccircle cx='373' cy='173' r='1.35' fill='%23ffffff' opacity='0.94'/%3E%3Ccircle cx='275' cy='173' r='1.45' fill='%23ffffff' opacity='0.58'/%3E%3Ccircle cx='264' cy='154' r='1.19' fill='%23ffffff' opacity='0.83'/%3E%3Ccircle cx='317' cy='253' r='1.36' fill='%23ffffff' opacity='0.91'/%3E%3Ccircle cx='280' cy='301' r='1.48' fill='%23ffffff' opacity='0.87'/%3E%3Ccircle cx='380' cy='301' r='1.24' fill='%23ffffff' opacity='0.68'/%3E%3Ccircle cx='137' cy='210' r='1.30' fill='%23ffffff' opacity='0.75'/%3E%3Ccircle cx='384' cy='471' r='1.44' fill='%23ffffff' opacity='0.59'/%3E%3Ccircle cx='212' cy='196' r='1.23' fill='%23ffffff' opacity='0.63'/%3E%3C/svg%3E") 120px 60px / 400px 640px repeat; animation: mnTwinkle 3.8s ease-in-out infinite alternate; will-change: opacity; }
+@keyframes mnTwinkle { to { opacity: 1; } }
+/* the aurora: one soft band that drifts sideways (transform only) */
+#app[data-look="midnight"][data-theme="home"] .home-head::after { content: ""; position: absolute; left: -30%; right: -30%; top: -40px; height: 220px; z-index: -1; pointer-events: none;
+  background: linear-gradient(100deg, transparent 18%, #6c5cff1f 34%, #7fb2ff26 48%, #a48bff14 62%, transparent 78%);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%, #000 55%, transparent); mask-image: linear-gradient(180deg, transparent, #000 30%, #000 55%, transparent);
+  animation: mnAurora 16s ease-in-out infinite alternate; will-change: transform; }
+#app[data-look="midnight"][data-theme="home"] .home-head { position: relative; isolation: isolate; }
+@keyframes mnAurora { from { transform: translateX(-9%) skewX(-6deg); } to { transform: translateX(9%) skewX(4deg); } }
+
+/* header buttons, chips, level pills: midnight glass with a silver hairline */
+#app[data-look="midnight"][data-theme="home"] .icon-btn, #app[data-look="midnight"][data-theme="home"] .avatar:not(.on),
+#app[data-look="midnight"][data-theme="home"] .ring-reset, #app[data-look="midnight"][data-theme="home"] .sb-chip,
+#app[data-look="midnight"][data-theme="home"] .heat-steps .hs {
+  background: linear-gradient(180deg, #1a2560, #0e1640); border-color: #cdd8ff33; box-shadow: inset 0 1px 0 #ffffff26, inset 0 -1px 0 #00000066, 0 6px 16px -8px #000c; }
+#app[data-look="midnight"][data-theme="home"] .side-switch { background: #0a113399; border-color: #cdd8ff26; }
+#app[data-look="midnight"][data-theme="home"] .side-pill {
+  background-image: linear-gradient(180deg, #ffffff73, #ffffff00 55%), linear-gradient(120deg, #f4f6ff, #c3cdf0 45%, #8f9ddb 100%);
+  box-shadow: inset 0 1px 0 #ffffffb3, inset 0 -1px 0 #4a56a066, 0 8px 20px -10px #7fb2ffcc; }
+#app[data-look="midnight"][data-theme="home"] .side-switch button.on { color: #0b1238; }
+/* "How / is tonight?" in moonlit silver; the ? and level colours follow the palette */
+#app[data-look="midnight"] .hero-title .ht-soft { background: linear-gradient(180deg, #ffffff 0%, #e6ebff 45%, #b3bfe8 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+#app[data-look="midnight"] .hero-title .ht-soft .ht-q { -webkit-text-fill-color: var(--ht); color: var(--ht); }
+#app[data-look="midnight"] #htg1 stop:nth-child(odd) { stop-color: #e4ddff; } #app[data-look="midnight"] #htg1 stop:nth-child(2) { stop-color: #8f7bff; }
+#app[data-look="midnight"] #htg2 stop:nth-child(odd) { stop-color: #8f7bff; } #app[data-look="midnight"] #htg2 stop:nth-child(2) { stop-color: #ff7ab8; }
+#app[data-look="midnight"] #htg3 stop:nth-child(odd) { stop-color: #ff7ab8; } #app[data-look="midnight"] #htg3 stop:nth-child(2) { stop-color: #ffe6c7; }
+#app[data-look="midnight"] .ht-glow { background: radial-gradient(closest-side, #8f7bff5c, #7fb2ff24 55%, transparent 74%); }
+/* the ring: arc gradients, glow and core in sapphire; HOT corona in rose-champagne */
+#app[data-look="midnight"] #rfg1 stop:nth-child(1) { stop-color: #e4ddff; } #app[data-look="midnight"] #rfg1 stop:nth-child(2) { stop-color: #a48bff; } #app[data-look="midnight"] #rfg1 stop:nth-child(3) { stop-color: #6c5cff; }
+#app[data-look="midnight"] #rfg2 stop:nth-child(1) { stop-color: #a48bff; } #app[data-look="midnight"] #rfg2 stop:nth-child(2) { stop-color: #ff7ab8; }
+#app[data-look="midnight"] #rfg3 stop:nth-child(1) { stop-color: #ff7ab8; } #app[data-look="midnight"] #rfg3 stop:nth-child(2) { stop-color: #ffe6c7; }
+#app[data-look="midnight"] .ring-glow .l1 { background: radial-gradient(closest-side, #8f7bff59, #6c5cff1f 60%, transparent 72%); }
+#app[data-look="midnight"] .ring-glow .l2 { background: radial-gradient(closest-side, #ff7ab84d, #a48bff1f 60%, transparent 72%); }
+#app[data-look="midnight"] .ring-glow .l3 { background: radial-gradient(closest-side, #ff7ab866, #ffe6c726 58%, transparent 72%); }
+#app[data-look="midnight"] .hold-btn { background: radial-gradient(circle at 50% 34%, #2b3488, #121a4c 52%, #070c26 78%);
+  box-shadow: inset 0 1px 0 #ffffff33, inset 0 -8px 22px #00000099, 0 0 0 1px #cdd8ff26, 0 24px 50px -24px #000; }
+#app[data-look="midnight"] .hold-heat { background: radial-gradient(circle at 50% 34%, #6a55e0, #2a1f78 52%, #070c26 78%); }
+#app[data-look="midnight"] .hold-word { text-shadow: 0 0 20px #a48bff80, 0 1px 0 #00000080; }
+#app[data-look="midnight"] .rh-corona { background: radial-gradient(closest-side, transparent 80%, #ffe6c7b3 85%, #ffb0d480 88%, #ff7ab833 93%, transparent 100%); }
+#app[data-look="midnight"] .rh-halo { background: radial-gradient(closest-side, transparent 58%, #ff7ab859 70%, #a48bff26 84%, transparent 100%); }
+#app[data-look="midnight"] .ring-hot i { background: radial-gradient(circle, #fff 0 22%, #ffd6ea 45%, #ff7ab800 72%); }
+#app[data-look="midnight"] .hc-hero:not(.holding)[data-heat="3"] #holdWord { text-shadow: 0 0 18px #ff7ab8b3, 0 0 2px #ffe6c7; }
+#app[data-look="midnight"] .heat-steps .hs.on[data-step="1"] { background: linear-gradient(135deg, #a48bff38, #6c5cff2b); border-color: #b9a8ffa6; box-shadow: inset 0 1px 0 #ffffff2e, 0 0 16px -4px #a48bffaa; }
+#app[data-look="midnight"] .heat-steps .hs.on[data-step="2"] { background: linear-gradient(135deg, #a48bff33, #ff7ab833); border-color: #ff9fcca6; box-shadow: inset 0 1px 0 #ffffff2e, 0 0 16px -4px #ff7ab8aa; }
+#app[data-look="midnight"] .heat-steps .hs.on[data-step="3"] { background: linear-gradient(135deg, #ff7ab838, #ffe6c726); border-color: #ffd9b8b3; box-shadow: inset 0 1px 0 #ffffff2e, 0 0 16px -4px #ff7ab8b3; }
+#app[data-look="midnight"] .heat-steps .hs.on[data-step="3"]::after { box-shadow: 0 0 20px -2px #ff7ab8cc, inset 0 0 8px #ffe6c726; }
+/* Pick your poison */
+#app[data-look="midnight"] .pk-word { background-image: linear-gradient(105deg, #e4ddff 0%, #a48bff 32%, #6c5cff 58%, #ff7ab8 100%); }
+#app[data-look="midnight"] #pkg stop:nth-child(1) { stop-color: #e4ddff; } #app[data-look="midnight"] #pkg stop:nth-child(2) { stop-color: #a48bff; } #app[data-look="midnight"] #pkg stop:nth-child(3) { stop-color: #ff7ab8; }
+#app[data-look="midnight"] .pick-sec { border-top-color: #cdd8ff26; }
+/* game tiles keep their worlds; Midnight frames them in a silver hairline with a moonlit edge */
+#app[data-look="midnight"] .stack .tile::after { content: ""; position: absolute; inset: 0; z-index: 4; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 1px #dfe6ff4d, inset 0 1px 0 #ffffff66, inset 0 -18px 30px -24px #7fb2ff66; }
+/* in a game: sapphire ambience and a silver hairline under the header and over the bar */
+#app[data-look="midnight"]:not([data-theme="home"]) .hud::after, #app[data-look="midnight"]:not([data-theme="home"]) .controls::after {
+  content: ""; position: absolute; left: 14px; right: 14px; height: 1px; pointer-events: none; background: linear-gradient(90deg, transparent, #dfe6ffa6 30%, #a48bffa6 70%, transparent); }
+#app[data-look="midnight"]:not([data-theme="home"]) .hud::after { bottom: 0; }
+#app[data-look="midnight"]:not([data-theme="home"]) .controls::after { top: 0; }
+#app[data-look="midnight"] .heat-fill { background-image: linear-gradient(180deg, #ffffff55, #ffffff00 60%), linear-gradient(90deg, #e4ddff, #a48bff 30%, #ff7ab8 66%, #ffe6c7) !important; box-shadow: 0 0 14px #a48bff99; }
+
+/* =====================================================================================
+   4. NEON (Premium): an electric club at 2am. Cyan and magenta tubes, a synthwave floor
+   drifting under the page, a slow scan of light. Levels: cyan -> magenta -> electric yellow.
+   ===================================================================================== */
+#app[data-look="neon"] { --fl-tint: #9ffcff; --fl: #00e5ff; --fl-deep: #0094ff; --ht: #ff2bd6; --wh: #fff27a; }
+#app[data-look="neon"][data-theme="home"][data-side] {
+  --accent: #ff2bd6; --accent2: #00e5ff; --card: #170027; --line: #00f0ff2e; --muted: #c4a8f0; --bg: #07000f;
+  background: #07000f; }
+#app[data-look="neon"][data-theme="home"] #amb {
+  background:
+    radial-gradient(110% 50% at 88% -6%, #ff2bd645, transparent 60%),
+    radial-gradient(90% 55% at -6% 30%, #00f0ff29, transparent 60%),
+    radial-gradient(80% 40% at 50% 112%, #7a00ff4d, transparent 70%),
+    linear-gradient(180deg, #0e0024 0%, #08000f 58%, #040008 100%); }
+#app[data-look="neon"] #amb .b1 { background: radial-gradient(closest-side, #ff2bd638, transparent); }
+#app[data-look="neon"] #amb .b2 { background: radial-gradient(closest-side, #00f0ff2e, transparent); }
+#app[data-look="neon"] #amb .b3 { background: radial-gradient(closest-side, #7a00ff2b, transparent); }
+#app[data-look="neon"] #amb .glow { background: radial-gradient(closest-side, #ff2bd659, transparent); }
+/* synthwave floor: a perspective grid that scrolls toward you by exactly one cell (seamless) */
+#app[data-look="neon"] #amb::before { content: ""; position: absolute; left: -60%; right: -60%; bottom: -12vh; height: 46vh; pointer-events: none; opacity: .32;
+  background: linear-gradient(180deg, transparent 0 calc(100% - 2px), #ff2bd6 calc(100% - 2px)) 0 0 / 100% 44px,
+    linear-gradient(90deg, transparent 0 calc(100% - 2px), #00f0ff calc(100% - 2px)) 0 0 / 44px 100%;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%); mask-image: linear-gradient(180deg, transparent, #000 55%);
+  transform-origin: 50% 100%; transform: perspective(260px) rotateX(62deg) translateY(0); animation: neFloor 2.6s linear infinite; will-change: transform; }
+@keyframes neFloor { to { transform: perspective(260px) rotateX(62deg) translateY(44px); } }
+/* a band of light that sweeps the page now and then (transform + opacity) */
+#app[data-look="neon"] #amb::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 60%; pointer-events: none; opacity: 0;
+  background: linear-gradient(100deg, transparent, #00f0ff14 40%, #ff2bd61a 60%, transparent); transform: translateX(-120%) skewX(-12deg);
+  animation: neScan 9s ease-in-out infinite; will-change: transform, opacity; }
+@keyframes neScan { 0%, 55% { transform: translateX(-120%) skewX(-12deg); opacity: 0; } 62% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translateX(260%) skewX(-12deg); opacity: 0; } }
+#app[data-look="neon"][data-theme="home"] .icon-btn, #app[data-look="neon"][data-theme="home"] .avatar:not(.on),
+#app[data-look="neon"][data-theme="home"] .ring-reset, #app[data-look="neon"][data-theme="home"] .sb-chip,
+#app[data-look="neon"][data-theme="home"] .heat-steps .hs {
+  background: linear-gradient(180deg, #1c0533, #0d0019); border-color: #00f0ff4d; box-shadow: inset 0 1px 0 #ffffff1a, inset 0 0 10px #00f0ff14, 0 0 12px -6px #00f0ff99; }
+#app[data-look="neon"][data-theme="home"] .side-switch { background: #0d001999; border-color: #ff2bd640; box-shadow: inset 0 2px 6px #000000aa, 0 0 18px -10px #ff2bd6; }
+#app[data-look="neon"][data-theme="home"] .side-pill {
+  background-image: linear-gradient(180deg, #ffffff59, #ffffff00 55%), linear-gradient(110deg, #00f0ff, #b35cff 50%, #ff2bd6);
+  box-shadow: inset 0 1px 0 #ffffff80, 0 0 18px -4px #ff2bd6, 0 0 26px -10px #00f0ff; }
+#app[data-look="neon"][data-theme="home"] .side-switch button.on { color: #0a0014; }
+#app[data-look="neon"] .hero-title .ht-soft { color: #f6f0ff; text-shadow: 0 0 6px #00f0ffaa, 0 0 18px #00f0ff55; }
+#app[data-look="neon"] .hero-title .ht-q { color: #ff2bd6; text-shadow: 0 0 8px #ff2bd6, 0 0 20px #ff2bd699; }
+#app[data-look="neon"] #htg1 stop:nth-child(odd) { stop-color: #9ffcff; } #app[data-look="neon"] #htg1 stop:nth-child(2) { stop-color: #00c8ff; }
+#app[data-look="neon"] #htg2 stop:nth-child(odd) { stop-color: #00e5ff; } #app[data-look="neon"] #htg2 stop:nth-child(2) { stop-color: #ff2bd6; }
+#app[data-look="neon"] #htg3 stop:nth-child(odd) { stop-color: #ff2bd6; } #app[data-look="neon"] #htg3 stop:nth-child(2) { stop-color: #fff27a; }
+#app[data-look="neon"] .ht-svg { filter: drop-shadow(0 0 6px #00e5ff99) drop-shadow(0 0 16px #ff2bd655); }
+#app[data-look="neon"] .ht-glow { background: radial-gradient(closest-side, #ff2bd659, #00f0ff24 55%, transparent 74%); animation: neBuzz 5s steps(1, end) infinite; }
+/* the neon tube buzz: a rare flicker of the glow behind HOT (opacity, steps) */
+@keyframes neBuzz { 0%, 86% { opacity: .9; } 87% { opacity: .35; } 88% { opacity: .95; } 90% { opacity: .5; } 91%, 100% { opacity: .9; } }
+#app[data-look="neon"] #rfg1 stop:nth-child(1) { stop-color: #9ffcff; } #app[data-look="neon"] #rfg1 stop:nth-child(2) { stop-color: #00e5ff; } #app[data-look="neon"] #rfg1 stop:nth-child(3) { stop-color: #0094ff; }
+#app[data-look="neon"] #rfg2 stop:nth-child(1) { stop-color: #00e5ff; } #app[data-look="neon"] #rfg2 stop:nth-child(2) { stop-color: #ff2bd6; }
+#app[data-look="neon"] #rfg3 stop:nth-child(1) { stop-color: #ff2bd6; } #app[data-look="neon"] #rfg3 stop:nth-child(2) { stop-color: #fff27a; }
+#app[data-look="neon"] .ring-glow .l1 { background: radial-gradient(closest-side, #00e5ff59, #0094ff1f 60%, transparent 72%); }
+#app[data-look="neon"] .ring-glow .l2 { background: radial-gradient(closest-side, #ff2bd659, #00e5ff26 60%, transparent 72%); }
+#app[data-look="neon"] .ring-glow .l3 { background: radial-gradient(closest-side, #ff2bd673, #fff27a26 58%, transparent 72%); }
+#app[data-look="neon"] .hold-btn { background: radial-gradient(circle at 50% 34%, #3a0a5c, #1a0230 54%, #07000f 80%);
+  box-shadow: inset 0 1px 0 #ffffff26, inset 0 0 0 2px #00f0ff1a, inset 0 -8px 22px #000000aa, 0 0 0 1px #ff2bd633, 0 24px 50px -24px #000; }
+#app[data-look="neon"] .hold-heat { background: radial-gradient(circle at 50% 34%, #a0179a, #3d0560 54%, #07000f 80%); }
+#app[data-look="neon"] .hold-word { text-shadow: 0 0 8px #00f0ffcc, 0 0 22px #00f0ff66; }
+#app[data-look="neon"] .rh-corona { background: radial-gradient(closest-side, transparent 80%, #fff27ab3 85%, #ff8ae880 88%, #ff2bd633 93%, transparent 100%); }
+#app[data-look="neon"] .rh-halo { background: radial-gradient(closest-side, transparent 58%, #ff2bd659 70%, #00f0ff26 84%, transparent 100%); }
+#app[data-look="neon"] .ring-hot i { background: radial-gradient(circle, #fff 0 22%, #fff27a 45%, #ff2bd600 72%); }
+#app[data-look="neon"] .hc-hero:not(.holding)[data-heat="3"] #holdWord { text-shadow: 0 0 10px #ff2bd6, 0 0 24px #fff27a88; }
+#app[data-look="neon"] .heat-steps .hs.on[data-step="1"] { background: linear-gradient(135deg, #00e5ff2b, #0094ff1f); border-color: #00f0ffcc; box-shadow: inset 0 0 8px #00f0ff33, 0 0 14px -2px #00f0ffaa; }
+#app[data-look="neon"] .heat-steps .hs.on[data-step="2"] { background: linear-gradient(135deg, #00e5ff26, #ff2bd62b); border-color: #ff2bd6cc; box-shadow: inset 0 0 8px #ff2bd633, 0 0 14px -2px #ff2bd6aa; }
+#app[data-look="neon"] .heat-steps .hs.on[data-step="3"] { background: linear-gradient(135deg, #ff2bd633, #fff27a1f); border-color: #fff27acc; box-shadow: inset 0 0 8px #fff27a33, 0 0 14px -2px #ff2bd6cc; }
+#app[data-look="neon"] .heat-steps .hs.on[data-step="3"]::after { box-shadow: 0 0 22px -2px #ff2bd6, inset 0 0 8px #fff27a33; }
+#app[data-look="neon"] .pk-word { background-image: linear-gradient(105deg, #9ffcff 0%, #00e5ff 30%, #b35cff 58%, #ff2bd6 100%); }
+#app[data-look="neon"] .pick-title .pk-big { filter: drop-shadow(0 0 10px #ff2bd666); }
+#app[data-look="neon"] #pkg stop:nth-child(1) { stop-color: #00e5ff; } #app[data-look="neon"] #pkg stop:nth-child(2) { stop-color: #b35cff; } #app[data-look="neon"] #pkg stop:nth-child(3) { stop-color: #ff2bd6; }
+#app[data-look="neon"] .pick-sec { border-top-color: #ff2bd633; }
+#app[data-look="neon"] .stack .tile::after { content: ""; position: absolute; inset: 0; z-index: 4; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 1px #00f0ff73, inset 0 0 0 2px #ff2bd626, inset 0 -20px 30px -24px #ff2bd699; }
+#app[data-look="neon"]:not([data-theme="home"]) .hud::after, #app[data-look="neon"]:not([data-theme="home"]) .controls::after {
+  content: ""; position: absolute; left: 14px; right: 14px; height: 2px; border-radius: 2px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, #00f0ff 25%, #ff2bd6 75%, transparent); box-shadow: 0 0 10px #ff2bd6aa; opacity: .85; }
+#app[data-look="neon"]:not([data-theme="home"]) .hud::after { bottom: 0; }
+#app[data-look="neon"]:not([data-theme="home"]) .controls::after { top: 0; }
+#app[data-look="neon"] .heat-fill { background-image: linear-gradient(180deg, #ffffff55, #ffffff00 60%), linear-gradient(90deg, #9ffcff, #00e5ff 30%, #ff2bd6 66%, #fff27a) !important; box-shadow: 0 0 14px #ff2bd6aa; }
+
+/* =====================================================================================
+   5. Look loops follow the v14 budget: pause on navigation / scroll / hidden tab, stop on
+   low-end phones and with reduced motion (static frame kept)
+   ===================================================================================== */
+html.hc-nav #amb::before, html.hc-nav #amb::after, html.hc-nav .home-head::after, html.hc-nav .ht-glow,
+html.is-scrolling #amb::before, html.is-scrolling #amb::after, html.is-scrolling .home-head::after, html.is-scrolling .ht-glow,
+html.tab-hidden #amb::before, html.tab-hidden #amb::after, html.tab-hidden .home-head::after, html.tab-hidden .ht-glow { animation-play-state: paused !important; }
+.hc-hero.offscreen .ht-glow { animation-play-state: paused; }
+html.low-end #amb::before, html.low-end #amb::after, html.low-end .home-head::after, html.low-end .ht-glow,
+html[data-motion="reduce"] #amb::before, html[data-motion="reduce"] #amb::after, html[data-motion="reduce"] .home-head::after, html[data-motion="reduce"] .ht-glow { animation: none !important; }
+html.low-end #app[data-look="neon"] #amb::after, html[data-motion="reduce"] #app[data-look="neon"] #amb::after { display: none; }
+html.low-end #app[data-look="neon"] .ht-svg { filter: drop-shadow(0 0 6px #00e5ff99); }
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) #amb::before, html:not([data-motion="full"]) #amb::after, html:not([data-motion="full"]) .home-head::after, html:not([data-motion="full"]) .ht-glow { animation: none !important; }
+  html:not([data-motion="full"]) #app[data-look="neon"] #amb::after { display: none; }
+}
