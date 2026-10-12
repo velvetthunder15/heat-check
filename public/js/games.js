@@ -16,7 +16,13 @@ function stageHTML(html) {
   s.innerHTML = html;
   const host = s.querySelector(CARD_HOSTS);
   if (host && !host.querySelector('.pts-tag')) host.insertAdjacentHTML('afterbegin', Core.ptsTag());
-  s.style.animation = 'none'; void s.offsetWidth; s.style.animation = '';
+  // v14: restart the card entrance without a forced reflow; skipped while a screen transition runs
+  if (!document.documentElement.classList.contains('hc-nav')) {
+    if (s.classList.contains('hc-entered')) s.classList.remove('hc-entered');   // first card after a transition: the entrance starts fresh
+    const an = s.getAnimations ? s.getAnimations() : null;
+    if (an && an.length) an.forEach((a) => { a.cancel(); a.play(); });
+    else if (!an) { s.style.animation = 'none'; void s.offsetWidth; s.style.animation = ''; }
+  }
   return s;
 }
 function ctl() { const c = $('#ctl'); if (!c) throw new Error('left-game'); return c; }
