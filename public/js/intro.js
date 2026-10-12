@@ -306,18 +306,18 @@ const Intro = {
       } else if (allowedMax < 3 && done >= allowedMax) { done = allowedMax; }
       if (done > completed) {
         completed = done;
-        label(done); vibrate(done === 3 ? [30, 30, 60, 30, 90] : 18); SFX.play('softtick');
+        label(done); vibrate(done === 3 ? [30, 30, 60, 30, 90] : 18); SFX.ring('level', done);
         if (done < 3 && !blocked) line.textContent = VIBE[done];
         if (done === 3) { line.textContent = VIBE[3]; Burn.play(hero); }
       }
-      paint(done, frac);
+      paint(done, frac); SFX.ring('turn', done + frac);
       if (done < 3) raf = requestAnimationFrame(step);
     };
     const start = (e) => {
       if (holding) return;
       if (e && e.cancelable) e.preventDefault();
       if (e && e.pointerId != null) { try { btn.setPointerCapture(e.pointerId); } catch (err) {} }
-      SFX.unlock();
+      SFX.unlock(); SFX.ring('start');
       holding = true; completed = 0; blocked = 0; t0 = performance.now();
       hero.classList.remove('locked', 'burning'); Burn.stop(hero); hero.classList.add('holding'); app.classList.add('warming');
       line.textContent = 'Keep holding…';
@@ -328,6 +328,7 @@ const Intro = {
       if (!holding) return;
       holding = false; cancelAnimationFrame(raf);
       hero.classList.remove('holding', 'locked'); app.classList.remove('warming');
+      SFX.ring(completed >= 1 ? 'release' : 'cancel', completed);
       if (completed >= 1) {
         const set = Core.setHeat(completed);   // clamps to what this account may play, resets the ramp
         shown = set; paint(set, 0); label(set); setHeatAttr(set);
@@ -360,7 +361,7 @@ const Intro = {
       Core.resetHeat(); Taste.armed = false; shown = 1; setHeatAttr(1);
       hero.classList.remove('burning', 'locked'); Burn.stop(hero);
       line.textContent = `Back to Flirty. ${VIBE[1]}`;
-      sweep(from, 1); vibrate(12); SFX.play('tap');
+      sweep(from, 1); vibrate(12); SFX.ring('reset');
     };
     this.ring = { sync, sweep };
     // Idle loops (ring spin, glow breath, HOT flow) only run while the hero is on screen
