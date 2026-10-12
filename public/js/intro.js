@@ -104,11 +104,13 @@ const Intro = {
     const who = ps.length >= need ? ps.map((p) => esc(p.name)).join(' · ')
       : side === 'group' ? `Nobody here yet. Pick a game and add ${HC.GROUP_MIN} or more names.` : 'Nobody on the couch yet. Pick a game and add names.';
     const mode = side === 'group' ? { drink: '🍸 Sips', water: '💧 No alcohol' }[Core.S.group.mode] : { drink: '🍸 Drinks', water: '💧 Water', dare: '🎲 Dares only' }[Core.S.settings.mode];
+    const pst = window.UI && UI.passState ? UI.passState() : null, hp = pst && UI.headPill(pst);
     return `
-      <div class="home-head"><div class="logo logo-img" id="logo"><img src="/logo-wordmark.webp" width="694" height="289" alt="Heat Check" draggable="false" decoding="async" fetchpriority="high" /></div>
+      <div class="home-head${hp ? ' has-hpill' : ''}"><div class="logo logo-img" id="logo"><img src="/logo-wordmark.webp" width="694" height="289" alt="Heat Check" draggable="false" decoding="async" fetchpriority="high" /></div>
         <div class="row head-actions">
           <button class="icon-btn" data-act="mute" aria-label="Sound">${SFX.muted ? '🔇' : '🔊'}</button>
           <button class="icon-btn" id="cfg" aria-label="Players and settings">⚙️</button>
+          <span id="passHead" class="pass-head"${hp ? ` data-pill="1" data-k="${esc(pst.cls + '|' + pst.text)}"` : ''}>${hp ? UI.passHtml(pst) : ''}</span>
           <span id="avatarSlot">${this.avatar()}</span></div></div>
       <div class="session-bar">
         <button class="sb-chip sb-who" data-act="players" aria-label="Players">${ps.length >= need ? `👥 ${who}` : '👥 Add players'}</button>
