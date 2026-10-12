@@ -366,7 +366,7 @@ const Night = {
     if (showPaywall && window.UI) UI.plans($('#nightPlans'), {});
     $('#nightHome').onclick = () => { SFX.play('tap'); App.home(); };
     $('#nightShare').onclick = (e) => this.share(s, e.currentTarget);
-    SFX.play('win'); vibrate([30, 40, 60]);
+    SFX.play('endnight'); vibrate([30, 40, 60]);   // Velvet: chord resolve; Classic: the old win fanfare
   },
   // One-tap share: a 1080x1350 poster of the night, drawn on a canvas, shared as PNG (or downloaded)
   async share(s, btn) {
