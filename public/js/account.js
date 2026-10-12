@@ -74,8 +74,8 @@ const Auth = {
   email() { return (this.user && this.user.email) || (this.profile && this.profile.email) || ''; },
   async init() {
     let c;
-    try { c = await SB.get(); } catch (e) { this.ready = true; return; }
-    if (!c) { this.ready = true; return; }
+    try { c = await SB.get(); } catch (e) { this.ready = true; Guest.sync(); return; }
+    if (!c) { this.ready = true; Guest.sync(); return; }
     // Never call Supabase inside this callback directly (it can deadlock): defer.
     c.auth.onAuthStateChange((event, session) => {
       setTimeout(() => {
@@ -184,7 +184,7 @@ const Ent = {
   plan() { return this.tier(); },
   premium() { return this.tier() === 'premium'; },
   paid() { const t = this.tier(); return t === 'lite' || t === 'premium'; },
-  pro() { return this.premium(); },                       // unlimited players, saved names, every look
+  pro() { return this.premium(); },                       // unlimited players, saved names, Midnight + Neon looks
   liteLeft() { const p = Auth.profile; return this.profileTier() === 'lite' ? Math.max(0, Date.parse(p.premium_until) - Cfg.now()) : 0; },
   unlimitedPlayers() { return this.premium(); },
   inGame() { return !!document.getElementById('stage'); },
@@ -383,6 +383,17 @@ const Taste = {
   } catch (e) {}
 })();
 
+/* ---------- Guest (signed out) UI state: html.is-guest ----------
+   A guest is someone with no account session. Before the account library has loaded, a phone
+   with a saved session counts as signed in, so the header never flips on a returning user.
+   html.is-guest hides the session chips under the logo, shows the "Sign in" tab in their row
+   (same reserved height, so nothing moves) and locks the settings screen (v15). */
+const Guest = {
+  saved() { try { return !!localStorage.getItem('hc_auth'); } catch (e) { return false; } },
+  is() { return !Auth.signedIn() && (Auth.ready || !this.saved()); },
+  sync() { document.documentElement.classList.toggle('is-guest', this.is()); },
+};
+
 /* ---------- Preferences (local for guests, synced for accounts) ---------- */
 const Prefs = {
   defaults: { mode: 'drink', timer: HC.TIMER_DEFAULT, hollywood: true, bollywood: true, auto_ramp: true, cards_per_ramp: HC.RAMP_DEFAULT, haptics: true, motion: 'system', savedNames: [], soundPack: 'classic', look: 'ember' },
@@ -414,12 +425,14 @@ const Prefs = {
   apply(p = this.get()) {
     const html = document.documentElement;
     if (p.motion === 'system') delete html.dataset.motion; else html.dataset.motion = p.motion;
-    // Sounds: Lite and Premium. Looks: Lite gets Midnight, Premium gets every look.
+    // Sounds: Lite and Premium. Looks: Ember for everyone; Midnight and Neon are Premium only (v15).
+    // A saved Midnight/Neon on a Lite, Base or guest device falls back to Ember (the choice is kept
+    // in prefs, so it comes back if the account is Premium).
     SFX.setPack && SFX.setPack(Ent.paid() ? p.soundPack : 'classic');
     const app = document.getElementById('app');
     if (app) { if (this.lookOk(p.look) && p.look !== 'ember') app.dataset.look = p.look; else delete app.dataset.look; }
   },
-  lookOk(look) { return look === 'ember' || Ent.premium() || (Ent.paid() && look === 'midnight'); },
+  lookOk(look) { return look === 'ember' || Ent.premium(); },
   // Synced defaults: penalty mode, timer, Hollywood/Bollywood and auto-ramp
   applyNightDefaults() {
     const p = this.get(), st = Core.S.settings;
@@ -597,9 +610,9 @@ const Account = {
     // paint, first tap or a transition. A saved session loads it sooner.
     if (Cfg.accounts) {
       let saved = true; try { saved = !!localStorage.getItem('hc_auth'); } catch (e) {}
-      const go = () => Auth.init().catch((e) => { console.warn('auth init', e && e.message); Auth.ready = true; });
+      const go = () => Auth.init().catch((e) => { console.warn('auth init', e && e.message); Auth.ready = true; Guest.sync(); });
       if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: saved ? 1200 : 3500 }); else setTimeout(go, saved ? 0 : 1200);
-    } else Auth.ready = true;
+    } else { Auth.ready = true; Guest.sync(); }
     Ent._was = Ent.tier();
     setInterval(() => Ent.tick(), 1000);
     window.addEventListener('online', () => { if (Auth.signedIn()) Auth.refresh().then(() => Premium.load()); });
@@ -607,4 +620,6 @@ const Account = {
 };
 
 // Expose on window too (other modules feature-check with window.X)
-Object.assign(window, { GAME_IDS, SITE, Store, Cfg, SB, Bus, Auth, Api, Ent, Premium, Cards, Limits, Taste, Prefs, Stats, Sync, Pay, Captcha, Admin, Account });
+Bus.on((t) => { if (t !== 'heat') Guest.sync(); });
+Guest.sync();
+Object.assign(window, { Guest, GAME_IDS, SITE, Store, Cfg, SB, Bus, Auth, Api, Ent, Premium, Cards, Limits, Taste, Prefs, Stats, Sync, Pay, Captcha, Admin, Account });
