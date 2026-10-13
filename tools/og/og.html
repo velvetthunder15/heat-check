@@ -1,0 +1,42 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Inter;src:url(../../public/fonts/inter-var-4.woff2) format("woff2");font-weight:100 900}
+@font-face{font-family:Inter;src:url(../../public/fonts/inter-var-italic-4.woff2) format("woff2");font-weight:100 900;font-style:italic}
+html,body{margin:0;background:#140b10}
+#c{position:relative;width:1200px;height:630px;overflow:hidden;background:#140b10;font-family:Inter,sans-serif;color:#f8eef6}
+.g{position:absolute;border-radius:50%;filter:blur(10px)}
+.g1{left:-160px;top:120px;width:900px;height:720px;background:radial-gradient(closest-side,rgba(255,46,99,.40),rgba(255,46,99,.16) 50%,transparent)}
+.g2{left:460px;top:120px;width:900px;height:720px;background:radial-gradient(closest-side,rgba(255,122,60,.38),rgba(255,122,60,.14) 50%,transparent)}
+.pocket{position:absolute;left:270px;top:70px;width:660px;height:330px;border-radius:50%;background:radial-gradient(closest-side,rgba(20,11,16,.92),rgba(20,11,16,.6) 62%,transparent);filter:blur(8px)}
+.g3{left:300px;top:-260px;width:600px;height:420px;background:radial-gradient(closest-side,rgba(214,31,110,.25),transparent)}
+.vig{position:absolute;inset:0;background:radial-gradient(ellipse 75% 85% at 50% 50%,transparent 55%,rgba(8,4,7,.75) 100%)}
+.floor{position:absolute;left:0;right:0;bottom:0;height:200px;background:linear-gradient(transparent,rgba(255,90,60,.10))}
+.sp{position:absolute;border-radius:50%}
+.wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+.logo{width:600px;height:auto;display:block;margin-top:-6px}
+.tag{margin-top:20px;font-size:38px;font-weight:700;letter-spacing:-.01em;color:#fff3f0}
+.row{margin-top:26px;display:flex;gap:14px;align-items:center}
+.chip{font-size:24px;font-weight:800;padding:9px 22px;border-radius:999px;letter-spacing:.01em}
+.f{color:#ffd3de;background:rgba(255,46,99,.16);border:2px solid #ff2e63}
+.s{color:#fff;background:linear-gradient(90deg,#ff2e63,#ff7a3c)}
+.h{color:#2a0e05;background:linear-gradient(90deg,#ff7a3c,#ffd9a8 70%,#fff4e0);font-style:italic;font-weight:900;letter-spacing:.06em}
+.age{position:absolute;right:46px;top:40px;font-size:22px;font-weight:800;color:#f8eef6;border:2px solid rgba(248,238,246,.55);border-radius:12px;padding:5px 11px}
+</style></head><body><div id="c">
+<div class="g g3"></div><div class="g g1"></div><div class="g g2"></div><div class="floor"></div><div class="pocket"></div>
+<div id="sparks"></div><div class="vig"></div>
+<div class="age">18+</div>
+<div class="wrap">
+<img class="logo" src="../../public/logo-wordmark.webp" alt="">
+<div class="tag">Party games for couples &amp; groups</div>
+<div class="row"><span class="chip f">Flirty</span><span class="chip s">Spicy</span><span class="chip h">HOT</span></div>
+</div></div>
+<script>
+let s=7;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+const box=document.getElementById('sparks');
+for(let i=0;i<70;i++){const x=r()*1200,y=200+r()*430;
+ // keep the centre text area calmer
+ const dx=(x-600)/330,dy=(y-315)/210; if(dx*dx+dy*dy<1 && r()<.85) continue;
+ const d=1.5+r()*3.5,e=document.createElement('i');e.className='sp';
+ const c=r()<.5?'255,122,60':(r()<.5?'255,200,140':'255,46,99'); const a=.35+r()*.6;
+ e.style.cssText=`left:${x}px;top:${y}px;width:${d}px;height:${d}px;background:rgba(${c},${a});box-shadow:0 0 ${d*3}px rgba(${c},${a*.8})`;
+ box.appendChild(e);}
+</script></body></html>
