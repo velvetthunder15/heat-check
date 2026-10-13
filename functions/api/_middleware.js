@@ -1,12 +1,20 @@
 // Runs before every /api/* function: origin check (CORS), preflight, error safety net.
-// Allowed browser origins: SITE_URL, plus the origin actually serving the request
-// (so *.pages.dev previews work before the custom domain is set up).
+// Allowed browser origins: SITE_URL, its www twin, every host in ALT_HOSTS (www + pages.dev),
+// plus the origin actually serving the request (so *.pages.dev previews keep working).
 import { json } from '../../lib/http.js';
 
 function allowedOrigins(request, env) {
   const set = new Set([new URL(request.url).origin]);
   if (env.SITE_URL) {
-    try { set.add(new URL(env.SITE_URL).origin); } catch (e) { console.error('SITE_URL is not a valid URL'); }
+    try {
+      const u = new URL(env.SITE_URL);
+      set.add(u.origin);
+      if (!u.hostname.startsWith('www.')) set.add(`${u.protocol}//www.${u.host}`);
+    } catch (e) { console.error('SITE_URL is not a valid URL'); }
+  }
+  for (const h of String(env.ALT_HOSTS || '').split(',')) {
+    const host = h.trim().toLowerCase();
+    if (host) set.add(`https://${host}`);
   }
   return set;
 }
