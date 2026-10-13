@@ -21,7 +21,10 @@ function tomlSiteUrl() {
 
 function pickSiteUrl() {
   const e = process.env;
-  const raw = e.SITE_URL
+  // On Cloudflare Pages wrangler.toml wins: the dashboard copy of SITE_URL is read-only once
+  // the project is toml-managed and can lag behind (v17 domain move).
+  const raw = (e.CF_PAGES ? tomlSiteUrl() : '')
+    || e.SITE_URL
     || (e.VERCEL ? (e.VERCEL_PROJECT_PRODUCTION_URL ? `https://${e.VERCEL_PROJECT_PRODUCTION_URL}` : 'https://heat-check-sage.vercel.app') : '')
     || tomlSiteUrl()
     || e.CF_PAGES_URL
