@@ -59,3 +59,6 @@
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 /og.png
   Cache-Control: public, max-age=86400
+# v18: share image v2 (new name busts WhatsApp/Telegram/iMessage per-URL caches; next change = og-v3.png)
+/og-v2.png
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
