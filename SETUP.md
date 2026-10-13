@@ -47,7 +47,7 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 | `COOKIE_SECRET` | 32+ random characters | `openssl rand -base64 48` |
 | `TURNSTILE_SECRET` | Turnstile secret key | Cloudflare, Turnstile |
 | `TURNSTILE_SITE_KEY` ⚑ | Turnstile site key (public) | Cloudflare, Turnstile |
-| `SITE_URL` | `https://heat-check-a9b.pages.dev` now, the .app/.dev domain later | `wrangler.toml` `[vars]` |
+| `SITE_URL` | `https://www.playheatcheck.app` (v17; apex once it has a Pages certificate) | `wrangler.toml` `[vars]` |
 | `RATE_KV` ⚑ | KV namespace **binding** (not a variable) | `wrangler.toml` `[[kv_namespaces]]` |
 | `CONTACT_EMAIL` ⚑ | optional plain variable, shown on legal pages, profile and receipts | Pages build variable |
 
@@ -178,3 +178,12 @@ Smoothness only: no content, colour, copy, pricing or game-logic changes. New CS
 - Chain: voice -> per-sound gain -> master (mute = 0) -> compressor (-18, 4:1, knee 20, 3 ms, 150 ms). The first sounds after the context starts go through a dry path; the compressed path fades in 160 ms later (a fresh compressor starts clamped).
 - Press feedback (v16.1) is delegated in audio.js: `pointerdown` only remembers the press; the sound plays on `pointerup` for a real tap (same pointer, < 10 px, no pointercancel, no scroll, same control). Scrolls/swipes that start on a control and hover are silent. The `SFX.play('tap')` in the click handler that follows is suppressed. Add `data-nosfx` to a button that must stay silent. Classic must keep its old sounds; Velvet-only sounds (deal, endnight resolve, unlock, preview) are no-ops in Classic. Since v16.1 the hold ring has the full set in both packs (live voice + fire bed, rising ticks, lock1/2/3, hottail, hotrelease; voice starts after 0.08 turn; DRIVE soft-saturates the top-level sounds). Keep render hot loops in plain functions (not generator bodies) and idle work under the 8 ms budget.
 - Debug: `?sounddebug=1`. Tests: `test/audio16.mjs` (jsdom), `test/audio_render.mjs` (Node render + WAVs to `sounds16/`), `pw/audio16.mjs [dist] [port] main|cpu` (Chromium), `SOUND=1 pw/perf16.mjs` (perf14 with sound on), `pw/holdsim161.mjs` (offline full-hold WAVs to `sounds161/`), `test/ring_spectrum.py` (band/loudness check, needs numpy).
+
+## 12. Domain (v17, Oct 13 2026)
+- Domain playheatcheck.app (name.com; DNS stays at name.com): ANAME @ -> heat-check-a9b.pages.dev, CNAME www -> heat-check-a9b.pages.dev (TTL 300). Both added as Pages custom domains.
+- www.playheatcheck.app is active (Google cert) and is the primary URL (SITE_URL). The apex stays "pending: CNAME record not set": Pages only activates an apex domain when it is a zone on the Cloudflare account (docs: pages/configuration/custom-domains, "Add a custom apex domain"). Fix = add playheatcheck.app as a Cloudflare zone and switch nameservers, or keep name.com DNS and forward the apex to https://www.playheatcheck.app at name.com.
+- wrangler.toml vars: SITE_URL, ALT_HOSTS (extra CORS origins: apex, www, pages.dev), REDIRECT_HOSTS (hosts whose page navigations get a 301 to SITE_URL; empty now). functions/_middleware.js does the redirects and runs only for the page paths in public/_routes.json; /api/* is never redirected, so the Razorpay webhook keeps posting to pages.dev.
+- When the apex goes active: SITE_URL = "https://playheatcheck.app", REDIRECT_HOSTS = "www.playheatcheck.app,heat-check-a9b.pages.dev", Supabase site_url = apex, bump the version, deploy.
+- On Cloudflare Pages the build reads SITE_URL from wrangler.toml first (the dashboard copy is read-only and still says pages.dev).
+- Supabase auth: site_url https://www.playheatcheck.app; uri_allow_list apex, www, pages.dev (+ previews) and the Vercel mirror. Turnstile widget hostnames: playheatcheck.app, www.playheatcheck.app, heat-check-a9b.pages.dev, heat-check-sage.vercel.app. OTP email logo still loads from https://heat-check-a9b.pages.dev/email-logo.png (not redirected).
+- Razorpay webhook stays https://heat-check-a9b.pages.dev/api/razorpay-webhook (dashboard sign-in blocked); fine because /api is never redirected.
