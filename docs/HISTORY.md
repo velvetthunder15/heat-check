@@ -20,3 +20,6 @@
 
 ## v19 / hc-v40 (Oct 14 2026)
 - Apex playheatcheck.app is primary: Cloudflare zone + nameservers (brady/aria), Pages domain active. www and pages.dev pages 301 to apex; /api never redirected. Supabase site_url apex.
+
+## v19.1 / hc-v41 (Oct 14 2026)
+- Premium and Lite pills now the same size as the guest "Sign in" pill (Chirag: "make the premium pill as big as the default sign in pill ... shift it a BIT DOWN" + "same for lite"). Premium header pill 148 x 30 (was ~152 x 20), 13px/800 type (was 11px), radius 99px, same x-span as Sign in; now 8px under the circles (was 4px) so it clears the avatar's metal ring by 4px (was touching). Circles lift 19px (was 12px); session row margin 12px (was 8px). Lite pill (still under the session chips, its text is wider than the 148px header slot): 30px tall, 13px type (was 12px), min-width 148px. <324px: Premium pill stays in row 2 left of the avatar, 30px tall, 4px from the ring. CSS appended to v15.css only. Log: docs/BUILD_LOG_v19_1.md.
