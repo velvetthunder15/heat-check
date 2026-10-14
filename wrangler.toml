@@ -13,6 +13,8 @@ compatibility_date = "2026-09-01"
 # When the apex is active in Pages: set SITE_URL = "https://playheatcheck.app" and
 # REDIRECT_HOSTS = "www.playheatcheck.app,heat-check-a9b.pages.dev" (also the dashboard SITE_URL).
 SITE_URL = "https://playheatcheck.app"
+# Support inbox shown on legal pages, profile and receipts (CF Email Routing -> Chirag's Gmail).
+CONTACT_EMAIL = "support@playheatcheck.app"
 # Extra browser origins the /api middleware accepts (CORS), comma separated.
 ALT_HOSTS = "playheatcheck.app,www.playheatcheck.app,heat-check-a9b.pages.dev"
 # Hosts whose page navigations get a 301 to SITE_URL (functions/_middleware.js). Never /api/*.
