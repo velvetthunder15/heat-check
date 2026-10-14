@@ -26,3 +26,7 @@
 
 ## v19.2 hc-v42 (Oct 14 2026)
 - Support email: CONTACT_EMAIL = support@playheatcheck.app (wrangler.toml [vars] + CF dashboard prod/preview). Shown on terms/privacy/refund, profile and receipts. Inbound needs CF Email Routing (support@ -> chiragrasane15@gmail.com), enabled by Chirag in dashboard (API token can't see the zone). noreply@ is send-only (Resend).
+
+## v19.3 hc-v43 (Oct 14 2026)
+- HOT scaled down to POISON's size (Chirag first asked to enlarge POISON, then corrected: "do the opposite", keep POISON as is). .ht-svg height clamp(35.77px, 11.208vw, 52.46px) = POISON font-size x 124/104 (was clamp(54px, 17vw, 84px)); "How" / "is tonight?" unchanged (7.7vw), one line, centred; HOT nudged .55vw down onto the How baseline. Measured glyph height (DSF 3, ink column max) HOT/POISON: 320 22.7/22.7, 360 25.7/25.7, 390 27.3/27.7, 412 29.0/29.3. POISON untouched.
+- Strip Charades settings (Layers each) no longer leak into other games' openings: app.js _setup renders that section only when pendingGame is 'charades' or no game is pending (gear / players chip general settings, the only other place to set layers). Was: shown for every couples game opening. New t4 check (156 total). Log: docs/BUILD_LOG_v19_3.md.
