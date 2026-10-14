@@ -12,12 +12,12 @@ compatibility_date = "2026-09-01"
 # Pages certificate while DNS stays at name.com (Pages needs a Cloudflare zone for apex domains).
 # When the apex is active in Pages: set SITE_URL = "https://playheatcheck.app" and
 # REDIRECT_HOSTS = "www.playheatcheck.app,heat-check-a9b.pages.dev" (also the dashboard SITE_URL).
-SITE_URL = "https://www.playheatcheck.app"
+SITE_URL = "https://playheatcheck.app"
 # Extra browser origins the /api middleware accepts (CORS), comma separated.
 ALT_HOSTS = "playheatcheck.app,www.playheatcheck.app,heat-check-a9b.pages.dev"
 # Hosts whose page navigations get a 301 to SITE_URL (functions/_middleware.js). Never /api/*.
 # Empty = no redirects (pages.dev keeps serving the app as before).
-REDIRECT_HOSTS = ""
+REDIRECT_HOSTS = "www.playheatcheck.app,heat-check-a9b.pages.dev"
 # Public values (safe to commit). Secrets live in the Pages dashboard.
 SUPABASE_URL = "https://cpxfmecrqxlfzcldolcj.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNweGZtZWNycXhsZnpjbGRvbGNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MzQzNDIsImV4cCI6MjEwNzIxMDM0Mn0.bBOPCeS4IWoz3DvqmyBbeQ5i_L8QFCxZjiTqvja6gW4"
