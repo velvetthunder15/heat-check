@@ -283,3 +283,10 @@ html.low-end #app[data-look="neon"] .ht-svg { filter: drop-shadow(0 0 6px #00e5f
   .pass-head { position: static; }
   .pass-head .pass-banner { width: auto; padding: 0 10px; letter-spacing: .04em; }
 }
+
+/* ---------- v19.3: HOT scaled down to POISON's size (Chirag: match HOT to POISON, keep POISON as is) ---------- */
+/* HOT's glyphs are 104 units tall-font in a 124-unit viewBox, so an svg height of POISON's font-size x 124/104 gives
+   the same cap height as POISON (.pk-big: clamp(30px, 9.4vw, 44px)). "How" / "is tonight?" unchanged; still one line, centred. */
+#app .hero-title .ht-svg { height: clamp(35.77px, 11.208vw, 52.46px); }
+/* the smaller HOT sat ~2px above the "How" / "is tonight" baseline (centre-aligned svg, glyphs high in the viewBox): nudge it onto the baseline */
+#app .hero-title .ht-hot { top: .55vw; }
