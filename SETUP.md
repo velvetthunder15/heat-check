@@ -47,7 +47,7 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 | `COOKIE_SECRET` | 32+ random characters | `openssl rand -base64 48` |
 | `TURNSTILE_SECRET` | Turnstile secret key | Cloudflare, Turnstile |
 | `TURNSTILE_SITE_KEY` ⚑ | Turnstile site key (public) | Cloudflare, Turnstile |
-| `SITE_URL` | `https://www.playheatcheck.app` (v17; apex once it has a Pages certificate) | `wrangler.toml` `[vars]` |
+| `SITE_URL` | `https://playheatcheck.app` (v19/hc-v40: apex primary; www + pages.dev 301 to it, never /api) | `wrangler.toml` `[vars]` |
 | `RATE_KV` ⚑ | KV namespace **binding** (not a variable) | `wrangler.toml` `[[kv_namespaces]]` |
 | `CONTACT_EMAIL` ⚑ | optional plain variable, shown on legal pages, profile and receipts | Pages build variable |
 
@@ -187,3 +187,8 @@ Smoothness only: no content, colour, copy, pricing or game-logic changes. New CS
 - On Cloudflare Pages the build reads SITE_URL from wrangler.toml first (the dashboard copy is read-only and still says pages.dev).
 - Supabase auth: site_url https://www.playheatcheck.app; uri_allow_list apex, www, pages.dev (+ previews) and the Vercel mirror. Turnstile widget hostnames: playheatcheck.app, www.playheatcheck.app, heat-check-a9b.pages.dev, heat-check-sage.vercel.app. OTP email logo still loads from https://heat-check-a9b.pages.dev/email-logo.png (not redirected).
 - Razorpay webhook stays https://heat-check-a9b.pages.dev/api/razorpay-webhook (dashboard sign-in blocked); fine because /api is never redirected.
+
+
+## 13. v19 (hc-v40, Oct 14 2026): apex primary
+- playheatcheck.app added as a Cloudflare zone (same account); name.com nameservers now brady/aria.ns.cloudflare.com. Zone DNS: CNAME @ and www -> heat-check-a9b.pages.dev, proxied. Name.com DNS records are inactive.
+- Pages custom domain playheatcheck.app active (Google cert). SITE_URL = https://playheatcheck.app, REDIRECT_HOSTS = www + pages.dev (wrangler.toml and dashboard env). Supabase site_url = apex. Razorpay webhook still on pages.dev /api (never redirected).
