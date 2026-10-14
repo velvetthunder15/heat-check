@@ -260,3 +260,26 @@ html.low-end #app[data-look="neon"] .ht-svg { filter: drop-shadow(0 0 6px #00e5f
   .pass-head { position: static; transform: none; }
   .pass-head .pass-banner { width: auto; }
 }
+
+/* ---------- v19.1: Premium + Lite pills are the same size as the guest "Sign in" pill (Chirag: "make the premium pill as big as the default
+   sign in pill ... shift it a BIT DOWN" + "same for lite"). Sign-in pill = 148 x 30, radius 99px, 13px / 800 type.
+   Premium: 148 wide (= the 3-circle row, same as Sign in), 30 tall, and 8px below the circles so it clears the avatar's metal ring
+   (ring outer edge is 4px past the 44px avatar) with 4px to spare. Circles lift 19px = (8 + 30) / 2 so circles + pill stay centred
+   on the logo; the session row drops 4px more (margin 12px) to keep clear of the taller pill. All in the first-paint markup: CLS 0. */
+.home-head.has-hpill .head-actions { top: -19px; }
+.home-head.has-hpill + .session-bar { margin-top: 12px; }
+.pass-head { top: calc(100% + 8px); left: 0; right: 0; }
+.pass-head .pass-banner { width: 148px; min-height: 30px; height: 30px; padding: 0 12px; gap: 6px; border-radius: 99px;
+  font-size: 13px; font-weight: 800; letter-spacing: .06em; }
+/* Lite stays under the session chips (its "Lite · 47 min left" text is wider than the 148px header slot); same 30px height and 13px type,
+   never narrower than Sign in. It sits 60px+ below the avatar ring, so they can't meet. */
+.pass-banner-slot[data-pill="1"] .pass-banner { min-width: 148px; min-height: 30px; height: 30px; padding: 0 14px; gap: 6px; border-radius: 99px;
+  font-size: 13px; font-weight: 800; letter-spacing: .06em; }
+.pass-banner-slot[data-pill="1"] .pass-banner .pb-warn { font-size: 10px; padding: 2px 6px; }
+/* Below 324px the circles wrap to two rows and the pill sits in row 2, left of the avatar (no lift needed) */
+@media (max-width: 323.98px) {
+  .home-head.has-hpill .head-actions { top: 0; }
+  .home-head.has-hpill + .session-bar { margin-top: 4px; }
+  .pass-head { position: static; }
+  .pass-head .pass-banner { width: auto; padding: 0 10px; letter-spacing: .04em; }
+}
