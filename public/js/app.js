@@ -138,6 +138,9 @@ const App = {
     const coupleCap = HC.FREE_PLAYERS / 2;
     const cappedCouples = !unlimited && S.couples.length >= coupleCap;
     const filledGroup = S.group.players.length;
+    // v19.3: Strip Charades settings only when opening Strip Charades itself (or the general settings screen, no game picked);
+    // another game's opening (pendingGame = redflag, nhie, ...) never shows them.
+    const showStrip = !group && (!this.pendingGame || this.pendingGame === 'charades');
     const cappedGroup = !unlimited && filledGroup >= HC.FREE_PLAYERS;
     const coupleRow = (c, i) => `<div class="couple" data-c="${i}">
         <input class="input" data-k="a" maxlength="14" placeholder="Name" value="${esc(c.a)}">
@@ -181,8 +184,8 @@ const App = {
         ${sw('autoRamp', 'Auto-ramp', 'Heat climbs one level every few cards, up to the highest level you have.')}
         <div class="field" id="rpl" ${st.autoRamp ? '' : 'hidden'}><label>Cards per ramp</label>
           <div class="stepper"><button class="icon-btn" data-step="-1" aria-label="Fewer">−</button><b id="cpr">${st.cardsPerRamp}</b><button class="icon-btn" data-step="1" aria-label="More">+</button></div></div></section>
-      ${group ? '' : `
-      <section class="set-sec"><h3 class="set-h">Strip Charades</h3>
+      ${!showStrip ? '' : `
+      <section class="set-sec" id="setStrip"><h3 class="set-h">Strip Charades</h3>
         <div class="field"><label>Layers each</label>${seg('layers', [[3, '3'], [4, '4'], [5, '5'], [6, '6']])}</div></section>`}
       </div>
 
