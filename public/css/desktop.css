@@ -1,10 +1,13 @@
-/* ===== Heat Check v19.4: desktop polish (loaded last) =====
+/* ===== Heat Check v19.4 + v20: desktop (loaded last) =====
+   v20 (hc-v45): >= 1024px wide with a mouse, the app uses the whole screen (section 4 below):
+   home is a header bar + two columns, games put the card in a wide stage with a side panel,
+   sheets are centred dialogs. 900-1023px keeps the v19.4 560px column (section 1).
    Phones are untouched: every rule here sits behind a mouse-pointer media query, and the
    scene / sizing rules also need a wide window (>= 900px). No backdrop blur, no new loops:
    the side scene is one static fixed layer (rasterised once), hovers are filter/translate only. */
 
 /* ---------- 1. The column sits in a designed scene (wide screens, mouse) ---------- */
-@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+@media (min-width: 900px) and (max-width: 1023.98px) and (hover: hover) and (pointer: fine) {
   html, body { background: #070407; }
   /* side scene: the current theme's own colours, behind the ambience blobs (#amb is z -1).
      A hard-stop mask leaves the 560px column alone, so its own background shows as before. */
@@ -68,4 +71,216 @@
   .tile:focus-visible { outline: 3px solid color-mix(in srgb, var(--fg, #fff) 85%, transparent); outline-offset: 4px; }
   .input:focus-visible, .otp-box:focus-visible { outline: none; }
   #app:focus-visible, .modal:focus-visible, .sheet-full:focus-visible { outline: none; }
+}
+
+/* =====================================================================================
+   4. v20: full-screen desktop layout (>= 1024px wide, mouse). Phones and touch match none of it.
+   No backdrop blur, no new loops: panels are flat gradients, the deal-in is one transition.
+   ===================================================================================== */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  #app {
+    --dk-pad: clamp(24px, 2.4vw, 56px);
+    --dk-head: 88px;
+    --dk-left: clamp(400px, 38vw, 820px);
+    --dk-side: clamp(320px, 24vw, 420px);
+    --dk-acts: 148px;                    /* sound + settings + avatar: 3 x 44 + 2 x 8 */
+    --dk-slot: 0px;                      /* pass pill / Sign in slot left of the circles */
+    --dk-switch: 232px;
+    --dk-z: .92;
+    max-width: none; margin: 0; overflow-x: clip;
+  }
+  html.is-guest #app, #app:has(> .home-head.has-hpill) { --dk-slot: 162px; }
+  #app:has(> #passBanner[data-pill="1"]) { --dk-slot: 196px; }
+  #app:has(> #passBanner[data-pill="1"] > .warn) { --dk-slot: 262px; }
+  .intro { left: 0; right: 0; }
+  .countdown span { font-size: min(40vw, 260px); }
+  .b-edge.l, .b-edge.r { width: min(18vw, 120px); }
+  #app .hero-title .ht-hot { top: min(.55vw, 3.08px); }
+
+  /* ---------- 4a. Home: header bar + two columns ---------- */
+  #app:has(> #hero) {
+    display: grid; align-content: start;
+    grid-template-columns: [full-start left-start] var(--dk-left) [left-end right-start] minmax(0, 1fr) [right-end full-end];
+    grid-template-rows: [head] var(--dk-head) [banner] auto [sp1] minmax(0, 1fr) [pick] auto [stack] auto [sp2] minmax(0, 1fr) [foot] auto;
+  }
+  /* soft glow behind the left column and a hairline between the columns (one static layer) */
+  #app:has(> #hero)::before {
+    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+      linear-gradient(90deg, transparent calc(var(--dk-left) - 1px), color-mix(in srgb, var(--fg) 8%, transparent) calc(var(--dk-left) - 1px), color-mix(in srgb, var(--fg) 8%, transparent) var(--dk-left), transparent var(--dk-left)) 0 var(--dk-head) / 100% calc(100% - var(--dk-head)) no-repeat,
+      radial-gradient(closest-side, color-mix(in srgb, var(--accent) 14%, transparent), transparent) calc(var(--dk-left) / 2 - 360px) calc(50% - 300px) / 720px 720px no-repeat;
+  }
+  /* header row: logo left; chips, Couples/Groups, pass pill, circles right */
+  #app:has(> #hero) > .home-head, #app:has(> #hero) > .session-bar, #app:has(> #hero) > .side-switch { grid-row: head; grid-column: full; align-self: center; }
+  #app:has(> #hero) > .home-head { height: var(--dk-head); padding: 0 var(--dk-pad); align-items: center; border-bottom: 1px solid color-mix(in srgb, var(--fg) 8%, transparent); }
+  #app:has(> #hero) .home-head .logo.logo-img { width: 140px; }
+  #app:has(> #hero) .home-head .logo.logo-img img { max-width: 140px; max-height: 58px; }
+  #app .home-head.has-hpill .head-actions { top: 0; }
+  #app:has(> #hero) .home-head .head-actions { flex-wrap: nowrap; }
+  #app:has(> #hero) .pass-head { position: absolute; top: 50%; left: auto; right: calc(100% + 14px); transform: translateY(-50%); }
+  #app:has(> #hero) .pass-head .pass-banner { width: 148px; }
+  #app:has(> #hero) > .session-bar {
+    z-index: 2; margin: 0; min-height: 0; height: var(--dk-head); pointer-events: none;
+    display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-end; gap: 8px;
+    padding: 0 calc(var(--dk-pad) + var(--dk-acts) + 14px + var(--dk-slot) + var(--dk-switch) + 18px) 0 calc(var(--dk-pad) + 140px + 28px);
+  }
+  #app:has(> #hero) > .session-bar > * { pointer-events: auto; }
+  #app:has(> #hero) > .session-bar .sb-chip { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: inline-block; line-height: 32px; }
+  #app:has(> #hero) > .session-bar .end-night { flex: none; }
+  html.is-guest #app:has(> #hero) .signin-tab { top: 50%; right: calc(var(--dk-pad) + var(--dk-acts) + 14px); left: auto; transform: translateY(-50%); }
+  html.is-guest #app:has(> #hero) .signin-tab:active { transform: translateY(-50%) scale(.95); }
+  #app:has(> #hero) > .side-switch { z-index: 3; justify-self: end; width: var(--dk-switch); margin: 0 calc(var(--dk-pad) + var(--dk-acts) + 14px + var(--dk-slot)) 0 0; padding: 3px; }
+  #app:has(> #hero) > .side-switch button { min-height: 38px; font-size: 14px; }
+  /* Lite pill sits in the header slot; No pass / admin banner heads the right column */
+  #app:has(> #hero) > .pass-banner-slot { grid-column: right; grid-row: banner; margin: 20px var(--dk-pad) 0; padding: 0; }
+  #app:has(> #hero) > .pass-banner-slot[data-pill="1"] {
+    grid-row: head; grid-column: full; align-self: center; justify-self: end; z-index: 3;
+    width: calc(var(--dk-slot) - 14px); justify-content: flex-end; margin: 0 calc(var(--dk-pad) + var(--dk-acts) + 14px) 0 0;
+  }
+  #app:has(> #hero) > .pass-banner-slot:not([data-pill="1"]) .pass-banner { max-width: 1440px; margin: 0 auto; }
+
+  /* left column: the heat picker, held in view while the games scroll */
+  #app:has(> #hero) > .hc-hero {
+    grid-column: left; grid-row: banner / -1; align-self: start;
+    position: sticky; top: 0; height: calc(100vh - var(--dk-head)); min-height: 500px;
+    justify-content: center; gap: 14px; padding: 24px var(--dk-pad) 32px;
+  }
+  #app:has(> #hero) > .hc-hero > :is(.hero-micro, .hero-title, .ring-row, .heat-steps, .hold-line) { zoom: var(--dk-z, 1); }
+  #app:has(> #hero) .hold-line { min-height: 0; }
+
+  /* right column: Pick your POISON + the games as a grid */
+  #app:has(> #hero) > .pick-sec { grid-column: right; grid-row: pick; margin: 0 var(--dk-pad); padding: 28px 0 0; border-top: 0; }
+  #app:has(> #hero) .pk-chev { display: none; }
+  #app:has(> #hero) > .stack {
+    grid-column: right; grid-row: stack; align-self: start;
+    display: grid; grid-template-columns: repeat(var(--dk-cols, 2), minmax(0, 1fr)); gap: 22px;
+    width: 100%; max-width: 1560px; justify-self: center; padding: 24px var(--dk-pad) 36px;
+  }
+  #app:has(> #hero) > .stack > .note { grid-column: 1 / -1; }
+  #app:has(> #hero) > .center { grid-column: right; grid-row: foot; padding: 0 var(--dk-pad) 28px !important; }
+  /* tiles: sized for the grid, art and loops as before. Instead of the phone's deck fan they deal in once. */
+  #app:has(> #hero) .stack .tile { min-height: 190px; height: auto; aspect-ratio: var(--dk-tile, 2.05); transform: translateY(18px) scale(.97); }
+  #app:has(> #hero) .stack.fanned .tile { transform: none; }
+  #app:has(> #hero) .stack.fanned .tile:active { transform: scale(.97); }
+  #app:has(> #hero) .tile .t-name { font-size: 27px; }
+  #app:has(> #hero) .tile.nhie .t-name { font-size: 22px; }
+}
+@media (min-width: 1280px) and (min-height: 720px) and (hover: hover) and (pointer: fine) { #app { --dk-z: 1.12; } }
+@media (min-width: 1600px) and (hover: hover) and (pointer: fine) { #app { --dk-cols: 3; --dk-tile: 1.7; } }
+@media (min-width: 1600px) and (min-height: 860px) and (hover: hover) and (pointer: fine) { #app { --dk-z: 1.3; } }
+@media (min-width: 2200px) and (min-height: 1200px) and (hover: hover) and (pointer: fine) { #app { --dk-z: 1.6; --dk-head: 104px; } }
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  /* ---------- 4b. Games: wide stage + side panel (title, heat, scoreboard, actions) ---------- */
+  #app:has(> .hud) { padding-right: var(--dk-side); }
+  #app:has(> .hud) > .hud {
+    position: fixed; top: 0; right: 0; bottom: 0; width: var(--dk-side); margin: 0; z-index: 20;
+    display: flex; flex-direction: column; gap: 14px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+    padding: 22px 22px calc(var(--dk-ctl, 150px) + 16px);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--fg) 5%, var(--bg)), color-mix(in srgb, #000 28%, var(--bg)));
+    box-shadow: inset 1px 0 0 color-mix(in srgb, var(--fg) 10%, transparent), -24px 0 60px -30px #000c;
+  }
+  #app:has(> .hud) > .hud .hud-top { gap: 12px; }
+  #app:has(> .hud) > .hud .hud-title { font-size: 22px; white-space: normal; line-height: 1.1; overflow: visible; }
+  #app:has(> .hud) > .hud .heat { flex-direction: column-reverse; align-items: stretch; gap: 10px; margin-top: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+  #app:has(> .hud) > .hud .heat-label { text-align: left; min-width: 0; }
+  #app:has(> .hud) > .hud .heat-bar { flex: none; height: 12px; }
+  #app:has(> .hud) > .hud .limit-line { text-align: left; margin: 0 2px; }
+  #app:has(> .hud) > .hud .scores {
+    flex-direction: column; gap: 8px; overflow: visible; min-height: 0; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--line);
+  }
+  #app:has(> .hud) > .hud .scores::before { content: "Scoreboard"; font-size: 12px; font-weight: 600; font-style: italic; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 2px 2px; }
+  #app:has(> .hud) > .hud .scores .chip { width: 100%; min-height: 44px; justify-content: space-between; font-size: 15px; padding: 0 14px; flex: none; }
+  #app:has(> .hud) > .hud .scores .chip b { font-size: 17px; order: 9; }
+  #app:has(> .hud) > .hud .scores .chip .layers { margin-left: auto; margin-right: 12px; }
+  /* actions: the bar becomes the foot of the side panel */
+  #app:has(> .hud) > .controls {
+    left: auto; right: 0; transform: none; width: var(--dk-side); max-width: none; min-height: 0;
+    flex-wrap: wrap; align-items: stretch; gap: 10px; padding: 18px 22px 24px;
+    background: linear-gradient(transparent, color-mix(in srgb, #000 28%, var(--bg)) 24px);
+  }
+  #app:has(> .hud) > .controls .btn { min-height: 54px; }
+  #app:has(> .hud) > .controls::before { content: ""; position: absolute; left: 22px; right: 22px; top: 0; height: 1px; background: var(--line); pointer-events: none; }
+  /* Midnight / Neon: their hairline under the header becomes the panel's inner edge */
+  #app[data-look]:not([data-theme="home"]):has(> .hud) > .hud::after { position: absolute; left: 0; right: auto; top: 0; bottom: 0; width: 1px; height: auto;
+    background: linear-gradient(180deg, transparent, #dfe6ffa6 30%, #a48bffa6 70%, transparent); }
+  #app[data-look="neon"]:not([data-theme="home"]):has(> .hud) > .hud::after { width: 2px; background: linear-gradient(180deg, transparent, #00f0ff 25%, #ff2bd6 75%, transparent); }
+  #app[data-look="ember"]:not([data-theme="home"]):has(> .hud) > .hud::after { content: none; }
+  #app[data-look]:not([data-theme="home"]):has(> .hud) > .controls::before { content: none; }
+
+  /* the stage: centred in the space left of the panel */
+  #app:has(> .hud) > #stage.screen { width: 100%; max-width: 780px; margin: 0 auto; padding: 48px var(--dk-pad) 56px; justify-content: safe center; }
+  #app:has(> .hud) > .rf-banner { width: 100%; max-width: 780px; margin: 24px auto -24px; }
+  #app:has(> .hud) .prompt { font-size: clamp(28px, 2.3vw, 38px); }
+  #app:has(> .hud) .neon-sign { font-size: clamp(28px, 2.3vw, 38px); }
+  #app:has(> .hud) .frames .frame { aspect-ratio: auto; height: clamp(200px, 30vh, 300px); }
+  #app:has(> .hud) .cups { gap: 24px; }
+  /* overlays that centred on the old column: centre them over the stage */
+  #app:has(> .hud) > .intro { right: var(--dk-side); }
+  #app:has(> .hud) > :is(.toast, .lite-warn, .hot-chip) { left: calc((100% - var(--dk-side)) / 2); }
+
+  /* ---------- 4c. Setup, consent, age gate, night summary ---------- */
+  #app > main.screen:not(#stage) { width: 100%; max-width: 920px; margin: 0 auto; padding-left: var(--dk-pad); padding-right: var(--dk-pad); }
+  #app > main.setup:not(#stage) { padding-top: 32px; }
+  #app > main.setup:not(#stage) .set-lockwrap { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; align-items: start; }
+  #app > main.setup:not(#stage) .set-lockwrap > :not(.set-sec) { grid-column: 1 / -1; }
+  #app > main.setup:not(#stage) #save { max-width: 420px; margin-left: auto; margin-right: auto; }
+  #app > main.allin:not(#stage) { justify-content: center; max-width: 640px; }
+  #app > main.allin:not(#stage) .allin-body { width: 100%; max-width: 460px; margin: 0 auto; }
+  #app > main.night:not(#stage) { max-width: 1040px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; align-content: start; padding-top: 24px; }
+  #app > main.night:not(#stage) > * { grid-column: 1 / -1; }
+  #app > main.night:not(#stage) > .night-card { grid-column: auto; }
+  #app > main.night:not(#stage) > .night-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  #app > main.night:not(#stage) > .night-actions { flex-direction: row; justify-content: center; }
+  #app > main.night:not(#stage) > .night-actions .btn { width: auto; min-width: 260px; }
+  #app > main.night:not(#stage) > .night-title { font-size: 52px; }
+
+  /* ---------- 4d. Sheets and dialogs: centred, with a backdrop ---------- */
+  .modal-wrap { place-items: center; padding: 32px; }
+  .modal { width: min(600px, 100%); max-width: 600px; max-height: calc(100vh - 64px); overflow-y: auto; border-radius: 28px; border: 1px solid var(--line); border-top: 2px solid var(--accent); padding: 28px 28px 26px; }
+  .modal-wrap.full { place-items: center; padding: 32px; }
+  .sheet-full { width: min(640px, 100%); max-width: 640px; height: auto; max-height: calc(100vh - 64px); border-radius: 28px; border: 1px solid var(--line); box-shadow: 0 40px 120px -30px #000, 0 0 0 1px #0008; }
+  .sheet-full .sf-head { border-radius: 28px 28px 0 0; padding: 22px 24px 14px; }
+  /* profile: two columns */
+  .acct-wrap.profile .sheet-full { width: min(980px, 100%); max-width: 980px; }
+  .acct-wrap.profile .sf-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 24px 28px; align-items: start; grid-auto-flow: row dense; }
+  .acct-wrap.profile .sf-body > * { min-width: 0; margin: 0; }
+  .acct-wrap.profile .sf-body > .pf-hero, .acct-wrap.profile .sf-body > .pf-card:has(> .field), .acct-wrap.profile .sf-body > :last-child:nth-child(even) { grid-column: 1 / -1; }
+  .acct-wrap.profile .pf-card:has(> .field) { display: block; columns: 2; column-gap: 36px; }
+  .acct-wrap.profile .pf-card:has(> .field) > * { break-inside: avoid; margin-bottom: 10px; }
+  .acct-wrap.profile .pf-card:has(> .field) > h3 { column-span: all; margin-bottom: 12px; }
+  .acct-wrap.profile .pf-card:has(> .field) > p.note:last-child { column-span: all; margin: 4px 0 0; }
+}
+
+/* v20 refinements */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  #app:has(> .hud) > .hud .hud-top { flex-wrap: wrap; row-gap: 14px; }
+  #app:has(> .hud) > .hud .hud-top > .icon-btn:first-child { order: 0; }
+  #app:has(> .hud) > .hud .hud-top > .hud-title { order: 5; flex: 1 0 100%; font-size: 28px; padding: 0 2px; }
+  #app:has(> .hud) > .hud .hud-top > :not(.icon-btn:first-child):not(.hud-title) { order: 1; margin-left: auto; }
+  #app:has(> .hud) > .hud .hud-top > :not(.icon-btn:first-child):not(.hud-title) ~ :not(.hud-title) { margin-left: 0; }
+  #app:has(> .hud) .cups { max-width: 620px; width: 100%; margin-left: auto; margin-right: auto; }
+  #app:has(> #hero) .hold-line { max-width: 420px; }
+  #app:has(> #hero) > .toast { top: calc(var(--dk-head) + 16px); }
+  #app:has(> .hud) > .toast { top: 28px; }
+}
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  /* the banner (Red Flag's flags) and the stage centre together as one group */
+  #app:has(> .hud) { justify-content: safe center; }
+  #app:has(> .hud) > #stage.screen { flex: 0 0 auto; }
+  #app:has(> .hud) > .rf-banner { margin: 32px auto -36px; }
+}
+
+/* very large screens: scale the reading screens and dialogs up as a whole */
+@media (min-width: 2200px) and (min-height: 1200px) and (hover: hover) and (pointer: fine) {
+  #app { --dk-zd: 1.3; }
+  #app > main.screen:not(#stage), #app > #stage.screen, #app > .rf-banner { zoom: 1.25; }
+  #app > main.allin:not(#stage) { min-height: calc(100svh / 1.25); }
+  .modal-wrap > .modal, .modal-wrap > .sheet-full { zoom: var(--dk-zd); max-height: calc((100vh - 64px) / var(--dk-zd)); }
+}
+@media (min-width: 2200px) and (min-height: 1200px) and (hover: hover) and (pointer: fine) {
+  #app:has(> .hud) > :is(.hud, .controls) { zoom: 1.25; width: calc(var(--dk-side) / 1.25); }
+}
+@media (min-width: 1600px) and (hover: hover) and (pointer: fine) {
+  #app:has(> .hud) > #stage.screen, #app:has(> .hud) > .rf-banner { max-width: 920px; }
 }
