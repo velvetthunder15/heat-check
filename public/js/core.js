@@ -46,7 +46,7 @@ const Core = {
       couples: [{ a: '', b: '' }],
       group: { players: ['', '', ''], mode: 'drink' },
       settings: { mode: 'drink', autoRamp: true, cardsPerRamp: HC.RAMP_DEFAULT, layers: 5, timer: HC.TIMER_DEFAULT, hollywood: true, bollywood: true },
-      heat: 1, rampCount: 0,
+      heat: 1, rampCount: 0, heatGen: 0, held: {},
       scores: {}, layers: {}, named: {}, chicken: {}, round: 0, turn: 0,
       night: this.freshNight(),
     };
@@ -85,6 +85,11 @@ const Core = {
     if (fresh) { this.S.heat = 1; this.S.rampCount = 0; }
     this.S.heat = [1, 2, 3].includes(+this.S.heat) ? +this.S.heat : 1;
     this.S.rampCount = Math.max(0, +this.S.rampCount || 0);
+    // v20.1: the card each game had on screen (survives leaving the game and a reload)
+    this.S.heatGen = Math.max(0, +this.S.heatGen || 0);
+    const hd = this.S.held && typeof this.S.held === 'object' && !Array.isArray(this.S.held) ? this.S.held : {};
+    this.S.held = {};
+    for (const [g, h] of Object.entries(hd)) if (h && h.card && typeof h.card.text === 'string' && h.card.game === g) this.S.held[g] = { card: h.card, lvl: [1, 2, 3].includes(+h.lvl) ? +h.lvl : 1, gen: +h.gen || 0, st: h.st && typeof h.st === 'object' ? h.st : {} };
     this.save();
   },
   isGroup() { return this.S.side === 'group'; },
@@ -171,12 +176,12 @@ const Core = {
   // Manual change (hold ring or heat sheet): clamps to what's allowed and resets the ramp counter
   setHeat(level) {
     this.S.heat = Math.max(1, Math.min(+level || 1, this.heatCap()));
-    this.S.rampCount = 0;
+    this.S.rampCount = 0; this.S.heatGen = (this.S.heatGen || 0) + 1;
     this.save(); this.updateHud();
     window.Bus && Bus.emit('heat');
     return this.S.heat;
   },
-  resetHeat() { this.S.heat = 1; this.S.rampCount = 0; this.save(); this.updateHud(); window.Bus && Bus.emit('heat'); },
+  resetHeat() { this.S.heat = 1; this.S.rampCount = 0; this.S.heatGen = (this.S.heatGen || 0) + 1; this.save(); this.updateHud(); window.Bus && Bus.emit('heat'); },
   // Auto-ramp: every N cards heat climbs one level, up to the highest allowed. Never nags.
   nextRound() {
     this.S.round++;
@@ -187,7 +192,7 @@ const Core = {
         this.S.rampCount = 0;
         const cap = this.heatCap(), cur = Math.min(this.S.heat, cap);
         if (cur < cap) {
-          this.S.heat = cur + 1;
+          this.S.heat = cur + 1; this.S.heatGen = (this.S.heatGen || 0) + 1;
           this.toast(`Heating up: ${HEAT[cur + 1].name}`);
           vibrate([40, 40, 80]);
           this._rampFx = true;
@@ -216,7 +221,8 @@ const Core = {
     if (this.S.heat === 3 && want < 3 && this.tier() === 'lite' && window.Cards) Cards.usedUp(game);   // says so once per game
     if (want === 3) {
       const c = window.Cards ? await Cards.hot(game) : null;
-      if (!document.getElementById('stage') || this.game !== game) throw new Error('left-game');
+      // v20.1: a HOT card that arrives after the player left is kept for when they come back (it's already counted)
+      if (!document.getElementById('stage') || this.game !== game) { if (c) this.holdCard(game, this.show(c)); throw new Error('left-game'); }
       if (c) return this.show(c);
       want = 2;
     }
@@ -262,6 +268,41 @@ const Core = {
     window.Stats && Stats.heat(c.heat);
     this.updateHud();
     return c;
+  },
+  /* ---------- v20.1: the card on screen is kept per game ----------
+     S.held[game] = { card, lvl, gen, st }: the card dealt last, the heat level it was dealt at, the heat
+     change counter then, and the game's in-progress state (whose turn to lock in, cups tilted, vote mode).
+     Re-entering the game shows that card again without spending anything (no Flirty count, no HOT, no
+     free taste, no "Deal it" gate, no second count in tonight's stats). A new card replaces it only when
+     the next card is asked for. Heat changed since (ring, chips, heat sheet, auto-ramp): a fresh card at
+     the new level. Card no longer allowed (Lite ran out, origin switched off): dealt normally. */
+  restoreFor: null,
+  tierMax() { const t = this.tier(); return t === 'premium' || t === 'lite' ? 3 : 1; },
+  holdLvl() { return Math.max(1, Math.min(this.S.heat || 1, this.tierMax())); },
+  holdCard(game, card) { if (!card || !game) return; this.S.held[game] = { card, lvl: this.holdLvl(), gen: this.S.heatGen || 0, st: {} }; this.save(); },
+  holdSt(game, patch) { const h = this.S.held[game]; if (!h) return; h.st = patch === null ? {} : Object.assign({}, h.st, patch); this.save(); },
+  dropHeld(game) { if (this.S.held[game]) { delete this.S.held[game]; this.save(); } },
+  heldOk(game, h) {
+    const c = h && h.card; if (!c || c.game !== game || !c.text) return false;
+    const t = this.tier(), paid = t === 'lite' || t === 'premium', ch = +c.heat || 1;
+    if (ch === 2 && !paid) return false;
+    if (ch === 3 && !paid && !(c.taste && t === 'base')) return false;
+    if (!this.originOk(c)) return false;
+    if (h.lvl > this.tierMax()) return false;
+    // same level, or no heat change since it was dealt (a new session starts at Flirty on its own)
+    return h.lvl === this.holdLvl() || h.gen === (this.S.heatGen || 0);
+  },
+  restoreHeld(game) {
+    const h = this.S.held[game]; if (!h) return null;
+    if (!this.heldOk(game, h)) { this.dropHeld(game); return null; }
+    if (h.lvl !== this.holdLvl()) { this.S.heat = h.lvl; this.save(); }
+    const c = h.card;
+    if (c.taste && window.Taste) Taste.showing = game;
+    this.cardHeat = +c.heat || 1;
+    const key = game + this.cardHeat; (this.used[key] = this.used[key] || new Set()).add(c.text);
+    const r = (this.recent[game] = this.recent[game] || []); if (!r.includes(c.text)) { r.push(c.text); if (r.length > 40) r.shift(); }
+    this.updateHud();
+    return h;
   },
   // A small chip on every card: "Spicy · 2 pts penalty"
   ptsTag(h = this.cardHeat || this.heat()) { return `<span class="pts-tag h${h}" data-h="${h}">${esc(ptsLabel(h))}</span>`; },
@@ -321,11 +362,11 @@ const Core = {
    * Each player can Chicken Out of it once per round: no points, no penalty.
    * DARES mode shows only the dare. DRINKS and WATER show sips, with the dare as an optional swap.
    */
-  penalty({ who, card, heat = card?.heat || this.heat(), reason = '' }) {
+  penalty({ who, card, heat = card?.heat || this.heat(), reason = '', mode: forced = null }) {
     who = [].concat(who).filter((i) => i >= 0);
     if (!who.length) return Promise.resolve('none');
     SFX.play('penalty'); vibrate(120);
-    const mode = this.penMode(), n = pts(heat);
+    const mode = forced || this.penMode(), n = pts(heat);   // v20.1: Never Have I Ever forces 'dare'
     const dare = mode === 'dare' ? this.dareFor(card) : (card && card.optionalDare) || '';
     const single = who.length === 1;
     const chickens = who.filter((i) => this.chickenLeft(i) > 0);
