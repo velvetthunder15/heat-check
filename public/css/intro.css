@@ -39,7 +39,8 @@
   opacity: calc(.15 + var(--hold, 0) * .7); transition: opacity var(--dur-m) var(--ease-out); }
 .hold-btn:focus-visible { outline: 3px solid var(--accent2); outline-offset: 8px; }
 .hc-hero.holding .hold-btn { transform: scale(.96); transition-duration: var(--dur-xs); }
-.hc-hero[data-level="1"] { --hc-ring: #ffd166; } .hc-hero[data-level="2"] { --hc-ring: #ff7a3c; } .hc-hero[data-level="3"] { --hc-ring: #ff2e63; }
+/* v20.2: set on the button that reads it, not the hero (an inherited custom property on the hero restyled all ~230 hero elements on every level change) */
+.hc-hero[data-level="1"] .hold-btn { --hc-ring: #ffd166; } .hc-hero[data-level="2"] .hold-btn { --hc-ring: #ff7a3c; } .hc-hero[data-level="3"] .hold-btn { --hc-ring: #ff2e63; }
 .ring-svg { position: absolute; inset: -6px; width: calc(100% + 12px); height: calc(100% + 12px); transform: rotate(-90deg); overflow: visible; }
 .ring-svg circle { fill: none; stroke-width: 7; stroke-linecap: round; stroke-dasharray: 100 100; }
 .ring-track { stroke: #ffffff14; stroke-dashoffset: 0; }
