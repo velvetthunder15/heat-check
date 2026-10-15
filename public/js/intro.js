@@ -336,9 +336,10 @@ const Intro = {
         const set = Core.setHeat(completed);   // clamps to what this account may play, resets the ramp
         shown = set; paint(set, 0); label(set); setHeatAttr(set);
         hero.classList.toggle('burning', set === 3);
+        if (set === 3 && completed >= 3 && window.Motion2) Motion2.ignite(hero, 'release');   // v20.2: rides the hotrelease flame burst
         if (!blocked) line.textContent = VIBE[set];
         const pick = $('#pick');
-        if (pick) setTimeout(() => pick.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' }), 160);
+        if (pick) setTimeout(() => { if (!holding && pick.isConnected) pick.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' }); }, set === 3 && !reducedMotion() ? 620 : 160);   // v20.2: at HOT the release burst plays before the glide to the games
       } else {
         // Let go before the first full turn: keep the current level, ease the ring back
         const fromV = (hero._hold || 0) * 3;
@@ -447,7 +448,8 @@ const Burn = {
     const flames = LOW_END ? 1 : 3;
     const embers = LOW_END ? 0 : 16;
     // Screen edges ignite: a fixed layer on #app (above everything, never catches taps)
-    if (!LOW_END) {
+    // v20.2: Motion2.ignite's single warmth pulse replaces the four screen-edge layers (one small layer instead of four wide ones)
+    if (!LOW_END && !(window.Motion2 && document.body.animate)) {
       const edges = document.createElement('div');
       edges.className = 'burn-edges igniting'; edges.setAttribute('aria-hidden', 'true');
       edges.innerHTML = '<i class="b-edge t"></i><i class="b-edge b"></i><i class="b-edge l"></i><i class="b-edge r"></i>';
@@ -461,11 +463,13 @@ const Burn = {
       (embers ? `<span class="b-embers">${Array.from({ length: embers }, (_, k) => `<i style="--x:${(Math.random() * 2 - 1) * 90}px;--d:${(Math.random() * 0.6).toFixed(2)}s;--s:${(0.6 + Math.random() * 0.8).toFixed(2)}"></i>`).join('')}</span>` : '');
     hero.appendChild(layer);
     hero.classList.add('burning', 'igniting');
-    const word = $('#holdWord'); if (word) { word.classList.remove('pop'); void word.offsetWidth; word.classList.add('pop'); }
-    this._t = setTimeout(() => { hero.classList.remove('igniting'); layer.classList.add('smolder'); }, 1500);
+    if (window.Motion2) Motion2.ignite(hero, 'lock');   // v20.2: flash, shockwave, HOT word ignition, embers (rides lock3)
+    const word = $('#holdWord'); if (word) { word.classList.remove('pop'); requestAnimationFrame(() => word.classList.add('pop')); }   // v20.2: no forced reflow at the lock
+    this._t = setTimeout(() => { hero.classList.remove('igniting'); layer.classList.add('smolder'); }, 1150);   // v20.2: 1.1s burn (motion2.css)
   },
   stop(hero) {
     clearTimeout(this._t);
+    if (window.Motion2) Motion2.stop();
     if (this._edges) { this._edges.remove(); this._edges = null; }
     if (!hero) return;
     hero.classList.remove('igniting');
