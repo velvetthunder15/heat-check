@@ -69,4 +69,7 @@ Screenshots: /workspace/work/heatcheck/shots20/ (final_<w>_<look>_<plan>_<screen
 Backup of the v44 source: /workspace/work/heatcheck/repo_v44_backup_desktop2col (dist: dist_v44_before).
 
 ## Deploy
-See HISTORY.md (deployment id recorded there).
+CF Pages production deployment e0cc4af0-fa32-424f-83b8-8101250d8af7 (commit 63eb6aa8, branch main): success. Live /sw.js = hc-v45
+(browser user agent), index loads desktop.css?v=45, /api/config 200 on the apex and pages.dev. Same flow as v19.4: CF auto production
+deploys off and Vercel commandForIgnoringBuildStep "exit 0" during the file-by-file sync, both restored (production_deployments_enabled
+true, commandForIgnoringBuildStep null), then one POST /pages/projects/heat-check/deployments branch=main. No account or DB changes.
