@@ -59,4 +59,7 @@ tools/build.mjs` (HOT lint ok, cards ok, 7 files stamped). Backup of v20.1 sourc
 
 ## Deploy
 Same flow as v20.1: CF auto production deploys off + Vercel commandForIgnoringBuildStep "exit 0" during the file-by-file sync,
-both restored, then one POST /pages/projects/heat-check/deployments branch=main. No account or DB changes.
+both restored (production_deployments_enabled true, commandForIgnoringBuildStep null), then one POST /pages/projects/heat-check/deployments branch=main.
+CF Pages production deployment 2e17ed5e-dc59-4b13-8a41-786fdb46d639 (commit a9d0aa9c, branch main): success. Live /sw.js = hc-v47
+(browser UA), index loads motion2.css?v=47, /css/motion2.css?v=47 200, /api/config 200. 390 HOT ignition capture re-rendered against the
+final dist (shots202/hot_ignition_390_hold.mp4, hot_ignition_strip_390.png). No account or DB changes.
