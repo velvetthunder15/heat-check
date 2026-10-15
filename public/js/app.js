@@ -99,6 +99,7 @@ const App = {
     window.Nav && Nav.enter('game');
     Core.game = id;
     Core.dealt = {};
+    Core.restoreFor = id;   // v20.1: the first deal brings back this game's card if it had one
     gateWait = null;
     window.Stats && Stats.game(id);
     Core.stopTimers();
@@ -115,7 +116,7 @@ const App = {
     const summary = Night.summarize();
     Night.save(summary);
     // The night is over: scores, layers, Chicken Outs, heat and ramp reset. Players stay.
-    Object.assign(Core.S, { scores: {}, layers: {}, named: {}, chicken: {}, round: 0, turn: 0, heat: 1, rampCount: 0, night: Core.freshNight() });
+    Object.assign(Core.S, { scores: {}, layers: {}, named: {}, chicken: {}, round: 0, turn: 0, heat: 1, rampCount: 0, held: {}, night: Core.freshNight() });
     Core.used = {}; Core.recent = {}; Core.cardHeat = 0;
     window.Prefs && Prefs.applyNightDefaults(); Core.save();
     Nav.enter('night');
@@ -170,7 +171,8 @@ const App = {
       <section class="set-sec"><h3 class="set-h">Penalties</h3>
         <div class="field"><label>How do penalties work?</label>
           ${group ? seg('mode', [['drink', '🍸 Sips'], ['water', '💧 No alcohol']], S.group) : seg('mode', [['drink', '🍸 Drinks'], ['water', '💧 Water'], ['dare', '🎲 Dares']])}
-          <p class="note" id="modeNote"></p></div>
+          <p class="note" id="modeNote"></p>
+          ${!group && (!this.pendingGame || this.pendingGame === 'nhie') ? '<p class="note nhie-note">Never Have I Ever always plays dares: the sipping is already the game.</p>' : ''}</div>
         <p class="note">Penalty points: Flirty ${HC.PENALTY_PTS[1]}, Spicy ${HC.PENALTY_PTS[2]}, ${HOT} ${HC.PENALTY_PTS[3]}. Each penalty is taken on the spot and its points land on the scoreboard. Anyone can Chicken Out once a round, no penalty.</p></section>
 
       <section class="set-sec"><h3 class="set-h">Timer</h3>
