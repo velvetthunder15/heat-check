@@ -66,3 +66,6 @@ Space/Enter on the focused ring already worked (intro.js), untouched.
 
 Screenshots: /workspace/work/heatcheck/shots194/ (final_1440_*, final_1280_*, final_1920_*, kb_1440_*,
 mob_before_* / mob_after_*).
+
+## Deploy
+CF Pages production deployment 906ac63d-ad61-49d5-ab99-7ca158943c10 (commit 1faa2cda, branch main): success. Live /sw.js = hc-v44, index loads desktop.css?v=44, /api/config 200 (apex and pages.dev). Auto production deploys were off during the file-by-file sync (the pushes leave "queued idle" placeholders, as in v19.3) and Vercel ignored builds (commandForIgnoringBuildStep "exit 0", restored to null after). Note: curl with its default user agent gets a Cloudflare "Just a moment" 403 on the apex; a browser UA gets 200.
