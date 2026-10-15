@@ -1,0 +1,123 @@
+/* ===== Heat Check v20.2: 60 fps motion pass + HOT ignition (loaded last) =====
+   Transform + opacity only. Small layers, promoted only while they move (WAAPI promotes for the
+   length of the animation), removed afterwards. HOT palette only: #ff7a3c -> #fff4e0 with the
+   #ff2e63 ember edge. Reduced motion: fades only. html.low-end: lighter variants. */
+
+/* ---------- 1. HOT ignition (Motion2.ignite, layers inside the hold ring) ---------- */
+#app .hold-btn > .hc-ign { position: absolute; inset: 0; z-index: 4; pointer-events: none; border-radius: 50%; }
+.hc-ign > i, .hc-ign .ig-sparks i { position: absolute; display: block; pointer-events: none; }
+/* white-hot flash over the ring */
+.hc-ign .ig-flash { inset: -14px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(closest-side, #fff4e0f2 0, #fff4e0b3 30%, #ffd2b080 52%, #ff7a3c40 70%, transparent 78%); }
+.ig-release .ig-flash { inset: 6px; background: radial-gradient(closest-side, transparent 52%, #fff4e0cc 66%, #ff7a3c66 78%, transparent 90%); }
+/* shockwave: a thin hot ring that expands and fades */
+.hc-ign .ig-wave { inset: -6px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(closest-side, transparent 84%, #ff7a3c59 88%, #fff4e0 92%, #ffb48a99 95%, transparent 100%); }
+.hc-ign .ig-wave.w2 { inset: 10px; background: radial-gradient(closest-side, transparent 82%, #fff4e0cc 90%, #ff7a3c66 95%, transparent 100%); }
+/* embers: three clusters of hot dots (one layer each) that fly up off the ring and spread as they scale */
+.hc-ign .ig-em { left: 50%; top: 30%; width: 128px; height: 128px; margin: -64px 0 0 -64px; opacity: 0; }
+.hc-ign .ig-em.e1 { background: radial-gradient(circle at 18% 70%, #fff 1.8px, #ffd2b0 3.0px, transparent 5.0px), radial-gradient(circle at 34% 30%, #fff 1.4px, #ff7a3c 2.4px, transparent 4.0px), radial-gradient(circle at 52% 82%, #fff 1.2px, #ffd2b0 2.1px, transparent 3.5px), radial-gradient(circle at 70% 46%, #fff 1.8px, #ff7a3c 3.0px, transparent 5.0px), radial-gradient(circle at 86% 20%, #fff 1.2px, #ffd2b0 2.1px, transparent 3.5px), radial-gradient(circle at 44% 8%, #fff 1.0px, #ff7a3c 1.8px, transparent 3.0px); }
+.hc-ign .ig-em.e2 { top: 22%; background: radial-gradient(circle at 12% 40%, #fff 1.4px, #ff7a3c 2.4px, transparent 4.0px), radial-gradient(circle at 30% 86%, #fff 1.8px, #ffd2b0 3.0px, transparent 5.0px), radial-gradient(circle at 50% 22%, #fff 1.6px, #ffd2b0 2.7px, transparent 4.5px), radial-gradient(circle at 64% 64%, #fff 1.2px, #ff7a3c 2.1px, transparent 3.5px), radial-gradient(circle at 82% 34%, #fff 1.6px, #ffd2b0 2.7px, transparent 4.5px), radial-gradient(circle at 92% 78%, #fff 1.0px, #ff7a3c 1.8px, transparent 3.0px); }
+.hc-ign .ig-em.e3 { background: radial-gradient(circle at 10% 22%, #fff 1.2px, #ffd2b0 2.1px, transparent 3.5px), radial-gradient(circle at 28% 56%, #fff 1.6px, #ff7a3c 2.7px, transparent 4.5px), radial-gradient(circle at 46% 90%, #fff 1.2px, #ffd2b0 2.1px, transparent 3.5px), radial-gradient(circle at 58% 36%, #fff 1.8px, #ffd2b0 3.0px, transparent 5.0px), radial-gradient(circle at 78% 72%, #fff 1.4px, #ff7a3c 2.4px, transparent 4.0px), radial-gradient(circle at 90% 12%, #fff 1.2px, #ffd2b0 2.1px, transparent 3.5px); }
+/* the heading word switches to the HOT gradient at once under the ignition punch */
+.ht-svg.ig-now .ht-flow rect { transition: none; }
+/* the warmth pulse: one layer behind all content (inside #amb), opacity only */
+/* the warmth pulse: one bounded layer behind all content (inside #amb), centred on the ring, opacity only */
+#amb .hc-warm { position: absolute; left: var(--x, 50%); top: var(--y, 40%); width: 640px; height: 640px; margin: -320px 0 0 -320px; opacity: 0; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(closest-side, #ff7a3c33 0, #ff7a3c1c 30%, #ff2e6310 58%, transparent 100%); }
+#app[data-look="midnight"] #amb .hc-warm { background: radial-gradient(closest-side, #ffb0d42e 0, #ff7ab81c 30%, #a48bff10 58%, transparent 100%); }
+#app[data-look="neon"] #amb .hc-warm { background: radial-gradient(closest-side, #ff2bd62e 0, #ff8ae81c 30%, #00f0ff0e 58%, transparent 100%); }
+
+/* The Burn (intro.js) is now 1.1s and rides the ignition: same flames, embers and glow, tighter */
+.igniting .b-flame { animation-duration: 1.1s; }
+.igniting .b-flame.f1 { animation-delay: .06s; } .igniting .b-flame.f2 { animation-delay: .12s; }
+.igniting .b-glow { animation-duration: 1.1s; }
+.igniting .b-embers i { animation-duration: 1.05s; }
+.hc-hero.igniting .ring-base { animation-duration: 1.1s; }
+/* the standing HOT effect fades in as the ignition settles (was .9s after .25s) */
+.ring-hot { transition: opacity .7s cubic-bezier(.16, 1, .3, 1) .35s; }
+
+/* ---------- 2. HOT card deal (Motion2.hotDeal) ---------- */
+.hc-rel { position: relative; }
+#app .hc-hot-wait { opacity: 0; }
+.hc-hotfx { position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: inherit; overflow: hidden; contain: strict; }
+.hc-hotfx i, .hc-hotfx b { position: absolute; display: block; pointer-events: none; }
+/* ember edge: a static hot rim whose opacity breathes once */
+.hc-hotfx .hf-edge { inset: 0; border-radius: inherit; opacity: 0;
+  box-shadow: inset 0 0 0 1.5px #ffc9a3cc, inset 0 0 26px -4px #ff7a3c99, inset 0 -18px 30px -18px #ff2e63aa; }
+/* heat shimmer: a warm light band crosses the card once */
+.hc-hotfx .hf-sheen { top: -10%; bottom: -10%; left: 0; width: 42%; transform: translateX(-130%) skewX(-18deg);
+  background: linear-gradient(90deg, transparent, #fff4e014 25%, #fff4e047 50%, #ff7a3c24 72%, transparent); }
+/* embers off the bottom edge */
+.hc-hotfx .hf-sparks { position: absolute; left: 50%; bottom: 6px; width: 0; height: 0; }
+.hc-hotfx .hf-sparks b { left: -3.5px; top: -3.5px; width: 7px; height: 7px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #fff 0 22%, #ffd2b0 45%, #ff7a3c00 72%); }
+
+/* ---------- 3. Screen changes: the incoming screen settles on a soft spring (290ms) ---------- */
+@keyframes hcInR2 { from { opacity: 0; transform: translateX(22px) scale(.988); } 45% { opacity: 1; } }
+@keyframes hcInL2 { from { opacity: 0; transform: translateX(-22px) scale(.988); } 45% { opacity: 1; } }
+#app.fx-in > :not(.modal-wrap):not(#amb):not(.toast):not(.hc-ghost) { animation: hcInR2 290ms var(--spring-soft) both; }
+#app.fx-back > :not(.modal-wrap):not(#amb):not(.toast):not(.hc-ghost) { animation: hcInL2 290ms var(--spring-soft) both; }
+#app.fx-in > .controls, #app.fx-back > .controls { animation: hcFade 220ms linear both; }
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) #app.fx-in > *, html:not([data-motion="full"]) #app.fx-back > * { animation: hcFade 160ms linear both !important; }
+}
+html[data-motion="reduce"] #app.fx-in > *, html[data-motion="reduce"] #app.fx-back > * { animation: hcFade 160ms linear both !important; }
+
+/* ---------- 4. Sheets and dialogs ---------- */
+/* phone: the sheet rises on a spring; closing leaves an inert ghost (Motion2) that drops away */
+.modal { animation: sheetUp2 420ms var(--spring-soft) both !important; }
+@keyframes sheetUp2 { from { transform: translateY(100%); } }
+#app > .hc-ghost { position: fixed; inset: 0; z-index: 61; display: grid; place-items: end center; background: #000000c4; pointer-events: none; animation: none !important; }
+#app > .hc-ghost .modal { animation: none !important; }
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  /* desktop: dialogs scale + fade in on a spring */
+  .modal { animation: dlgIn2 340ms var(--spring-soft) both !important; }
+  @keyframes dlgIn2 { from { opacity: 0; transform: translateY(14px) scale(.94); } 40% { opacity: 1; } }
+  .sheet-full { animation: dlgIn2 360ms var(--spring-soft) both !important; }
+  #app > .hc-ghost { place-items: center; padding: 32px; }
+}
+@media (min-width: 2200px) and (min-height: 1200px) and (hover: hover) and (pointer: fine) {
+  #app > .hc-ghost > .modal { zoom: var(--dk-zd); max-height: calc((100vh - 64px) / var(--dk-zd)); }
+}
+/* toasts drop in on a spring */
+.toast { animation: toastIn2 420ms var(--spring) both, toastOut var(--dur-s) var(--ease-in) 2s forwards !important; }
+@keyframes toastIn2 { from { opacity: 0; transform: translate(-50%, -18px) scale(.92); } 40% { opacity: 1; } }
+
+/* ---------- 5. Little moments ---------- */
+/* scoreboard: a point lands with a springy bump */
+.chip.bump { animation: chipPop2 560ms var(--spring); }
+@keyframes chipPop2 { from { transform: scale(1.2); } }
+/* Never Have I Ever: the cup tips on a real spring */
+.cup .solo { transition: transform .62s var(--spring); }
+/* Red Flag: locking in stamps the lock; the reveal pops the flag before it waves */
+#app .frame.locked .big { animation: rfLock2 480ms var(--spring) both; }
+@keyframes rfLock2 { from { scale: .3; opacity: 0; rotate: -18deg; } 50% { opacity: 1; } }
+#app .frame .big.wave { animation: rfPop2 520ms var(--spring) both, wave .7s ease-in-out .52s infinite; }
+@keyframes rfPop2 { from { scale: .2; opacity: 0; } 45% { opacity: 1; } }
+/* end of the night: stat cards rise in one after another (Motion2 adds .nc-go after the screen change) */
+#app .night-grid.nc-wait > div { opacity: 0; }
+#app .night-grid.nc-go > div { animation: ncIn 520ms var(--spring-soft) both; animation-delay: calc(var(--i, 0) * 70ms); }
+@keyframes ncIn { from { opacity: 0; transform: translateY(16px) scale(.96); } 40% { opacity: 1; } }
+
+/* ---------- 6. Reduced motion and low-end ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .modal, html:not([data-motion="full"]) .sheet-full { animation: hcFade 200ms linear both !important; }
+  html:not([data-motion="full"]) .toast { animation: hcFade 200ms linear both, toastOut var(--dur-s) linear 2s forwards !important; }
+  html:not([data-motion="full"]) .chip.bump, html:not([data-motion="full"]) #app .frame.locked .big, html:not([data-motion="full"]) .night-grid.nc-go > div { animation: none; }
+  html:not([data-motion="full"]) #app .frame .big.wave { animation: none; }
+  html:not([data-motion="full"]) .cup .solo { transition-duration: .01s; }
+}
+html[data-motion="reduce"] .modal, html[data-motion="reduce"] .sheet-full { animation: hcFade 200ms linear both !important; }
+html[data-motion="reduce"] .toast { animation: hcFade 200ms linear both, toastOut var(--dur-s) linear 2s forwards !important; }
+html[data-motion="reduce"] .chip.bump, html[data-motion="reduce"] #app .frame.locked .big, html[data-motion="reduce"] .night-grid.nc-go > div, html[data-motion="reduce"] #app .frame .big.wave { animation: none; }
+html[data-motion="reduce"] .cup .solo { transition-duration: .01s; }
+html.low-end .hc-ign .ig-em, html.low-end .hc-hotfx .hf-sparks, html.low-end #amb .hc-warm { display: none; }
+
+/* ---------- 7. Cheaper heat changes ---------- */
+/* level pills: the colour swap is instant (it was a 400ms main-thread colour transition on three pills
+   that ran alongside the ring sweep); the press and the spring pop (Motion2) carry the feel */
+.heat-steps .hs { transition: transform .14s ease, opacity .2s ease; }
+/* the HOT word between the lock and the release (Motion2 .ig-hot): already in the HOT gradient */
+.ht-hot.ig-hot .ht-flow .l1, .ht-hot.ig-hot .ht-flow .l2 { opacity: 0; }
+.ht-hot.ig-hot .ht-flow .l3, .ht-hot.ig-hot .ht-glow { opacity: 1; }
