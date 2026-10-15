@@ -121,3 +121,18 @@ html.low-end .hc-ign .ig-em, html.low-end .hc-hotfx .hf-sparks, html.low-end #am
 /* the HOT word between the lock and the release (Motion2 .ig-hot): already in the HOT gradient */
 .ht-hot.ig-hot .ht-flow .l1, .ht-hot.ig-hot .ht-flow .l2 { opacity: 0; }
 .ht-hot.ig-hot .ht-flow .l3, .ht-hot.ig-hot .ht-glow { opacity: 1; }
+
+/* v20.3: Would You Rather centred. Both option cards share one width and one height, stacked on the screen's centre line,
+   the heat tag sits above them (its own auto row, no longer half the arena), and VS sits exactly on the midpoint of the gap
+   between the two cards. Same rules on phone and on the desktop stage column. */
+#app .arena { display: grid; grid-template-columns: minmax(0, 560px); grid-template-rows: auto 1fr 1fr; justify-content: center;
+  row-gap: 26px; min-height: clamp(360px, 54svh, 520px); margin: 10px 0 0; }
+#app .arena > .pts-tag { grid-row: 1; grid-column: 1; justify-self: center; align-self: center; margin: 0 0 -8px; }
+#app .arena > .side { grid-column: 1; width: 100%; min-height: 0; margin: 0; padding: 22px 26px; clip-path: none; border-radius: 22px;
+  align-items: center; justify-content: center; text-align: center; box-shadow: 0 14px 34px -18px #000c, inset 0 1px 0 #ffffff2e; }
+#app .arena > .side.a { grid-row: 2; }
+#app .arena > .side.b { grid-row: 3; }
+#app .arena > .side .tag { margin-bottom: 8px; }
+#app .arena > .vs { grid-row: 2 / 4; grid-column: 1; justify-self: center; align-self: center; position: relative; left: auto; top: auto;
+  transform: none; line-height: 1; animation-name: clashC; }
+@keyframes clashC { from { transform: scale(4) rotate(-20deg); opacity: 0; } 60% { transform: scale(.9); opacity: 1; } to { transform: none; opacity: 1; } }
