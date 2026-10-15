@@ -290,3 +290,25 @@ html.low-end #app[data-look="neon"] .ht-svg { filter: drop-shadow(0 0 6px #00e5f
 #app .hero-title .ht-svg { height: clamp(35.77px, 11.208vw, 52.46px); }
 /* the smaller HOT sat ~2px above the "How" / "is tonight" baseline (centre-aligned svg, glyphs high in the viewBox): nudge it onto the baseline */
 #app .hero-title .ht-hot { top: .55vw; }
+
+/* ===== v20.1: Red Flag / Green Flag answer buttons =====
+   The labels were Anton (never loaded, so a plain regular fallback) in flat white. Now the app's ring-word
+   face (900 italic, -.03em, like "How HOT is tonight?" and the tile titles) in warm light type, debossed
+   into each button's gradient with a deep same-hue drop, plus a small waving pennant on a gold pole
+   (the banner's cloth shape). Static: no animation, no loop. Same button size and grid as before. */
+#app .flagbtn { position: relative; overflow: hidden; gap: 4px; padding: 10px 8px 12px; font-family: inherit; letter-spacing: 0; isolation: isolate; }
+#app .flagbtn::before { content: ""; position: absolute; inset: 0 0 auto; height: 52%; border-radius: inherit; background: linear-gradient(rgba(255,255,255,.22), rgba(255,255,255,0)); pointer-events: none; z-index: -1; }
+#app .flagbtn.red { background: linear-gradient(170deg, #ff5161 0%, #e8253a 46%, #b80f1f 100%); box-shadow: 0 10px 0 #7d0b14, 0 14px 24px rgba(125,11,20,.35), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 0 rgba(90,0,10,.25); }
+#app .flagbtn.green { background: linear-gradient(170deg, #52eb98 0%, #22c46c 46%, #0f9a4b 100%); box-shadow: 0 10px 0 #0b6533, 0 14px 24px rgba(11,101,51,.35), inset 0 1px 0 rgba(255,255,255,.42), inset 0 -2px 0 rgba(0,60,25,.25); }
+#app .flagbtn span { font-size: inherit; }
+#app .flagbtn .fb-ico { display: block; width: 40px; height: 30px; line-height: 0; filter: drop-shadow(0 2px 0 var(--fb-deep)); }
+#app .flagbtn .fb-ico svg { display: block; width: 40px; height: 30px; }
+#app .flagbtn .fb-pole { fill: #ffd66e; }
+#app .flagbtn .fb-cloth { fill: #fff7ef; }
+#app .flagbtn .fb-fold { fill: var(--fb-fold); opacity: .32; }
+#app .flagbtn .fb-txt { display: block; font-size: clamp(23px, 6.6vw, 30px); font-weight: 900; font-style: italic; letter-spacing: -.03em; line-height: 1; padding: 0 .08em; text-transform: none; white-space: nowrap;
+  color: #fff7ef; background: linear-gradient(#ffffff 30%, var(--fb-tint)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 0 var(--fb-deep)) drop-shadow(0 4px 6px var(--fb-glow)); }
+#app .flagbtn.red { --fb-deep: #8a0d18; --fb-tint: #ffd5d9; --fb-fold: #c1121f; --fb-glow: rgba(70,0,8,.45); }
+#app .flagbtn.green { --fb-deep: #086030; --fb-tint: #d2ffe6; --fb-fold: #12a150; --fb-glow: rgba(0,50,22,.45); }
+#app .flagbtn:active .fb-txt, #app .flagbtn:active .fb-ico { filter: drop-shadow(0 1px 0 var(--fb-deep)); }
