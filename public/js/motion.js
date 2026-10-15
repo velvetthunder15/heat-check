@@ -30,7 +30,10 @@
   let heatT = 0, rateTarget = 1, rate = 1;
   const setHeat = (t) => {
     heatT = Math.max(0, Math.min(1, t));
-    app().style.setProperty('--heat-t', heatT.toFixed(3));
+    // v20.2: only #amb reads --heat-t. Set on #app it restyled every element of the screen on each heat
+    // change and HUD update; on #amb it restyles five layers.
+    const v = heatT.toFixed(3);
+    if (amb.style.getPropertyValue('--heat-t') !== v) amb.style.setProperty('--heat-t', v);
     rateTarget = 1 + heatT * 1.6; // background pulses faster as it heats up
   };
   // ease playback rate toward target so the speed-up is smooth, never a jump
@@ -128,7 +131,7 @@
         if (exit) { exit.cancel(); exit = null; }
         if (quiet || seq !== navSeq) return finish();
         r.classList.remove('fx-in', 'fx-back'); r.classList.add(isBack ? 'fx-back' : 'fx-in');
-        setTimeout(finish, 220);
+        setTimeout(finish, 300);              // v20.2: 290ms spring entrance (motion2.css)
       });
     };
     pendingSwap = swap;
@@ -281,7 +284,7 @@
     };
     el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
   };
-  const enhanceStage = (root) => { const c = root && root.querySelector(CARD_SEL); if (c) { flipIn(c); makeDraggable(c); } };
+  const enhanceStage = (root) => { const c = root && root.querySelector(CARD_SEL); if (c) { if (Core.cardHeat === 3 && window.Motion2) Motion2.hotDeal(c); else flipIn(c); makeDraggable(c); } };
 
   /* ---------------- Scores: smooth count + embers ---------------- */
   const countTo = (b, from, to) => {
@@ -334,7 +337,7 @@
       const p = origPen(opts);
       const heat = opts.heat || (opts.card && opts.card.heat) || Core.heat();
       requestAnimationFrame(() => {
-        const m = $('.modal'); const r = m ? m.getBoundingClientRect() : { left: innerWidth / 2 - 1, width: 2, top: innerHeight / 2 };
+        const m = $('.modal-wrap .modal'); const r = m ? m.getBoundingClientRect() : { left: innerWidth / 2 - 1, width: 2, top: innerHeight / 2 };
         embers(heat, r.left + r.width / 2, r.top + 28);
         buzz([[0], [15], [20, 40, 25], [30, 40, 60, 40, 80]][heat] || 15);
       });
@@ -386,4 +389,219 @@
   runSplash();
   RM.addEventListener && RM.addEventListener('change', () => { if (reduced()) { meshAnims.forEach((a) => a.cancel()); meshAnims.length = 0; } else startMesh(); });
   window.Motion = { intro, embers, navigate, setHeat };
+})();
+
+/* ---------------- v20.2: HOT ignition + motion pass (no libraries) ----------------
+   Transform + opacity only, small layers, WAAPI so every piece is cancellable.
+   - ignite(hero, kind): the moment heat reaches HOT. kind 'lock' (third turn of the hold ring, rides
+     the lock3 sound and the Burn flames), 'release' (letting go at HOT, rides the hotrelease flame
+     burst), 'pill' (tapping the HOT pill). White-hot ring flash, shockwave rings, the HOT word
+     ignites (punch + glow flare), embers burst up off the ring, one warmth pulse on #amb, then the
+     standing .ring-hot takes over. ~1s, interruptible, nothing left behind.
+   - hotDeal(card): HOT cards deal in with their own rise + heat shimmer + ember edge.
+   - closing sheets / dialogs leave an inert ghost that slides away (the real one is gone at once,
+     so game logic, keyboard and tests see exactly what they saw before).
+   - level pill pop, Charades layer pips, end-night count-up.
+   Reduced motion: fades only. html.low-end: no embers, no warmth pulse, one shockwave.
+   Nothing starts during a screen change or in a hidden tab. */
+(() => {
+  const H = document.documentElement;
+  const RM = matchMedia('(prefers-reduced-motion: reduce)');
+  const reduced = () => { const m = H.dataset.motion; return m === 'reduce' || (m !== 'full' && RM.matches); };
+  const low = () => H.classList.contains('low-end');
+  const hidden = () => document.hidden || H.classList.contains('tab-hidden');
+  const navving = () => H.classList.contains('hc-nav');
+  const app = () => document.getElementById('app');
+  let _sp = '', _ss = '';
+  const tok = (n, f) => getComputedStyle(H).getPropertyValue(n).trim() || f;
+  const SP = () => _sp || (_sp = tok('--spring', 'cubic-bezier(.34,1.4,.64,1)'));
+  const SS = () => _ss || (_ss = tok('--spring-soft', 'cubic-bezier(.3,1.2,.6,1)'));
+  const OUT = 'cubic-bezier(.16,1,.3,1)';
+  const after = (a, f) => a.finished.then(f, f);
+  // run f once the screen change (if any) has finished; never waits more than 900ms
+  const whenSettled = (f) => {
+    if (!navving()) return f();
+    let t = 0;
+    const mo = new MutationObserver(() => { if (!navving()) { mo.disconnect(); clearTimeout(t); requestAnimationFrame(f); } });
+    mo.observe(H, { attributes: true, attributeFilter: ['class'] });
+    t = setTimeout(() => { mo.disconnect(); f(); }, 900);
+  };
+
+  /* ---------- HOT ignition ---------- */
+  const live = new Set();   // running ignitions: { el, warm, anims, t }
+  const kill = (g) => { clearTimeout(g.t); g.anims.forEach((a) => { try { a.cancel(); } catch (e) {} }); g.el.remove(); if (g.warm) g.warm.remove(); live.delete(g); };
+  const stop = () => { [...live].forEach(kill); document.querySelectorAll('.ht-hot.ig-hot').forEach((x) => x.classList.remove('ig-hot')); };
+  const ignite = (hero, kind = 'lock') => {
+    const btn = hero && hero.querySelector('#holdBtn');
+    if (!btn || !btn.animate || hidden() || navving()) return;
+    if (kind !== 'release') stop();   // a new ignition replaces a running one; the release burst layers on top
+    // the heading word takes the HOT palette at the lock (the hero's data-heat only moves at the release:
+    // setting it early woke the hidden standing HOT loops for the rest of the hold)
+    const hh = hero.querySelector('.ht-hot');
+    if (hh) hh.classList.toggle('ig-hot', kind === 'lock');
+    const rm = reduced(), lo = low(), big = kind !== 'release';
+    // embers ride in three clusters (each one layer holding several dots) that fly up and spread:
+    // three composited layers instead of one per ember
+    const nc = rm || lo ? 0 : 3;
+    const el = document.createElement('span');
+    el.className = 'hc-ign ig-' + kind; el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = '<i class="ig-flash"></i>' + (rm ? '' : '<i class="ig-wave"></i>' + (lo || !big ? '' : '<i class="ig-wave w2"></i>')) + (nc ? '<i class="ig-em e1"></i><i class="ig-em e2"></i><i class="ig-em e3"></i>' : '');
+    btn.appendChild(el);
+    const g = { el, warm: null, anims: [], t: 0 }; live.add(g);
+    const A = (node, kf, o) => { const a = node.animate(kf, o); g.anims.push(a); return a; };
+    const flash = el.firstChild;
+    // the heading colour switches at once at the ignition (no 400ms repaint of the masked word under the punch)
+    const hsvg = hero.querySelector('.ht-svg');
+    if (hsvg && big) { hsvg.classList.add('ig-now'); setTimeout(() => hsvg.classList.remove('ig-now'), 500); }
+    if (rm) A(flash, [{ opacity: 0 }, { opacity: big ? 0.9 : 0.6, offset: 0.25 }, { opacity: 0 }], { duration: 420, easing: 'linear' });
+    else {
+      A(flash, [{ opacity: 0, transform: 'scale(.55)' }, { opacity: 1, transform: 'scale(1.04)', offset: 0.2 }, { opacity: 0, transform: 'scale(1.38)' }], { duration: big ? 560 : 400, easing: OUT });
+      const w = el.querySelectorAll('.ig-wave');
+      if (w[0]) A(w[0], [{ opacity: 0.95, transform: 'scale(.92)' }, { opacity: 0, transform: `scale(${big ? 2.4 : 2})` }], { duration: big ? 760 : 560, easing: OUT });
+      if (w[1]) A(w[1], [{ opacity: 0.8, transform: 'scale(.9)' }, { opacity: 0, transform: 'scale(1.9)' }], { duration: 640, delay: 120, easing: OUT, fill: 'backwards' });
+      const up = big ? 1 : 0.75;
+      el.querySelectorAll('.ig-em').forEach((c, i) => {
+        const dx = [-26, 6, 30][i] * up, dy = [-150, -190, -135][i] * up, r = [-14, 4, 16][i];
+        A(c, [{ transform: 'translate(0, 10px) scale(.45)', opacity: 0 }, { opacity: 1, offset: 0.14 }, { transform: `translate(${dx}px, ${dy}px) scale(1.35) rotate(${r}deg)`, opacity: 0 }],
+          { duration: [880, 1020, 940][i], delay: 30 + i * 50, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' });
+      });
+    }
+    // the HOT word ignites: a punch on its own layer and the glow flares (transform only)
+    const word = hero.querySelector('.ht-hot'), glow = hero.querySelector('.ht-glow');
+    // no scale on the word: scaling an ancestor of SVG text re-lays the text out every frame (measured);
+    // a lift + twist on the word and a scale flare on its glow read as the same punch
+    if (word && !rm) A(word, big
+      ? [{ transform: 'none' }, { transform: 'translateY(-9px) rotate(-4deg)', offset: 0.2 }, { transform: 'translateY(1.5px) rotate(1deg)', offset: 0.52 }, { transform: 'translateY(-.5px) rotate(-.3deg)', offset: 0.76 }, { transform: 'none' }]
+      : [{ transform: 'none' }, { transform: 'translateY(-5px) rotate(-2deg)', offset: 0.3 }, { transform: 'none' }], { duration: big ? 780 : 480, easing: 'cubic-bezier(.2,.7,.3,1)' });
+    if (glow && !rm) A(glow, [{ transform: 'scale(.8)' }, { transform: `scale(${big ? 1.4 : 1.2})`, offset: 0.25 }, { transform: 'none' }], { duration: big ? 900 : 560, easing: OUT });
+    // one warmth pulse behind everything, centred on the ring (skipped on low-end)
+    if (big && !lo) {
+      const amb = document.getElementById('amb');
+      // read the ring's place just after a frame has painted (layout is clean then: no forced reflow)
+      if (amb) requestAnimationFrame(() => setTimeout(() => {
+        if (!live.has(g)) return;
+        const r = btn.getBoundingClientRect();
+        const w = document.createElement('i'); w.className = 'hc-warm';
+        w.style.setProperty('--x', (r.left + r.width / 2).toFixed(0) + 'px'); w.style.setProperty('--y', (r.top + r.height / 2).toFixed(0) + 'px');
+        amb.appendChild(w); g.warm = w;
+        A(w, [{ opacity: 0 }, { opacity: 1, offset: 0.28 }, { opacity: 0 }], { duration: 1000, easing: 'ease-out' });
+      }, 0));
+    }
+    // cleaned up when its last piece finishes (cancel counts), with a safety net
+    setTimeout(() => Promise.all(g.anims.map((a) => a.finished)).then(() => live.has(g) && kill(g), () => {}), 120);
+    g.t = setTimeout(() => live.has(g) && kill(g), 2600);
+  };
+
+  /* ---------- HOT card deal ---------- */
+  const hotDeal = (el) => {
+    if (!el || !el.animate) return;
+    if (reduced()) { el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'linear', fill: 'backwards' }); return; }
+    const go = () => {
+      el.classList.remove('hc-hot-wait');
+      if (!el.isConnected) return;
+      el.animate([
+        { transform: 'perspective(900px) translateY(48px) rotateX(26deg) scale(.9)', opacity: 0 },
+        { opacity: 1, offset: 0.3 },
+        { transform: 'perspective(900px) translateY(0) rotateX(0) scale(1)', opacity: 1 }], { duration: 760, easing: SS(), fill: 'backwards' });
+      if (low() || hidden()) return;
+      const fx = document.createElement('span');
+      fx.className = 'hc-hotfx'; fx.setAttribute('aria-hidden', 'true');
+      fx.innerHTML = '<i class="hf-edge"></i><i class="hf-sheen"></i><span class="hf-sparks"><b></b><b></b><b></b><b></b><b></b><b></b></span>';
+      if (getComputedStyle(el).position === 'static') el.classList.add('hc-rel');
+      el.appendChild(fx);
+      const an = [];
+      an.push(fx.querySelector('.hf-edge').animate([{ opacity: 0 }, { opacity: 1, offset: 0.3 }, { opacity: 0 }], { duration: 1100, delay: 120, easing: 'ease-out', fill: 'backwards' }));
+      an.push(fx.querySelector('.hf-sheen').animate([{ transform: 'translateX(-130%) skewX(-18deg)' }, { transform: 'translateX(260%) skewX(-18deg)' }], { duration: 900, delay: 200, easing: 'cubic-bezier(.45,0,.25,1)', fill: 'backwards' }));
+      fx.querySelectorAll('.hf-sparks b').forEach((b, i) => {
+        const x = (i - 2.5) * 34 + (Math.random() - 0.5) * 18, up = 50 + Math.random() * 60;
+        an.push(b.animate([{ transform: `translate(${x.toFixed(0)}px, 0) scale(1)`, opacity: 0 }, { opacity: 1, offset: 0.15 }, { transform: `translate(${(x * 1.25).toFixed(0)}px, ${-up.toFixed(0)}px) scale(0)`, opacity: 0 }], { duration: 760 + Math.random() * 300, delay: 260 + i * 35, easing: OUT, fill: 'backwards' }));
+      });
+      Promise.all(an.map((a) => a.finished)).catch(() => {}).then(() => { fx.remove(); el.classList.remove('hc-rel'); });
+    };
+    if (navving()) { el.classList.add('hc-hot-wait'); whenSettled(go); } else go();
+  };
+
+  /* ---------- Closing sheets / dialogs: an inert ghost leaves (the real one is already gone) ---------- */
+  const desk = matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
+  document.addEventListener('scroll', (e) => { const t = e.target; if (t && t.classList && t.classList.contains('modal')) t._st = t.scrollTop; }, true);
+  const ghost = (node) => {
+    if (!node.classList || !node.classList.contains('modal-wrap') || node.classList.contains('full') || node.classList.contains('hc-ghost')) return;
+    if (navving() || hidden() || !node.animate) return;
+    const m0 = node.querySelector('.modal'); if (!m0) return;
+    const g = node.cloneNode(true);
+    g.classList.remove('modal-wrap', 'acct-wrap'); g.classList.add('hc-ghost');
+    g.removeAttribute('id'); g.querySelectorAll('[id]').forEach((x) => x.removeAttribute('id'));
+    g.setAttribute('aria-hidden', 'true'); g.inert = true;
+    app().appendChild(g);
+    const m = g.querySelector('.modal');
+    if (m0._st) m.scrollTop = m0._st;
+    const a = g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduced() ? 160 : 220, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
+    if (!reduced()) m.animate(desk.matches ? [{ transform: 'none' }, { transform: 'translateY(8px) scale(.955)' }] : [{ transform: 'none' }, { transform: 'translateY(42%)' }], { duration: 220, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' });
+    after(a, () => g.remove());
+  };
+  const watchApp = () => {
+    const r = app(); if (!r || !window.MutationObserver) return;
+    new MutationObserver((recs) => recs.forEach((rec) => {
+      if (rec.removedNodes.length !== 1 || rec.addedNodes.length) return;   // a whole-screen swap is not a close
+      ghost(rec.removedNodes[0]);
+    })).observe(r, { childList: true });
+  };
+
+  /* ---------- Level pills: a spring pop; the HOT pill ignites ---------- */
+  let heatBefore = 0;
+  document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('.heat-steps .hs'); if (b && window.Core) heatBefore = Core.heat(); }, true);
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('.heat-steps .hs'); if (!b || b.classList.contains('locked') || !b.animate) return;
+    if (!reduced()) b.animate([{ scale: '1' }, { scale: '1.12', offset: 0.3 }, { scale: '1' }], { duration: 420, easing: 'ease-out' });
+    if (+b.dataset.step === 3 && heatBefore !== 3 && window.Core && Core.heat() === 3) ignite(document.getElementById('hero'), 'pill');
+  });
+
+  /* ---------- HUD: Charades layer pips drop out with a spring ---------- */
+  const hookHud = () => {
+    if (!window.Core || !Core.updateHud) return;
+    const orig = Core.updateHud.bind(Core);
+    Core.updateHud = function () {
+      const before = {};
+      document.querySelectorAll('.scores .chip').forEach((c) => { const l = c.querySelectorAll('.layers i.off').length; before[c.dataset.i] = l; });
+      orig();
+      if (reduced() || navving()) return;
+      document.querySelectorAll('.scores .chip').forEach((c) => {
+        const offs = c.querySelectorAll('.layers i.off'), was = before[c.dataset.i];
+        if (was == null || offs.length <= was || !offs[0].animate) return;
+        for (let k = 0; k < offs.length - was; k++) offs[k].animate([{ transform: 'translateY(-8px) scale(1.5) rotate(-24deg)', opacity: 0.25 }, { transform: 'none', opacity: 1 }], { duration: 520, delay: k * 60, easing: SP(), fill: 'backwards' });
+      });
+    };
+  };
+
+  /* ---------- End of the night: the stat cards rise in and the numbers count up ---------- */
+  const countUp = (b, to, delay) => {
+    const t0 = performance.now() + delay, d = 760;
+    b.textContent = '0';
+    const step = (t) => {
+      if (!b.isConnected) return;
+      const p = Math.max(0, Math.min(1, (t - t0) / d)), e = 1 - Math.pow(1 - p, 3);
+      b.textContent = String(Math.round(to * e));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+  const night = () => {
+    const grid = document.querySelector('#app .night .night-grid'); if (!grid || grid.dataset.nc) return;
+    grid.dataset.nc = '1';
+    if (reduced() || !grid.animate) return;
+    [...grid.children].forEach((d, i) => d.style.setProperty('--i', i));
+    grid.classList.add('nc-wait');
+    whenSettled(() => {
+      grid.classList.remove('nc-wait'); grid.classList.add('nc-go');
+      grid.querySelectorAll('b').forEach((b, i) => { const v = b.textContent.trim(); if (/^\d+$/.test(v) && +v > 0) countUp(b, +v, 140 + i * 70); });
+    });
+  };
+  const hookSet = () => {
+    if (typeof App === 'undefined' || !App.set) return;   // App is a script-level const, not a window property
+    const orig = App.set.bind(App);
+    App.set = function (...a) { const r = orig(...a); try { night(); } catch (e) {} return r; };
+  };
+
+  hookHud(); hookSet(); watchApp();
+  window.Motion2 = { ignite, hotDeal, stop };
 })();
