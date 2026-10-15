@@ -6,6 +6,7 @@ const CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7
 const Nav = {
   _onBack: null,
   _silent: 0,
+  _tabbed: false,
   view() { return (history.state && history.state.hc) || 'home'; },
   init() {
     // v14: we restore scroll ourselves (home where you left it, every other screen at the top).
@@ -17,6 +18,52 @@ const Nav = {
       if (!e.target.closest('[data-back]')) return;
       e.preventDefault(); window.SFX && SFX.play('tap'); this.back();
     });
+    // how focus last moved: Tab (keyboard) or a pointer press. :focus-visible can't tell, it flips on any key.
+    document.addEventListener('pointerdown', () => { this._tabbed = false; }, true);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Tab') this._tabbed = true; }, true);
+    document.addEventListener('keydown', (e) => this.key(e));
+  },
+  /* v19.4 desktop keyboard. In a game: Space / Enter / ArrowRight = the main button (the HOT gate's
+     "Deal it" first), so limits and paywalls run exactly as for a tap. Escape: close the open sheet,
+     else the screen's own back control. Never while typing, never over a game dialog (penalty, ask,
+     hand-off) or a countdown. The press sound comes from audio.js like any keyboard activation. */
+  key(e) {
+    try {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.isComposing) return;
+      const k = e.key, nextKey = k === ' ' || k === 'Spacebar' || k === 'Enter' || k === 'ArrowRight';
+      if (!nextKey && k !== 'Escape') return;
+      const typing = (el) => !!(el && el.closest && el.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])'));
+      if (typing(e.target) || typing(document.activeElement)) return;
+      const root = document.getElementById('app'); if (!root || document.getElementById('pause')) return;
+      const wraps = root.querySelectorAll('.modal-wrap'), wrap = wraps[wraps.length - 1];
+      const shown = (el) => !!(el && !el.closest('[hidden]') && (typeof el.checkVisibility !== 'function' || el.checkVisibility()));
+      if (k === 'Escape') {
+        if (e.repeat) return;
+        if (wrap) {
+          // account sheets close like a tap on their backdrop or ✕; game dialogs need an answer, so they stay
+          const x = [...wrap.querySelectorAll('[data-close]')].find(shown);
+          if (x) { e.preventDefault(); x.click(); }
+          else if (wrap.classList.contains('acct-wrap')) { e.preventDefault(); wrap.click(); }
+          return;
+        }
+        if (root.querySelector('.countdown') || this.view() === 'home') return;
+        e.preventDefault();
+        const b = [...root.querySelectorAll('[data-back], [data-nav="home"]')].find(shown);
+        if (b) b.click(); else this.back();
+        return;
+      }
+      if (e.repeat || wrap || root.querySelector('.countdown') || this.view() !== 'game' || !window.Core || !Core.game) return;
+      const a = document.activeElement;
+      if (k !== 'ArrowRight' && a && a !== document.body && a !== root && a.matches && a.matches('button, a[href], [role="button"], [tabindex]')) {
+        // a control the keyboard moved to keeps its own Space / Enter; one the mouse left focused does not
+        if (this._tabbed) return;
+        a.blur();
+      }
+      const btn = [document.getElementById('dgGo'), root.querySelector('.controls .primary')].find((b) => shown(b) && !b.disabled);
+      if (!btn) return;
+      e.preventDefault();
+      btn.click();
+    } catch (err) {}
   },
   // The shared back control: top-left chevron, 44px target (styles in nav.css)
   button(label = 'Back') { return `<button class="nav-back" data-back aria-label="${label}">${CHEVRON}</button>`; },
