@@ -1,0 +1,71 @@
+/* ===== Heat Check v19.4: desktop polish (loaded last) =====
+   Phones are untouched: every rule here sits behind a mouse-pointer media query, and the
+   scene / sizing rules also need a wide window (>= 900px). No backdrop blur, no new loops:
+   the side scene is one static fixed layer (rasterised once), hovers are filter/translate only. */
+
+/* ---------- 1. The column sits in a designed scene (wide screens, mouse) ---------- */
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  html, body { background: #070407; }
+  /* side scene: the current theme's own colours, behind the ambience blobs (#amb is z -1).
+     A hard-stop mask leaves the 560px column alone, so its own background shows as before. */
+  #app::before {
+    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+      linear-gradient(90deg, transparent calc(50% - 360px), #00000066 calc(50% - 280px), #00000066 calc(50% + 280px), transparent calc(50% + 360px)),
+      radial-gradient(38% 60% at 6% 4%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 72%),
+      radial-gradient(40% 62% at 96% 98%, color-mix(in srgb, var(--accent2) 15%, transparent), transparent 72%),
+      radial-gradient(30% 40% at 92% 10%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%),
+      radial-gradient(140% 110% at 50% 45%, transparent 52%, #00000080 100%),
+      var(--bg, #120a12);
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(50% - 280px), transparent calc(50% - 280px), transparent calc(50% + 280px), #000 calc(50% + 280px));
+    mask-image: linear-gradient(90deg, #000 calc(50% - 280px), transparent calc(50% - 280px), transparent calc(50% + 280px), #000 calc(50% + 280px));
+  }
+  /* a hairline edge so the column reads as a card on every look (outline: no layout, no paint cost) */
+  #app { outline: 1px solid color-mix(in srgb, var(--fg, #fff) 9%, transparent); outline-offset: 0; }
+  body.printing #app { outline: none; }
+  body.printing #app::before { display: none; }
+
+  /* ---------- 2. vw sizes capped at the column (560px) ---------- */
+  #app .hero-title .ht-hot { top: min(.55vw, 3.08px); }          /* .55vw of a 560 column */
+  .countdown span { font-size: min(40vw, 224px); }
+  /* game intros play inside the column, not across the whole monitor */
+  .intro { left: calc(50% - 280px); right: calc(50% - 280px); }
+  .b-edge.l, .b-edge.r { width: min(18vw, 100px); }
+  /* Red Flag camera frames: 3:4 of a 270px cell is too tall for a laptop screen */
+  .frames .frame { aspect-ratio: auto; height: 220px; }
+}
+
+/* ---------- 3. Mouse + keyboard: hover, focus rings, cursor ---------- */
+@media (hover: hover) and (pointer: fine) {
+  /* cursor */
+  .tile, .chip, .sb-chip:is(button), .seg button, .hs, .avatar, .icon-btn, .nav-back, .hchip, .switch, .toggle,
+  [data-act], [data-nav], [data-back], [data-close], [role="button"], [role="tab"], label[for], a[href] { cursor: pointer; }
+  .hold-btn { cursor: pointer; }
+  button[disabled], [aria-disabled="true"] { cursor: default; }
+
+  /* hover: a small lift and a touch brighter. CSS only, so never a sound. */
+  .btn { transition: transform var(--dur-s, .2s) var(--spring, ease), filter var(--dur-s, .2s) var(--ease-out, ease-out), translate var(--dur-s, .2s) var(--ease-out, ease-out); }
+  .btn:not([disabled]):hover { filter: brightness(1.08); translate: 0 -1px; }
+  .btn:not([disabled]):active { translate: 0 0; }
+  .icon-btn, .avatar, .nav-back, button.chip, button.sb-chip, .hs, .hchip, .seg button, .flagbtn, .vsbtn, .ratepad button, .cup, .ring-reset {
+    transition: transform var(--dur-s, .2s) var(--spring, ease), filter .18s ease-out, translate .18s ease-out, background-color .18s ease-out;
+  }
+  .icon-btn:hover, .avatar:hover, .nav-back:hover, .ring-reset:hover, .hchip:hover { filter: brightness(1.18); }
+  button.chip:not([disabled]):hover, button.sb-chip:hover, .hs:not([disabled]):hover, .flagbtn:hover, .ratepad button:hover { filter: brightness(1.14); translate: 0 -1px; }
+  .seg button:not(.on):not([disabled]):hover { filter: brightness(1.25); }
+  .seg button.on:hover { filter: brightness(1.06); }
+  .vsbtn:hover, .cup:hover { filter: brightness(1.12); }
+
+  /* game tiles: lift a few px (translate composes with the fan's rotate transform) */
+  .stack .tile { transition: transform var(--dur-l, .5s) var(--spring, ease) calc(var(--i, 0) * 45ms), translate .22s var(--ease-out, ease-out), filter .22s ease-out; }
+  .stack.no-anim .tile { transition: translate .22s var(--ease-out, ease-out), filter .22s ease-out; }
+  .stack.fanned .tile:hover { translate: 0 -4px; filter: brightness(1.07) saturate(1.06); }
+  .stack.fanned .tile:active { translate: 0 0; }
+
+  /* visible keyboard focus (mouse clicks don't show it) */
+  :focus-visible { outline: 2px solid color-mix(in srgb, var(--fg, #fff) 85%, transparent); outline-offset: 3px; }
+  .btn:focus-visible { outline: 2px solid color-mix(in srgb, var(--fg, #fff) 85%, transparent); outline-offset: 3px; }
+  .tile:focus-visible { outline: 3px solid color-mix(in srgb, var(--fg, #fff) 85%, transparent); outline-offset: 4px; }
+  .input:focus-visible, .otp-box:focus-visible { outline: none; }
+  #app:focus-visible, .modal:focus-visible, .sheet-full:focus-visible { outline: none; }
+}
