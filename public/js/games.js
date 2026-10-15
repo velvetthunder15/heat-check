@@ -1,5 +1,7 @@
 /* Heat Check — the games. Each one owns its theme, flow and sounds. */
 const N = (i) => esc(Core.name(i));
+// v20.1: the curved pennant from the Red Flag banner, for the answer buttons (colour comes from CSS)
+const FLAG_SVG = '<svg viewBox="0 0 40 30" width="40" height="30" focusable="false"><rect class="fb-pole" x="2" y="2" width="2.6" height="27" rx="1.3"/><circle class="fb-pole" cx="3.3" cy="2.4" r="2.1"/><g transform="translate(5.2 3.2) scale(.33 .4)"><path class="fb-cloth" d="M0 6C16 -1 31 13 50 6S84 -1 100 8C96 19 103 30 99 41C82 48 67 34 48 41S15 48 0 43Z"/><path class="fb-fold" d="M50 6C61 3 72 1 84 3C80 15 86 28 82 40C70 38 59 37 48 41C52 29 46 17 50 6Z"/></g></svg>';
 
 function mount(theme, title, body) {
   const app = document.getElementById('app');
@@ -28,11 +30,25 @@ function stageHTML(html) {
 }
 function ctl() { const c = $('#ctl'); if (!c) throw new Error('left-game'); return c; }
 // Asks the deck for the next card. null: this tier's limit is reached and the lock sheet is up.
+// v20.1: opening a game first brings back the card it had on screen (Core.restoreHeld): same card,
+// nothing spent, no "Deal it" gate. Every later call is a real "next card" and replaces it.
+let restored = null;
+const takeRestored = () => { const r = restored; restored = null; return r || {}; };
 async function deal(game, again) {
+  if (Core.restoreFor === game) {
+    Core.restoreFor = null;
+    const h = Core.restoreHeld(game);
+    if (h) { Core.dealt[game] = true; restored = h.st || {}; return h.card; }
+  }
+  Core.restoreFor = null; restored = null;
+  Core.dropHeld(game);
   // Nothing limited is spent just by opening a game: a first card that would use a Hot
   // (Lite's 3 per game or Base's free one) waits for a tap on "Deal it".
   if (!Core.dealt[game]) { await hotGate(game); Core.dealt[game] = true; }
-  const c = await Core.next(game, again); if (!$('#stage')) throw new Error('left-game'); return c;
+  const c = await Core.next(game, again);
+  if (c) Core.holdCard(game, c);
+  if (!$('#stage')) throw new Error('left-game');
+  return c;
 }
 let gateWait = null;
 function hotGate(game) {
@@ -76,6 +92,9 @@ Games.redflag = {
     const card = await deal('redflag', () => this.deal());
     if (!card) return;
     this.card = card;
+    const rs = takeRestored();
+    if (rs.mode === 'flags' || rs.mode === 'rate') this.mode = rs.mode;
+    this.rs = rs;
     const s = stageHTML(`<div class="seg rf-mode" style="margin-bottom:14px">
         <button class="${this.mode === 'flags' ? 'on' : ''}" data-m="flags">🚩 Flags</button>
         <button class="${this.mode === 'rate' ? 'on' : ''}" data-m="rate">⭐ Rate your partner</button></div>
@@ -83,18 +102,22 @@ Games.redflag = {
       <div id="answer"></div>`);
     $$('[data-m]', s).forEach((b) => (b.onclick = () => {
       if (this.mode === b.dataset.m || s.dataset.answering) return;
-      SFX.play('tap'); this.mode = b.dataset.m;
+      SFX.play('tap'); this.mode = b.dataset.m; this.rs = null;
       $$('[data-m]', s).forEach((x) => x.classList.toggle('on', x === b));
       this.collect();
     }));
     this.collect();
   },
   next() { Core.nextRound(); Core.nextTurn(); this.deal(); },
+  // v20.1: in-progress answers are kept with the card (pair = who is answering, so a changed roster starts clean)
+  keep(st) { Core.holdSt('redflag', { mode: this.mode, ...st }); },
+  resume(pair) { const r = this.rs; this.rs = null; return r && r.mode === this.mode && r.pair === pair ? r : null; },
   // Answer area only. A token makes any async step from the other mode a no-op.
   collect() {
     Core.stopTimers(); Core.setPrimary(null);
     const tok = ++this.token;
     const st = $('#stage'); if (st) delete st.dataset.answering;
+    Core.holdSt('redflag', { mode: this.mode });
     this.mode === 'flags' ? this.flags(tok) : this.rate(tok);
   },
   answer(html) { const a = $('#answer'); if (!a) throw new Error('left-game'); a.innerHTML = html; return a; },
@@ -104,7 +127,9 @@ Games.redflag = {
   flags(tok) {
     const [A, B] = Core.currentCouple();
     const card = this.card;
-    const picks = {};
+    const pair = Core.name(A) + '|' + Core.name(B);
+    const prev = this.resume(pair);
+    const picks = prev && prev.picks ? { ...prev.picks } : {};
     Core.setTurn(A);
     Core.onSkip(() => this.next());
     const s = this.answer(`
@@ -114,23 +139,19 @@ Games.redflag = {
       </div>
       <p class="center muted" id="instr"><b style="color:#fff">${N(A)}</b>, lock in secretly. ${N(B)}, look away 🙈</p>
       <div class="flagbtns">
-        <button class="flagbtn red" data-f="red"><span>🚩</span>RED FLAG</button>
-        <button class="flagbtn green" data-f="green"><span>🟢</span>GREEN FLAG</button>
+        <button class="flagbtn red" data-f="red"><span class="fb-ico" aria-hidden="true">${FLAG_SVG}</span><span class="fb-txt">Red Flag</span></button>
+        <button class="flagbtn green" data-f="green"><span class="fb-ico" aria-hidden="true">${FLAG_SVG}</span><span class="fb-txt">Green Flag</span></button>
       </div>`);
     let who = A;
-    $$('.flagbtn', s).forEach((b) => (b.onclick = async () => {
-      SFX.play('tap'); vibrate(20); this.begin();
-      picks[who] = b.dataset.f;
-      const fr = $(`.frame[data-p="${who}"]`, s);
-      fr.classList.remove('active'); fr.classList.add('locked'); $('.big', fr).textContent = '🔒';
-      if (who === A) {
-        who = B; $(`.frame[data-p="${B}"]`, s).classList.add('active'); Core.setTurn(B);
-        $('#instr').innerHTML = `<b style="color:#fff">${N(B)}</b>, your turn. ${N(A)}, eyes off the screen 🙈`;
-        return;
-      }
-      $('.flagbtns', s).remove(); $('#instr').textContent = 'Both locked in. On the count of three…';
-      await Core.countdown(3); this.live(tok);
-      [A, B].forEach((p) => { const big = $(`.frame[data-p="${p}"] .big`, s); big.textContent = picks[p] === 'red' ? '🚩' : '🟢'; big.classList.add('wave'); $(`.frame[data-p="${p}"]`, s).style.borderColor = picks[p] === 'red' ? '#ff3b4e' : '#3ee08a'; });
+    const lock = (p) => { const fr = $(`.frame[data-p="${p}"]`, s); fr.classList.remove('active'); fr.classList.add('locked'); $('.big', fr).textContent = '🔒'; };
+    const toB = () => {
+      who = B; $(`.frame[data-p="${B}"]`, s).classList.add('active'); Core.setTurn(B);
+      $('#instr').innerHTML = `<b style="color:#fff">${N(B)}</b>, your turn. ${N(A)}, eyes off the screen 🙈`;
+    };
+    const reveal = async (count) => {
+      $('.flagbtns', s)?.remove();
+      if (count) { $('#instr').textContent = 'Both locked in. On the count of three…'; await Core.countdown(3); this.live(tok); }
+      [A, B].forEach((p) => { const big = $(`.frame[data-p="${p}"] .big`, s); big.textContent = picks[p] === 'red' ? '🚩' : '🟢'; big.classList.add('wave'); $(`.frame[data-p="${p}"]`, s).classList.remove('active'); $(`.frame[data-p="${p}"]`, s).style.borderColor = picks[p] === 'red' ? '#ff3b4e' : '#3ee08a'; });
       if (picks[A] === picks[B]) {
         SFX.play('applause'); SFX.play('ding');
         $('#instr').outerHTML = `<div class="verdict" style="color:#3ee08a">SAME PAGE 💞</div><p class="center muted">Nobody drinks. Smug kiss optional.</p>`;
@@ -153,6 +174,16 @@ Games.redflag = {
         const t = Core.timer(s, secs, () => { SFX.play('buzzer'); finish(); });
         Core.setPrimary('Debate over', finish);
       }
+    };
+    // Coming back to a card mid-answer: the same step, the same locked picks
+    if (picks[A]) { this.begin(); lock(A); if (picks[B]) { lock(B); reveal(false).catch(() => {}); return; } toB(); }
+    $$('.flagbtn', s).forEach((b) => (b.onclick = async () => {
+      SFX.play('tap'); vibrate(20); this.begin();
+      picks[who] = b.dataset.f;
+      this.keep({ pair, picks: { ...picks } });
+      lock(who);
+      if (who === A) { toB(); return; }
+      await reveal(true);
     }));
   },
 
@@ -160,6 +191,8 @@ Games.redflag = {
   rate(tok) {
     const rater = Core.current(), target = Core.partnerOf(rater);
     const card = this.card;
+    const pair = Core.name(rater) + '|' + Core.name(target);
+    const prev = this.resume(pair);
     Core.setTurn(rater);
     Core.onSkip(() => this.next());
     const pad = () => `<div class="ratepad">${Array.from({ length: 10 }, (_, i) => `<button data-n="${i + 1}">${i + 1}</button>`).join('')}</div>`;
@@ -171,30 +204,44 @@ Games.redflag = {
       <p class="center muted" id="instr"><b style="color:#fff">${N(rater)}</b>: how big a red flag is this, 1 to 10? Rate it secretly.</p>
       <div id="pad">${pad()}</div>`);
     let step = 0, score, guess;
+    const toGuess = () => {
+      Core.setTurn(target);
+      $('#instr').innerHTML = `<b style="color:#fff">${N(target)}</b>: what did ${N(rater)} give it?`;
+      $('#pad').innerHTML = pad();
+    };
+    const reveal = async (count) => {
+      $('#pad').innerHTML = '';
+      if (count) { await Core.countdown(3); this.live(tok); }
+      $('#r1').textContent = score; $('#r2').textContent = guess;
+      const diff = Math.abs(score - guess);
+      if (diff >= 3) {
+        SFX.play('buzzer');
+        $('#instr').outerHTML = `<div class="verdict" style="color:#ff3b4e">WAY OFF 😬</div><p class="center muted">${N(rater)} explains the ${score}. ${N(target)} pays for doubting.</p>`;
+        await sleep(900); this.live(tok);
+        await Core.penalty({ who: target, card, reason: `Off by ${diff}` });
+        this.next(); return;
+      }
+      SFX.play('applause');
+      $('#instr').outerHTML = `<div class="verdict" style="color:#3ee08a">${diff === 0 ? 'MIND READER 🔮' : 'CLOSE ENOUGH 👌'}</div><p class="center muted">${N(rater)}, defend that ${score} out loud.</p>`;
+      Core.setPrimary('Next scenario →', () => this.next());
+    };
+    if (prev && prev.score) {
+      this.begin(); score = +prev.score; step = 1; $('#r1').textContent = '🔒';
+      if (prev.guess) { guess = +prev.guess; step = 2; $('#r2').textContent = '🔒'; reveal(false).catch(() => {}); return; }
+      toGuess();
+    }
     $('#pad', s).onclick = async (e) => {
       const b = e.target.closest('button'); if (!b) return;
       SFX.play('tap'); this.begin();
       if (step === 0) {
         score = +b.dataset.n; step = 1; $('#r1').textContent = '🔒';
+        this.keep({ pair, score });
         await Core.handoff(Core.name(target), `Guess the score ${Core.name(rater)} gave this one.`); this.live(tok);
-        Core.setTurn(target);
-        $('#instr').innerHTML = `<b style="color:#fff">${N(target)}</b>: what did ${N(rater)} give it?`;
-        $('#pad').innerHTML = pad();
+        toGuess();
       } else if (step === 1) {
-        guess = +b.dataset.n; step = 2; $('#r2').textContent = '🔒'; $('#pad').innerHTML = '';
-        await Core.countdown(3); this.live(tok);
-        $('#r1').textContent = score; $('#r2').textContent = guess;
-        const diff = Math.abs(score - guess);
-        if (diff >= 3) {
-          SFX.play('buzzer');
-          $('#instr').outerHTML = `<div class="verdict" style="color:#ff3b4e">WAY OFF 😬</div><p class="center muted">${N(rater)} explains the ${score}. ${N(target)} pays for doubting.</p>`;
-          await sleep(900); this.live(tok);
-          await Core.penalty({ who: target, card, reason: `Off by ${diff}` });
-          this.next(); return;
-        }
-        SFX.play('applause');
-        $('#instr').outerHTML = `<div class="verdict" style="color:#3ee08a">${diff === 0 ? 'MIND READER 🔮' : 'CLOSE ENOUGH 👌'}</div><p class="center muted">${N(rater)}, defend that ${score} out loud.</p>`;
-        Core.setPrimary('Next scenario →', () => this.next());
+        guess = +b.dataset.n; step = 2; $('#r2').textContent = '🔒';
+        this.keep({ pair, score, guess });
+        await reveal(true);
       }
     };
   },
@@ -207,19 +254,27 @@ Games.redflag = {
 Games.nhie = {
   title: 'Never Have I Ever', tag: 'Tilt the cup if you have.', tally: {},
   start() { mount('nhie', 'Never Have I Ever', ''); SFX.play('bass'); this.round(); },
+  /* v20.1 rules: tapping your cup = you have done it, and you sip (the sip is the game itself).
+     Next: everyone has done it -> nobody pays. Some have -> they take a dare (always a dare here,
+     whatever the night's Drinks / Water / Dares setting). Nobody has -> saints. */
   async round() {
     Core.setPrimary(null);
     const card = await deal('nhie', () => this.round());
     if (!card) return;
-    const tilted = new Set();
-    Core.setTurn(-1);
+    const rs = takeRestored();
     const ps = Core.players();
+    const names = ps.map((p) => p.name).join('|');
+    const back = rs.names === names;
+    if (back && rs.tally && typeof rs.tally === 'object' && !Object.keys(this.tally).length) this.tally = { ...rs.tally };
+    const tilted = new Set(back && Array.isArray(rs.tilted) ? rs.tilted.filter((i) => i >= 0 && i < ps.length) : []);
+    const keep = () => Core.holdSt('nhie', { names, tilted: [...tilted], tally: { ...this.tally } });
+    Core.setTurn(-1);
     const text = card.text.replace(/^never have i ever\s*/i, '');
     const s = stageHTML(`
       <div class="neon-sign"><span class="nh">Never have I ever</span>${esc(text)}</div>
-      <p class="center muted" style="margin-top:18px">Done it? Tap your cup. It tips. You sip.</p>
+      <p class="center muted" style="margin-top:18px">Done it? Tap your cup and sip. Unless you all have, the guilty take a dare.</p>
       <div class="cups">${ps.map((p, i) => `
-        <button class="cup" data-i="${i}" aria-label="${esc(p.name)}">
+        <button class="cup${tilted.has(i) ? ' tilted' : ''}" data-i="${i}" aria-label="${esc(p.name)}">
           <div class="solo"><div class="rim"></div><div class="ridge" style="top:30%"></div><div class="ridge" style="top:55%"></div><div class="body"></div><div class="liquid"></div></div>
           <div class="who">${esc(p.name)}</div><div class="tally">${this.tally[i] || 0}</div>
         </button>`).join('')}</div>`);
@@ -228,12 +283,14 @@ Games.nhie = {
       if (tilted.has(i)) { tilted.delete(i); c.classList.remove('tilted'); this.tally[i]--; SFX.play('tap'); }
       else {
         tilted.add(i); c.classList.add('tilted'); this.tally[i] = (this.tally[i] || 0) + 1; SFX.play('sip'); vibrate(25);
-        const f = document.createElement('div'); f.className = 'sips'; f.textContent = `+${pts(card.heat)}`; c.appendChild(f); setTimeout(() => f.remove(), 1100);
+        const f = document.createElement('div'); f.className = 'sips'; f.textContent = 'sip'; c.appendChild(f); setTimeout(() => f.remove(), 1100);
       }
       $('.tally', c).textContent = this.tally[i];
+      keep();
     }));
     const next = async () => {
-      if (tilted.size) await Core.penalty({ who: [...tilted], card, reason: 'Guilty as charged' });
+      if (ps.length > 1 && tilted.size === ps.length) { SFX.play('applause'); Core.toast('You all have. Nobody takes a dare.'); }
+      else if (tilted.size) await Core.penalty({ who: [...tilted], card, reason: 'Guilty as charged', mode: 'dare' });
       else { SFX.play('win'); Core.toast('Saints, all of you. Suspicious.'); }
       Core.nextRound(); this.round();
     };
@@ -331,6 +388,9 @@ Games.wyr = {
     Core.stopTimers(); Core.setPrimary(null);
     const card = await deal('wyr', () => this.round());
     if (!card) return;
+    const rs = takeRestored();
+    if (rs.mode === 'vote' || rs.mode === 'couples') this.mode = rs.mode;
+    Core.holdSt('wyr', { mode: this.mode });
     if (!card.a) { const m = card.text.replace(/^would you rather\s*/i, '').replace(/\?$/, '').split(/\s+or\s+/i); card.a = m[0]; card.b = m.slice(1).join(' or '); }
     Core.setTurn(-1);
     const s = stageHTML(this.arena(card));
@@ -492,6 +552,9 @@ Games.mostlikely = {
     const card = await deal('mostlikely', () => this.deal());
     if (!card) return;
     this.card = card;
+    const rs = takeRestored();
+    if (rs.vote === 'point' || rs.vote === 'secret') this.vote = rs.vote;
+    Core.holdSt('mostlikely', { vote: this.vote });
     Core.setTurn(-1);
     Core.onSkip(() => this.next());
     const text = card.text.replace(/^who'?s most likely to\s*/i, '').replace(/\?\s*$/, '');
@@ -502,7 +565,7 @@ Games.mostlikely = {
     this.clock = Core.timer($('#tm', s), Core.timerSecs(), () => { SFX.play('buzzer'); const b = $('.controls .primary'); if (b && !b.hidden && !s.dataset.answering) b.click(); });
     $$('.vote-seg button', s).forEach((b) => (b.onclick = () => {
       if (b.classList.contains('on') || s.dataset.answering) return;
-      SFX.play('tap'); this.vote = b.dataset.v;
+      SFX.play('tap'); this.vote = b.dataset.v; Core.holdSt('mostlikely', { vote: this.vote });
       $$('.vote-seg button', s).forEach((x) => x.classList.toggle('on', x === b));
       this.collect();
     }));
@@ -575,6 +638,9 @@ Games.twotruths = {
     const card = await deal('twotruths', () => this.deal());
     if (!card) return;
     this.card = card;
+    const rs = takeRestored();
+    if (rs.vote === 'secret' || rs.vote === 'fingers') this.vote = rs.vote;
+    Core.holdSt('twotruths', { vote: this.vote });
     const tok = ++this.token;
     Core.setTurn(teller);
     Core.onSkip(() => this.next());
@@ -590,7 +656,7 @@ Games.twotruths = {
       <div id="ctl"></div>`);
     $$('.vote-seg button', s).forEach((b) => (b.onclick = () => {
       if (b.classList.contains('on') || s.dataset.voting) return;
-      SFX.play('tap'); this.vote = b.dataset.v; $$('.vote-seg button', s).forEach((x) => x.classList.toggle('on', x === b));
+      SFX.play('tap'); this.vote = b.dataset.v; Core.holdSt('twotruths', { vote: this.vote }); $$('.vote-seg button', s).forEach((x) => x.classList.toggle('on', x === b));
     }));
     let t = null;
     const toVote = () => { if (t) t.stop(); Core.setPrimary(null); this.collect(teller, tok); };
