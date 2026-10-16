@@ -175,7 +175,9 @@ const Core = {
   },
   // Manual change (hold ring or heat sheet): clamps to what's allowed and resets the ramp counter
   setHeat(level) {
+    const was = this.S.heat;
     this.S.heat = Math.max(1, Math.min(+level || 1, this.heatCap()));
+    if (this.S.heat !== was) window.Track && Track.ev('heat_change', { h: this.S.heat });
     this.S.rampCount = 0; this.S.heatGen = (this.S.heatGen || 0) + 1;
     this.save(); this.updateHud();
     window.Bus && Bus.emit('heat');
