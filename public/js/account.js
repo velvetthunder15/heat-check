@@ -121,6 +121,10 @@ const Auth = {
     const { data, error } = await c.auth.verifyOtp({ email, token: code, type: 'email' });
     if (error || !data || !data.session) throw new Error(error && /expired/i.test(error.message) ? 'That code expired. Get a new one.' : 'That code didn’t work. Check it or get a new one.');
     await this.onSession(data.session);
+    try {
+      const born = this.profile && Date.parse(this.profile.created_at);
+      window.Track && Track.ev(born && Date.now() - born < 15 * 60e3 ? 'signup' : 'sign_in');
+    } catch (e) {}
     return data.session;
   },
   async signOut(scope = 'local') {
@@ -133,7 +137,7 @@ const Auth = {
   // Kept: the 18+ answer and the guest's own Flirty counters (so signing in and out can't reset them).
   wipeDevice(msg) {
     if (typeof Core !== 'undefined') { Core._noSave = true; clearTimeout(Core._saveT); }   // a pending state write must not outlive the wipe
-    const keep = new Set(['hc_age', 'hc_limits', 'hc_visits', 'hc_visit_counted']);
+    const keep = new Set(['hc_age', 'hc_limits', 'hc_visits', 'hc_visit_counted', 'hc_notrack']);
     try { Object.keys(localStorage).forEach((k) => { if (k.startsWith('hc_') && !keep.has(k)) localStorage.removeItem(k); }); } catch (e) {}
     try { const lit = sessionStorage.getItem('hc_lit'); sessionStorage.clear(); if (lit) sessionStorage.setItem('hc_lit', lit); if (msg) sessionStorage.setItem('hc_flash', msg); } catch (e) {}
     location.replace('/');
@@ -506,6 +510,7 @@ const Pay = {
   async buy(productId) {
     if (!Cfg.payments) throw new Error('Payments are switching on soon.');
     const order = await Api.call('POST', '/api/create-order', { product: productId });
+    window.Track && Track.ev('checkout_start', { p: productId });
     await loadScript('https://checkout.razorpay.com/v1/checkout.js');
     return new Promise((resolve) => {
       let settled = false;
@@ -531,12 +536,13 @@ const Pay = {
             const v = await Api.call('POST', '/api/verify-payment', resp);
             await Auth.refresh();
             await Premium.load();
+            if (window.Track) { Track.ev('purchase_paid', { p: productId }); Track.flush(); }
             done({ ok: true, granted: v.granted || v.alreadyGranted });
           } catch (e) {
             // Paid but not confirmed yet: the webhook will grant. Poll the profile for a bit.
             const want = productId === 'premium' ? ['premium'] : ['lite', 'premium'];
             for (let i = 0; i < 8 && !want.includes(Ent.profileTier()); i++) { await sleep(2500); await Auth.refresh(); }
-            if (want.includes(Ent.profileTier())) { await Premium.load(); done({ ok: true, granted: true }); }
+            if (want.includes(Ent.profileTier())) { if (window.Track) { Track.ev('purchase_paid', { p: productId }); Track.flush(); } await Premium.load(); done({ ok: true, granted: true }); }
             else done({ error: e, paid: true });
           }
         },
