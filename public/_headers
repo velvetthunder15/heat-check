@@ -1,6 +1,6 @@
 # Cloudflare Pages headers (Vercel uses vercel.json with the same values)
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://checkout.razorpay.com https://*.razorpay.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://*.razorpay.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.razorpay.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com https://api.razorpay.com https://checkout.razorpay.com https://*.razorpay.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://*.razorpay.com; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com https://challenges.cloudflare.com https://checkout.razorpay.com https://*.razorpay.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://*.razorpay.com; connect-src 'self' https://cloudflareinsights.com https://*.supabase.co wss://*.supabase.co https://*.razorpay.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com https://api.razorpay.com https://checkout.razorpay.com https://*.razorpay.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://*.razorpay.com; frame-ancestors 'none'; upgrade-insecure-requests
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
@@ -38,6 +38,13 @@
   Cache-Control: public, max-age=0, must-revalidate
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
+# v20.4: private stats page
+/admin
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow
+/admin.html
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow
 # Brotli/gzip: Cloudflare Pages compresses text assets automatically (no header needed).
 
 
