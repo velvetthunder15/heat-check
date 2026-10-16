@@ -90,3 +90,20 @@ Chirag said yes to "add Web Analytics and per-game tracking to a private admin s
 - KV budget: RATE_KV also backs sign-in and admin limits, and the Workers free plan allows 1,000 KV writes a day, so /api/track
   only touches KV after 5 batches from one IP in 10 minutes (in-memory first). Normal players cost 0 KV writes.
 - "Visitors" over a range = sum of daily uniques (the hash rotates daily by design, so a 30-day unique count isn't possible).
+
+## Deploy
+- SQL first: migration applied live through the Supabase query API (returned [] = ok), then role admin set (returned
+  chiragrasane15@gmail.com / admin / premium). Live check: anon select and authenticated insert on analytics_events = false,
+  authenticated execute admin_analytics = false, RLS on; admin_analytics(30) returns the full payload.
+- CF production auto deploys off + Vercel commandForIgnoringBuildStep "exit 0", then tools/sync.py "v20.4 hc-v49: usage stats +
+  private stats page" (28 files, one commit each, 0 fails; a second run reported 0 changed), both restored (true / null),
+  then one POST /pages/projects/heat-check/deployments branch=main.
+- CF Pages production deployment aee7c809-b4d0-4404-8ad2-281bdf5de735 (commit 9dc0e265, branch main): success.
+- Live (browser UA): /sw.js = hc-v49 with track.js?v=49 in the shell; / loads track.js?v=49 and motion2.css?v=49; /api/config 200;
+  /admin 200 with X-Robots-Tag noindex + no-store and admin.js?v=49; /api/admin/analytics without a session 401; /privacy has the
+  stats line, section 4a and "updated 16 October 2026"; CSP carries static.cloudflareinsights.com + cloudflareinsights.com.
+  POST /api/track (marked internal) 204 and the rows landed with country, device, referrer host, 32-char visitor hash; those 2
+  test rows were deleted afterwards (table count 0).
+- Headless Chromium against the live apex gets Cloudflare's bot challenge (as before), so the live /admin look was checked
+  locally (pw/admin204.mjs with the live admin_analytics JSON), not on the live host.
+- This deploy paragraph was pushed in a docs-only sync with auto deploys off (no extra build).
