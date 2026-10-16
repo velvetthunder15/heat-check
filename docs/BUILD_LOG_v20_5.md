@@ -88,4 +88,17 @@ bracket in the plan buy section (next to unlimited)".
   Backup of the v20.4 source: /workspace/work/heatcheck/repo_v49_backup_freespicy.
 
 ## Deploy
-- See HISTORY.md v20.5 entry for the deployment id and live checks.
+- SQL first: migration applied live through the Supabase query API (returned [] = ok). Checked live: 8 Spicy + 8 HOT taste cards,
+  card_counts() = {spicy 235, hot 227}, spicy_taste_used jsonb default {}, authenticated can't execute claim_spicy_taste / card_counts
+  or update spicy_taste_used (can select it), service_role can. RLS as the real accounts: cutn1269 (Lite) reads 235 Spicy incl. 8 taste,
+  0 HOT; chiragrasane15 (Premium) reads 235 Spicy + 227 HOT, 0 HOT taste.
+- CF production auto deploys off + Vercel commandForIgnoringBuildStep "exit 0", then tools/sync.py "v20.5 hc-v50: free Spicy card + plan
+  card counts" (36 files, one commit each, 0 fails), then one POST /pages/projects/heat-check/deployments branch=main.
+- CF Pages production deployment c421b8ca-2887-4a87-9f59-0eda8acbc4a6 (commit b677dcf4, branch main): success.
+- Live (browser UA): /sw.js = hc-v50 with v205.css?v=50 in the shell; / loads config.js?v=50 and v205.css?v=50; dist config.js has
+  CARD_COUNTS { flirty: 235, spicy: 235, hot: 227 }; /api/config 200; POST /api/taste {heat 2} without a session 401; /terms has the
+  free Spicy line.
+- Gotcha: right after the deploy /api/config returned `cards: null` because PostgREST's schema cache didn't know card_counts() yet.
+  `notify pgrst, 'reload schema'` through the query API fixed it (then `cards: { spicy: 235, hot: 227 }`). Next time a migration adds
+  a function, send that notify before the deploy.
+- Docs (this log, HISTORY) pushed in a docs-only sync with auto deploys still off, then both restored (CF true, Vercel null).
