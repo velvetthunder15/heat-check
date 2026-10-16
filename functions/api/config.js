@@ -2,6 +2,7 @@
 import { json, handle } from '../../lib/http.js';
 import { publicCatalog } from '../../lib/pricing.js';
 import { rest } from '../../lib/supabase.js';
+import { cardCounts } from '../../lib/cards.js';
 
 import { GAME_IDS } from '../../lib/games.js';
 
@@ -15,6 +16,7 @@ export const onRequestGet = handle(async ({ request, env }) => {
       for (const r of rows || []) if (r.id in games) games[r.id] = !!r.enabled;
     } catch (e) { /* keep every game on if the DB is unreachable */ }
   }
+  const cards = accounts ? await cardCounts(env) : null;
   const country = request.cf && request.cf.country;
   return json({
     accounts,
@@ -25,6 +27,7 @@ export const onRequestGet = handle(async ({ request, env }) => {
     razorpayKeyId: payments ? env.RAZORPAY_KEY_ID : null,
     products: publicCatalog(country),
     games,
+    cards,
     now: Date.now(),
   }, 200, { 'Cache-Control': 'no-store' });
 });
