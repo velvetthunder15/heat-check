@@ -1,17 +1,11 @@
 /* Heat Check v20.5: free Spicy card. Loaded last.
-   1. Guest "Sign in for a free Spicy card" tab: same pill, same height, same right edge as the circles above it,
-      it just grows to the left to fit the offer. Below 360px the "for a free Spicy card" part wraps away (Sign in only).
+   1. v20.6: the guest header tab is back to plain "Sign in" (original v15 pill: 148px, desktop slot 162px);
+      the offer moved to the game tiles: "Sign in for free Spicy/HOT cards".
    2. Deal-it gate chip for a free Spicy card.
    3. Profile "Free cards": each game tile carries both statuses (Spicy and HOT). */
 
-html.is-guest .signin-tab { width: auto; min-width: 148px; padding: 0 14px 0 12px; white-space: nowrap; }
-html.is-guest .signin-tab .st-free { font-weight: 700; color: #ffe6cf; }
-@media (max-width: 359.98px) { html.is-guest .signin-tab .st-free { display: none; } }
-
-/* Desktop header (>= 1024px, mouse): the guest slot left of the circles is wider for the longer tab */
-@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
-  html.is-guest #app { --dk-slot: 272px; }
-}
+/* v20.6: the guest tile tag can wrap to a second line on narrow tiles instead of overflowing */
+.tile .t-hot.t-signin { max-width: 100%; white-space: normal; line-height: 1.25; }
 
 .deal-gate.dg-spicy .dg-chip { background: linear-gradient(90deg, #ff2e63, #ff5a8a); }
 
@@ -21,3 +15,4 @@ html.is-guest .signin-tab .st-free { font-weight: 700; color: #ffe6cf; }
 
 /* 4. Plan sheet: the card total next to each "Unlimited" line stays on one line, a touch lighter */
 .plan-rows .pc-n { white-space: nowrap; font-weight: 600; opacity: .78; }
+@media (max-width: 359.98px) { .tile .t-hot.t-signin { font-size: 10.5px; letter-spacing: .03em; padding: 6px 8px; } }
