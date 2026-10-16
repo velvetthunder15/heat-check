@@ -33,10 +33,17 @@ const ICONS = {
 };
 const icon = (k) => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>`;
 const perkList = (items) => `<ul class="perk-list">${items.map(([k, t]) => `<li>${icon(k)}<span>${esc(t)}</span></li>`).join('')}</ul>`;
-const GUEST_PERKS = [['flame', `Free ${HOT} card per game`], ['sync', 'Sync your progress'], ['bag', 'Buy Lite or Premium']];
-// Paywall rows: Lite shows its first three, the fourth (Premium's) dimmed. Premium shows all four of its own.
-const LITE_ROWS = [['flame', 'Flirty and Spicy, unlimited', true], ['heat', `${HC.LIMITS.lite.hot} ${HOT} cards per game`, true], ['music', 'Velvet sound pack', true], ['infinity', `Unlimited ${HOT}`, false]];
-const PREMIUM_ROWS = [['infinity', `Unlimited ${HOT}, every game`, true], ['group', 'Unlimited players', true], ['bookmark', 'Saved player names', true], ['sparkle', 'Midnight and Neon looks', true]];
+const GUEST_PERKS = [['flame', `Free ${HEAT[2].name} card per game`], ['heat', `Free ${HOT} card per game`], ['sync', 'Sync your progress'], ['bag', 'Buy Lite or Premium']];
+// v20.5: the guest sign-in offer, one wording everywhere
+const FREE_SPICY_CTA = `Sign in for a free ${HEAT[2].name} card`;
+const FREE_REASON = `Sign in and every game gives you a free ${HEAT[2].name} card and a free ${HOT} card. No passwords, just a code.`;
+/* v20.5: card totals on the plan sheet. Flirty is stamped at build time (HC.CARD_COUNTS); Spicy and Hot come
+   live from /api/config (premium_cards counts) when it has them. A count that isn't known is left off. */
+const cardCount = (k) => { const live = Cfg.data && Cfg.data.cards && Number(Cfg.data.cards[k]); const n = Number.isFinite(live) && live > 0 ? live : Number(HC.CARD_COUNTS && HC.CARD_COUNTS[k]); return Number.isFinite(n) && n > 0 ? n : 0; };
+// Paywall rows: [icon, text, included, card count]. Lite shows its first three, the fourth (Premium's) dimmed.
+// Premium shows all four of its own. A count of 0 (not known) shows no bracket.
+const liteRows = () => [['flame', `Unlimited Flirty + ${HEAT[2].name}`, true, cardCount('flirty') && cardCount('spicy') ? cardCount('flirty') + cardCount('spicy') : 0], ['heat', `${HC.LIMITS.lite.hot} ${HOT} cards per game`, true], ['music', 'Velvet sound pack', true], ['infinity', `Unlimited ${HOT}`, false, cardCount('hot')]];
+const premiumRows = () => [['infinity', `Unlimited ${HOT}, every game`, true, cardCount('hot')], ['group', 'Unlimited players', true], ['bookmark', 'Saved player names', true], ['sparkle', 'Midnight and Neon looks', true]];
 
 const fmtDate = (iso, time = true) => {
   if (!iso) return '';
@@ -227,7 +234,7 @@ const UI = {
     const tier = Ent.tier();
     const lite = Cfg.product('lite'), prem = Cfg.product('premium');
     if (!Cfg.payments || !lite || !prem) { host.innerHTML = '<p class="pw-soon">Lite and Premium are switching on soon. Everything free still works.</p>'; return; }
-    const rows = (list) => `<ul class="plan-rows">${list.map(([k, t, on]) => `<li class="${on ? '' : 'off'}">${icon(on ? k : 'lock')}<span>${esc(t)}</span></li>`).join('')}</ul>`;
+    const rows = (list) => `<ul class="plan-rows">${list.map(([k, t, on, n]) => `<li class="${on ? '' : 'off'}">${icon(on ? k : 'lock')}<span>${esc(t)}${n > 0 ? ` <b class="pc-n">(${n.toLocaleString('en-IN')} cards)</b>` : ''}</span></li>`).join('')}</ul>`;
     const liteActive = tier === 'lite';
     host.innerHTML = `<div class="plans">
       <button class="plan lite" data-buy="lite" ${tier === 'premium' ? 'disabled' : ''}>
@@ -236,7 +243,7 @@ const UI = {
         <span class="plan-name">Lite</span>
         <span class="plan-price">${esc(lite.display)}</span>
         <span class="plan-term">${liteActive ? 'adds 1 more hour' : 'for 1 hour'}</span>
-        ${rows(LITE_ROWS)}
+        ${rows(liteRows())}
         <span class="plan-cta">${liteActive ? '+1 hour' : 'Get Lite'}</span>
       </button>
       <button class="plan premium" data-buy="premium">
@@ -245,7 +252,7 @@ const UI = {
         <span class="plan-name">Premium</span>
         <span class="plan-price">${esc(prem.display)}</span>
         <span class="plan-term">one-time, forever</span>
-        ${rows(PREMIUM_ROWS)}
+        ${rows(premiumRows())}
         <span class="plan-cta">Get Premium</span>
       </button>
     </div><p class="form-err" role="alert" hidden></p>`;
@@ -289,6 +296,8 @@ const UI = {
         <h2>Turn up the heat</h2>
         <p class="muted">${esc(sub)}</p>
         <div id="pwPlans"></div>
+        ${Auth.signedIn() || !Cfg.accounts ? '' : `<button class="btn block ghost sm" id="pwFree" style="margin-top:12px">${FREE_SPICY_CTA}</button>`}
+        ${game && Taste.canClaim(game, 2) && document.getElementById('stage') ? `<button class="btn block ghost sm" id="pwSpicy" style="margin-top:12px">Or use your free ${HEAT[2].name} card</button>` : ''}
         ${game && Taste.canClaim(game) && document.getElementById('stage') ? '<button class="btn block ghost sm" id="pwTaste" style="margin-top:12px">Or use your free ' + HOT + ' card</button>' : ''}
         <p class="form-err" id="pwErr" role="alert" hidden></p>
         <p class="note center pw-foot">${Auth.signedIn() ? '' : '<button class="linkish" id="pwRestore">Already bought? Restore purchase</button><br>'}
@@ -297,12 +306,16 @@ const UI = {
       </div>`, { cls: 'pw-wrap' });
     const el = s.el, err = $('#pwErr', el);
     this.plans($('#pwPlans', el), { game, reason, onDone: () => s.close() });
-    const tasteBtn = $('#pwTaste', el);
-    if (tasteBtn) tasteBtn.onclick = async () => {
-      this.busy(tasteBtn, true);
-      try { await Taste.claim(game); s.close(); Core.toast(`Your free ${HOT} card is up next`); this.resume(); }
-      catch (e) { this.busy(tasteBtn, false); this.err(err, e.message); }
-    };
+    [['#pwSpicy', 2], ['#pwTaste', 3]].forEach(([sel, lv]) => {
+      const tasteBtn = $(sel, el);
+      if (tasteBtn) tasteBtn.onclick = async () => {
+        this.busy(tasteBtn, true);
+        try { await Taste.claim(game, lv); s.close(); Core.toast(`Your free ${Taste.name(lv)} card is up next`); this.resume(); }
+        catch (e) { this.busy(tasteBtn, false); this.err(err, e.message); }
+      };
+    });
+    const free = $('#pwFree', el);
+    if (free) free.onclick = () => { s.close(); this.signIn({ reason: FREE_REASON, then: () => { Intro.refresh(); if (document.getElementById('stage')) this.resume(); } }); };
     const restore = $('#pwRestore', el);
     if (restore) restore.onclick = () => { s.close(); this.signIn({ reason: 'Sign in with the email you bought with. Your purchase comes back with it.', then: () => this.afterRestore() }); };
     return s;
@@ -324,15 +337,20 @@ const UI = {
       Core.setPrimary(null); Core.onSkip(null);
       $('[data-act="unlockmore"]', st).onclick = () => this.limitReached(game, again);
     }
-    const tasteNow = tier === 'base' && Taste.canClaim(game);
+    // v20.5: Base has a free Spicy card and a free HOT card per game
+    const spicyNow = tier === 'base' && Taste.canClaim(game, 2), hotNow = tier === 'base' && Taste.canClaim(game, 3);
+    const tasteNow = spicyNow || hotNow, SPICY = HEAT[2].name;
+    const waiting = spicyNow && hotNow ? `free ${SPICY} and ${HOT} cards are` : `free ${spicyNow ? SPICY : HOT} card is`;
     const s = this.sheet(`
       <div class="pw lim">
-        <h2>${tasteNow ? `Use your free ${HOT} card?` : 'Unlock more'}</h2>
-        <p class="muted">${tier === 'guest' ? `That’s ${cap} Flirty cards in ${esc(title)} today. Sign in for a free ${HOT} card, or unlock everything.`
-          : tasteNow ? `That’s ${cap} Flirty cards in ${esc(title)} today. This game’s free ${HOT} card is still waiting.`
-            : `That’s ${cap} Flirty cards and your free ${HOT} card in ${esc(title)} today.`}</p>
-        ${tier === 'guest' ? `<button class="btn block" id="limSignIn">Sign in for a free ${HOT} card</button>` : ''}
-        ${tasteNow ? `<button class="btn block" id="limTaste">Play my free ${HOT} card</button>` : ''}
+        <h2>${spicyNow && hotNow ? 'Use a free card?' : tasteNow ? `Use your free ${spicyNow ? SPICY : HOT} card?` : 'Unlock more'}</h2>
+        <p class="muted">${tier === 'guest' ? `That’s ${cap} Flirty cards in ${esc(title)} today. Sign in for a free ${SPICY} card, or unlock everything.`
+          : tasteNow ? `That’s ${cap} Flirty cards in ${esc(title)} today. This game’s ${waiting} still waiting.`
+            : tier === 'base' ? `That’s ${cap} Flirty cards and your free ${SPICY} and ${HOT} cards in ${esc(title)} today.`
+              : `That’s ${cap} Flirty cards in ${esc(title)} today.`}</p>
+        ${tier === 'guest' ? `<button class="btn block" id="limSignIn">${FREE_SPICY_CTA}</button>` : ''}
+        ${spicyNow ? `<button class="btn block" id="limSpicy">Play my free ${SPICY} card</button>` : ''}
+        ${hotNow ? `<button class="btn block${spicyNow ? ' ghost' : ''}" id="limTaste"${spicyNow ? ' style="margin-top:10px"' : ''}>Play my free ${HOT} card</button>` : ''}
         <div id="limPlans"></div>
         <p class="form-err" id="limErr" role="alert" hidden></p>
         <button class="btn block ghost sm" data-close>Not now</button>
@@ -340,13 +358,15 @@ const UI = {
     const el = s.el;
     this.plans($('#limPlans', el), { game, onDone: () => { s.close(); this.resume(); } });
     const si = $('#limSignIn', el);
-    if (si) si.onclick = () => { s.close(); this.signIn({ reason: `Sign in and every game gives you one free ${HOT} card.`, then: () => { Intro.refresh(); this.resume(); } }); };
-    const tb = $('#limTaste', el);
-    if (tb) tb.onclick = async () => {
-      this.busy(tb, true);
-      try { await Taste.claim(game); s.close(); this.resume(); }
-      catch (e) { this.busy(tb, false); this.err($('#limErr', el), e.message); }
-    };
+    if (si) si.onclick = () => { s.close(); this.signIn({ reason: FREE_REASON, then: () => { Intro.refresh(); this.resume(); } }); };
+    [['#limSpicy', 2], ['#limTaste', 3]].forEach(([sel, lv]) => {
+      const tb = $(sel, el);
+      if (tb) tb.onclick = async () => {
+        this.busy(tb, true);
+        try { await Taste.claim(game, lv); s.close(); this.resume(); }
+        catch (e) { this.busy(tb, false); this.err($('#limErr', el), e.message); }
+      };
+    });
     return s;
   },
 
@@ -354,8 +374,12 @@ const UI = {
   lockInfo(level, game = Core.game) {
     const tier = Ent.tier();
     if (level <= Core.levelCap(game)) return null;
-    if (level === 2) return { text: 'Spicy needs Lite or Premium.', act: 'plans' };
-    if (tier === 'guest') return { text: `Sign in for a free ${HOT} card`, act: 'signin' };
+    // v20.5: guests are offered a free Spicy card for signing in; Base can spend a free Spicy card per game
+    if (tier === 'guest') return level === 2 ? { text: FREE_SPICY_CTA, act: 'signin' } : { text: `Sign in for a free ${HEAT[2].name} card and a free ${HOT} card`, act: 'signin' };
+    if (level === 2) {
+      if (tier === 'base' && (game ? Taste.canClaim(game, 2) : Taste.unusedAny(2))) return { text: `Use your free ${HEAT[2].name} card?`, act: 'taste2' };
+      return { text: 'Spicy needs Lite or Premium.', act: 'plans' };
+    }
     if (tier === 'base') {
       const unused = game ? Taste.canClaim(game) : Taste.unusedAny();
       return unused ? { text: `Use your free ${HOT} card?`, act: 'taste' } : { text: `${HOT} is locked. Lite or Premium unlocks it.`, act: 'plans' };
@@ -367,14 +391,16 @@ const UI = {
     if (!info) return '';
     if (info.act === 'signin') return '<button class="linkish" data-lock="signin">Sign in</button>';
     if (info.act === 'taste') return '<button class="linkish" data-lock="taste">Use it</button>';
+    if (info.act === 'taste2') return '<button class="linkish" data-lock="taste2">Use it</button>';
     if (info.act === 'premium') return '<button class="mini-plan premium" data-lock="premium">Premium</button>';
     return '<button class="mini-plan lite" data-lock="lite">Lite</button><button class="mini-plan premium" data-lock="premium">Premium</button>';
   },
   async lockAct(kind, game, done) {
-    if (kind === 'signin') return this.signIn({ reason: `Sign in and every game gives you one free ${HOT} card.`, then: () => { Intro.refresh(); done && done(); } });
-    if (kind === 'taste') {
-      if (game) { try { await Taste.claim(game); Core.toast(`Your free ${HOT} card is up next`); done && done(); } catch (e) { Core.toast(e.message); } return; }
-      Taste.armed = true; done && done(); return;
+    if (kind === 'signin') return this.signIn({ reason: FREE_REASON, then: () => { Intro.refresh(); done && done(); } });
+    if (kind === 'taste' || kind === 'taste2') {
+      const lv = kind === 'taste2' ? 2 : 3;
+      if (game) { try { await Taste.claim(game, lv); Core.toast(`Your free ${Taste.name(lv)} card is up next`); done && done(); } catch (e) { Core.toast(e.message); } return; }
+      Taste.armed = lv; done && done(); return;
     }
     return this.paywall({ game });
   },
@@ -502,19 +528,21 @@ const UI = {
   },
 
   // Signed-in only: one icon per game, count from config (couples + groups)
+  // v20.5: one tile per game with both free cards: Spicy and HOT, each Free or Used
   tasteTracker() {
-    const left = GAME_IDS.filter((g) => !Taste.used(g)).length;
+    const SPICY = HEAT[2].name;
+    const leftS = GAME_IDS.filter((g) => !Taste.used(g, 2)).length, leftH = GAME_IDS.filter((g) => !Taste.used(g, 3)).length;
     return `<div class="taste-grid">${GAME_IDS.map((g) => {
-      const used = Taste.used(g);
-      return `<div class="taste ${used ? 'used' : ''}" title="${esc(Games[g].title)}"><span class="ti">${GAME_ICON[g] || '🔥'}</span><span class="tn">${esc(GAME_SHORT[g] || g)}</span><span class="ts">${used ? 'Used' : 'Free'}</span></div>`;
-    }).join('')}</div><p class="note">${Ent.paid() ? `Your plan has ${HOT} already, so these can wait.` : `${left} of ${GAME_IDS.length} free ${HOT} cards left.`}</p>`;
+      const us = Taste.used(g, 2), uh = Taste.used(g, 3);
+      return `<div class="taste ${us && uh ? 'used' : ''}" title="${esc(Games[g].title)}"><span class="ti">${GAME_ICON[g] || '🔥'}</span><span class="tn">${esc(GAME_SHORT[g] || g)}</span><span class="ts ${us ? 'u' : ''}">${SPICY} · ${us ? 'Used' : 'Free'}</span><span class="ts ${uh ? 'u' : ''}">${HOT} · ${uh ? 'Used' : 'Free'}</span></div>`;
+    }).join('')}</div><p class="note">${Ent.paid() ? `Your plan has ${SPICY} and ${HOT} already, so these can wait.` : `${leftS} of ${GAME_IDS.length} free ${SPICY} cards and ${leftH} of ${GAME_IDS.length} free ${HOT} cards left.`}</p>`;
   },
 
   profileGuest() {
     return `
       <section class="pf-card pf-hero guest">
         <div class="pf-ring dim" aria-hidden="true"><span>Guest</span></div>
-        <button class="btn block pf-cta" id="pfSignIn">Sign in</button>
+        <button class="btn block pf-cta" id="pfSignIn">${FREE_SPICY_CTA}</button>
         ${perkList(GUEST_PERKS)}
       </section>
       ${this.supportBlock()}`;
@@ -546,7 +574,7 @@ const UI = {
         <div class="row" style="justify-content:center;gap:8px"><span class="plan-badge ${tier}">${tier === 'premium' ? 'Premium · Lifetime' : PLAN_LABEL[tier]}</span><span class="note">Member since ${esc(fmtDate(p.created_at, false))}</span></div>
       </section>
       <section class="pf-card"><h3>${tier === 'base' ? 'Plans' : 'Your plan'}</h3>${plan}</section>
-      ${['premium', 'lite'].includes(Ent.profileTier()) ? '' : `<section class="pf-card"><h3>Free ${HOT} cards</h3>${this.tasteTracker()}</section>`}
+      ${['premium', 'lite'].includes(Ent.profileTier()) ? '' : `<section class="pf-card"><h3>Free cards</h3>${this.tasteTracker()}</section>`}
       <section class="pf-card"><h3>Purchase history</h3><div id="pfPurchases"><p class="note">Digging out your receipts…</p></div>
         <p class="note"><a href="/refund">Need a refund?</a></p></section>
       <section class="pf-card"><h3>Preferences</h3>
@@ -591,7 +619,7 @@ const UI = {
   bindProfile(s) {
     const el = s.el;
     const on = (sel, fn) => { const b = $(sel, el); if (b) b.onclick = fn; };
-    on('#pfSignIn', () => { s.close(); this.signIn({ then: () => this.profile() }); });
+    on('#pfSignIn', () => { s.close(); this.signIn({ reason: FREE_REASON, then: () => this.profile() }); });
     this.plans($('#pfPlans', el), { onDone: () => this.refreshScreens() });
     $$('[data-pfbuy]', el).forEach((b) => (b.onclick = async () => {
       this.busy(b, true);
@@ -821,8 +849,8 @@ const UI = {
         ${g === 'charades' ? `<select class="input" id="cfCat">${CATS.map((z) => `<option ${x.category === z ? 'selected' : ''}>${z}</option>`).join('')}</select>` : ''}
         <select class="input" id="cfOrigin"><option value="">No origin tag</option>${ORIGINS.map((z) => `<option ${x.origin === z ? 'selected' : ''}>${z}</option>`).join('')}</select>
         ${g === 'redflag' ? `<div class="toggle"><div><b>Trait question</b><div class="note">A normal red or green vote question.</div></div><button class="switch ${x.kind === 'trait' ? 'on' : ''}" id="cfTrait" aria-label="Trait card"></button></div>` : ''}
-        <p class="note">${heat === 2 ? 'Spicy: Lite and Premium.' : `${HOT}: Premium, Lite (3 per game), free ${HOT} card.`}</p>
-        ${heat === 3 ? `<div class="toggle"><div><b>Free ${HOT} card (taste)</b><div class="note">Only one per game is used. Served by /api/taste only.</div></div><button class="switch ${c && c.is_taste ? 'on' : ''}" id="cfTaste" aria-label="Taste card"></button></div>` : ''}
+        <p class="note">${heat === 2 ? 'Spicy: Lite and Premium, free Spicy card.' : `${HOT}: Premium, Lite (${HC.LIMITS.lite.hot} per game), free ${HOT} card.`}</p>
+        <div class="toggle"><div><b>Free ${heat === 2 ? 'Spicy' : HOT} card (taste)</b><div class="note">${heat === 2 ? 'Base gets one per game from /api/taste. Lite and Premium still see it.' : 'Only one per game is used. Served by /api/taste only.'}</div></div><button class="switch ${c && c.is_taste ? 'on' : ''}" id="cfTaste" aria-label="Taste card"></button></div>
         <div class="toggle"><div><b>Active</b></div><button class="switch ${!c || c.active ? 'on' : ''}" id="cfActive" aria-label="Active"></button></div>
         <div class="row ad-row"><button class="btn sm" id="cfSave">${c ? 'Save' : 'Add card'}</button><button class="btn sm ghost" id="cfCancel">Cancel</button></div>
         <p class="note" id="cfMsg"></p></div>`;
