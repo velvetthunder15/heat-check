@@ -102,6 +102,7 @@ const App = {
     Core.restoreFor = id;   // v20.1: the first deal brings back this game's card if it had one
     gateWait = null;
     window.Stats && Stats.game(id);
+    window.Track && Track.ev('game_start', { g: id, h: Core.heat() });
     Core.stopTimers();
     Core._wantWake = true; Core.wake(true);
     Games[id].start();
