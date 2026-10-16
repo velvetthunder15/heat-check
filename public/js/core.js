@@ -155,7 +155,7 @@ const Core = {
   /* ---------- heat ----------
      S.heat is the level the ring set or auto-ramp reached. It never plays above what this
      tier allows: guest/Base = Flirty, Lite = Hot while this game has Hot cards left, Premium = Hot.
-     A free Hot card (taste) makes exactly one card Hot. */
+     A free Hot or Spicy card (Base's tastes) makes exactly one card that level. */
   tier() { return window.Ent ? Ent.tier() : 'guest'; },
   levelCap(game = this.game) {
     const t = this.tier();
@@ -165,7 +165,7 @@ const Core = {
   },
   heatCap() { return this.levelCap(); },
   heat() {
-    if (window.Taste && Taste.showing && Taste.showing === this.game) return 3;
+    if (window.Taste && Taste.showing && Taste.showing === this.game) return Taste.showingLv || 3;
     return Math.max(1, Math.min(this.S.heat || 1, this.heatCap()));
   },
   heatProgress() {
@@ -215,9 +215,9 @@ const Core = {
   async next(game, again) {
     if (window.Ent) Ent.checkExpiry();
     if (window.Taste) {
-      if (Taste.showing) Taste.finish();                    // the free Hot card was the last one
+      if (Taste.showing) Taste.finish();                    // the free Spicy/Hot card was the last one
       const t = Taste.take(game);
-      if (t) { Taste.showing = game; return this.show(t); }
+      if (t) { Taste.show(game, t.heat); return this.show(t); }
     }
     let want = Math.min(this.S.heat, this.levelCap(game));
     if (this.S.heat === 3 && want < 3 && this.tier() === 'lite' && window.Cards) Cards.usedUp(game);   // says so once per game
@@ -287,7 +287,7 @@ const Core = {
   heldOk(game, h) {
     const c = h && h.card; if (!c || c.game !== game || !c.text) return false;
     const t = this.tier(), paid = t === 'lite' || t === 'premium', ch = +c.heat || 1;
-    if (ch === 2 && !paid) return false;
+    if (ch === 2 && !paid && !(c.taste && t === 'base')) return false;
     if (ch === 3 && !paid && !(c.taste && t === 'base')) return false;
     if (!this.originOk(c)) return false;
     if (h.lvl > this.tierMax()) return false;
@@ -299,7 +299,7 @@ const Core = {
     if (!this.heldOk(game, h)) { this.dropHeld(game); return null; }
     if (h.lvl !== this.holdLvl()) { this.S.heat = h.lvl; this.save(); }
     const c = h.card;
-    if (c.taste && window.Taste) Taste.showing = game;
+    if (c.taste && window.Taste) Taste.show(game, c.heat);
     this.cardHeat = +c.heat || 1;
     const key = game + this.cardHeat; (this.used[key] = this.used[key] || new Set()).add(c.text);
     const r = (this.recent[game] = this.recent[game] || []); if (!r.includes(c.text)) { r.push(c.text); if (r.length > 40) r.shift(); }
