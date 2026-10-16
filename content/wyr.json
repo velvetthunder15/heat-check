@@ -205,7 +205,8 @@
   "text": "Would you rather have your neck kissed for thirty seconds or have your ear whispered into for a minute?",
   "optionalDare": "Kiss the side of your partner's neck slowly for 30 seconds.",
   "a": "Have your neck kissed for thirty seconds",
-  "b": "Have your ear whispered into for a minute"
+  "b": "Have your ear whispered into for a minute",
+  "taste": true
  },
  {
   "game": "wyr",
