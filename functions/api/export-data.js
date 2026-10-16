@@ -26,6 +26,7 @@ export const onRequestGet = handle(async ({ request, env }) => {
       premium_until: profile.premium_until,
       created_at: profile.created_at,
       taste_used: profile.taste_used,
+      spicy_taste_used: profile.spicy_taste_used || {},
       preferences: profile.preferences,
       stats: profile.stats,
     } : null,
