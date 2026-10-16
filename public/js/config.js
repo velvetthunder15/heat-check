@@ -28,12 +28,15 @@ const HC = {
   ],
   // Per game. null = unlimited. LIMITS_START
   LIMITS: {
-    guest:   { flirty: 10, spicy: 0, hot: 0, taste: 0 },
-    base:    { flirty: 10, spicy: 0, hot: 0, taste: 1 },
-    lite:    { flirty: null, spicy: null, hot: 5, taste: 0 },
-    premium: { flirty: null, spicy: null, hot: null, taste: 0 },
+    guest:   { flirty: 10, spicy: 0, hot: 0, taste: 0, spicyTaste: 0 },
+    base:    { flirty: 10, spicy: 0, hot: 0, taste: 1, spicyTaste: 1 },
+    lite:    { flirty: null, spicy: null, hot: 5, taste: 0, spicyTaste: 0 },
+    premium: { flirty: null, spicy: null, hot: null, taste: 0, spicyTaste: 0 },
   },
   // LIMITS_END
+  // v20.5: card totals for the plan sheet. tools/build.mjs stamps the real numbers into dist/ (Flirty from the
+  // bundle, Spicy/Hot from content/); /api/config replaces Spicy/Hot with the live premium_cards counts. 0 = hidden.
+  CARD_COUNTS: { flirty: 0, spicy: 0, hot: 0 },
   LIMIT_RESET: 'daily',       // Flirty counters (guest/Base) reset at midnight IST
   PENALTY_PTS: { 1: 1, 2: 2, 3: 3 },
   CHICKEN_PER_ROUND: 1,       // Chicken Out uses per player per round (one lap of turns)
