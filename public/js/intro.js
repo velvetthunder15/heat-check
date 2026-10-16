@@ -54,7 +54,7 @@ const Intro = {
       if (sp) return `<span class="t-hot free">1 free ${HEAT[2].name} card</span>`;
       if (ht) return `<span class="t-hot free">1 free ${HOT} card</span>`;
     }
-    if (t === 'guest' && window.Cfg && Cfg.accounts) return `<span class="t-hot free">Sign in for a free ${HEAT[2].name} card</span>`;   // v20.5
+    if (t === 'guest' && window.Cfg && Cfg.accounts) return `<span class="t-hot free t-signin">Sign in for free ${HEAT[2].name}/${HOT} cards</span>`;   // v20.6
     return `<span class="t-hot">🔒 ${HOT} locked</span>`;
   },
   /* "How HOT is tonight?": HOT is an SVG word. Three per-level gradients sit stacked inside a
@@ -123,7 +123,7 @@ const Intro = {
         <button class="sb-chip sb-who" data-act="players" aria-label="Players">${ps.length >= need ? `👥 ${who}` : '👥 Add players'}</button>
         <span class="sb-chip">${mode}</span>
         ${App.nightActive() ? '<button class="btn sm end-night" id="endNight">End night</button>' : ''}
-        <button class="signin-tab" data-act="signin" aria-label="Sign in for a free Spicy card"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.3-3.4 3.9-5.1 7-5.1s5.7 1.7 7 5.1"/></svg><span>Sign in <span class="st-free">for a free ${HEAT[2].name} card</span></span></button></div>
+        <button class="signin-tab" data-act="signin" aria-label="Sign in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.3-3.4 3.9-5.1 7-5.1s5.7 1.7 7 5.1"/></svg><span>Sign in</span></button></div>
       <div id="passBanner" class="pass-banner-slot"></div>
 
       <div class="side-switch" role="tablist" aria-label="Who's playing">
