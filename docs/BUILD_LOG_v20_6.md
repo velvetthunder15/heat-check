@@ -30,5 +30,12 @@ Chirag: "let the sign in pill stay sign in only. write sign in for free spicy/ho
 - Backup of the v20.5 source: /workspace/work/heatcheck/repo_v50_backup_signinpill.
 
 ## Deploy
-- CF production auto deploys off + Vercel commandForIgnoringBuildStep "exit 0", tools/sync.py, both restored, then one
-  POST /pages/projects/heat-check/deployments branch=main. Result: see HISTORY.
+- CF production auto deploys off + Vercel commandForIgnoringBuildStep "exit 0", then tools/sync.py "v20.6 hc-v51: plain Sign in pill,
+  Spicy/HOT offer on game tiles" (12 files, 0 fails), both restored (CF true, Vercel null), then one POST /pages/projects/heat-check/deployments branch=main.
+- CF Pages production deployment fc071000-87cf-45ed-a832-d8945f8627ac (commit 0fc8389b, branch main): success.
+- Live (browser UA): /sw.js = hc-v51 with v205.css?v=51 in the shell; / loads intro.js?v=51 and v205.css?v=51; live intro.js has the new tile
+  copy and aria-label "Sign in"; v205.css has the t-signin rules; 404 / 500 / admin / terms / privacy / refund carry ?v=51; /api/config 200.
+- Stray queued deployments: the API still listed queued-but-idle production deployments from the per-file commits even with auto deploys off
+  (this release's 12 plus leftovers from Oct 14-16). Deleted about 100 with ?force=true; older Oct 14 leftovers keep surfacing page by page
+  (deletes succeed, a handful remain). They never build and don't affect production. Stopped after 3 rounds.
+- No account, DB or server changes.
