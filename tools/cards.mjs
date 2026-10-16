@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Card pipeline: content/*.json -> lint -> dist/cards.json (Lv1 Flirty ONLY) and,
 // with --seed, supabase/seed/premium_cards.sql (Lv2 Spicy + Lv3 Hot + the taste cards).
+// v20.5: every game has two taste cards: one Spicy (Base's free Spicy card) and one Hot (Base's free Hot card).
+// --counts <file> writes the plan-sheet card counts (what each plan can open).
 // Spicy and Hot are paid: their text never reaches the client bundle. The build refuses to write it.
 // Also checks that public/js/config.js mirrors lib/games.js and lib/limits.js.
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
@@ -44,7 +46,7 @@ for (const f of files) {
   const cards = JSON.parse(readFileSync(join(root, 'content', f), 'utf8'));
   const seen = new Set();
   const per = { 1: 0, 2: 0, 3: 0 };
-  let tastes = 0, traits = 0;
+  const tastes = { 2: 0, 3: 0 }; let traits = 0;
   for (const c of cards) {
     const where = `${f} "${String(c.text).slice(0, 50)}"`;
     if (c.game !== id) fail(`${where}: game is ${c.game}`);
@@ -57,7 +59,7 @@ for (const f of files) {
     seen.add(c.text.toLowerCase());
     if (c.origin != null && !ORIGINS.includes(c.origin)) fail(`${where}: origin must be Hollywood / Bollywood / Global`);
     if (c.kind != null && id !== 'redflag') fail(`${where}: unknown kind ${c.kind}`);
-    if (c.taste) { tastes++; if (c.heat !== 3) fail(`${where}: taste card must be Lv3`); }
+    if (c.taste) { if (c.heat === 2 || c.heat === 3) tastes[c.heat]++; else fail(`${where}: taste card must be Lv2 or Lv3`); }
     if (game.mode === 'group') {
       for (const re of BANNED_GROUP) if (re.test(blob)) fail(`${where}: group card uses ${re}`);
       if (c.optionalDare) fail(`${where}: group cards have no dares`);
@@ -85,7 +87,8 @@ for (const f of files) {
   for (const h of [1, 2, 3]) if (MIN_PER_LEVEL[id] && per[h] < MIN_PER_LEVEL[id]) fail(`${f}: only ${per[h]} Lv${h} cards (need ${MIN_PER_LEVEL[id]})`);
   if (id === 'redflag') {
   }
-  if (tastes !== 1) fail(`${f}: needs exactly one taste card (has ${tastes})`);
+  if (tastes[3] !== 1) fail(`${f}: needs exactly one Lv3 taste card (has ${tastes[3]})`);
+  if (tastes[2] !== 1) fail(`${f}: needs exactly one Lv2 taste card (has ${tastes[2]})`);
   all.push(...cards);
 }
 
@@ -97,6 +100,10 @@ if (errors.length) {
 // Client deck: Flirty only. Belt and braces: refuse to write anything paid.
 const client = all.filter((c) => c.heat === 1 && !c.taste).map(({ taste, ...c }) => c);
 if (client.some((c) => c.heat !== 1 || c.taste)) { console.error('refusing to ship Spicy/Hot to the client'); process.exit(1); }
+// Plan sheet counts: Flirty = the bundle, Spicy = every Lv2 card (Lite and Premium read the Spicy taste
+// cards too), Hot = Lv3 minus the Hot taste cards (only /api/taste serves those).
+const COUNTS = { flirty: client.length, spicy: all.filter((c) => c.heat === 2).length, hot: all.filter((c) => c.heat === 3 && !c.taste).length };
+if (process.argv.includes('--counts')) writeFileSync(process.argv[process.argv.indexOf('--counts') + 1], JSON.stringify(COUNTS));
 const out = process.argv.includes('--out') ? process.argv[process.argv.indexOf('--out') + 1] : null;
 if (out) writeFileSync(out, JSON.stringify(client));
 
@@ -111,4 +118,4 @@ if (process.argv.includes('--seed')) {
   writeFileSync(join(root, 'supabase/seed/premium_cards.sql'), sql);
 }
 const counts = GAMES.map((g) => `${g.id} ${all.filter((c) => c.game === g.id).length}`).join(', ');
-console.log(`cards ok: ${client.length} client (Flirty), ${all.filter((c) => c.heat >= 2).length} Spicy/Hot server-only [${counts}]`);
+console.log(`cards ok: ${client.length} client (Flirty), ${all.filter((c) => c.heat >= 2).length} Spicy/Hot server-only [${counts}]; plan counts ${JSON.stringify(COUNTS)}`);
