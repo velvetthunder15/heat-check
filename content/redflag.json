@@ -183,7 +183,8 @@
   "game": "redflag",
   "heat": 2,
   "text": "Someone you've been seeing for a month asks for your phone password.",
-  "optionalDare": "Trace your partner's jawline with one finger, slowly."
+  "optionalDare": "Trace your partner's jawline with one finger, slowly.",
+  "taste": true
  },
  {
   "game": "redflag",
