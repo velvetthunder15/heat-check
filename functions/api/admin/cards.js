@@ -52,7 +52,8 @@ export const onRequestGet = handle(async ({ request, env }) => {
     if (heat !== '2' && heat !== '3') throw new HttpError(400, 'bad_heat', 'Heat must be 2 or 3.');
     q += `&heat=eq.${heat}`;
   }
-  if (u.searchParams.get('active') === '1') q += '&active=is.true&is_taste=is.false';
+  // Admin plays as Premium: every active Spicy card (Spicy taste cards included, v20.5), Hot minus the Hot taste cards
+  if (u.searchParams.get('active') === '1') q += '&active=is.true&or=(is_taste.is.false,heat.eq.2)';
   return json(await rest(env, q));
 });
 
@@ -68,7 +69,7 @@ export const onRequestPost = handle(async ({ request, env }) => {
     optional_dare: MODE[b.game] === 'couples' && b.game !== 'charades' ? (str(b.optional_dare, 400, 'Dare', false) || null) : null,
     extra: cleanExtra(b.game, b.extra),
     active: b.active !== false,
-    is_taste: b.is_taste === true && b.heat !== 2,
+    is_taste: b.is_taste === true,   // v20.5: Spicy can be a taste card too (Base's free Spicy card)
   };
   if ((b.game === 'nhie' || (b.game === 'redflag' && row.extra.kind === 'trait')) && EXTERNAL_BANNED.some((re) => re.test(row.text))) throw new HttpError(400, 'bad_card', 'This card can’t mention your partner, us, each other or you two.');
   if (MODE[b.game] === 'group') for (const re of GROUP_BANNED) if (re.test(row.text)) throw new HttpError(400, 'bad_card', 'Group cards can’t mention partners or couples.');
