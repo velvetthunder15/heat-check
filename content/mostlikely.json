@@ -162,7 +162,8 @@
  {
   "game": "mostlikely",
   "heat": 2,
-  "text": "Who's most likely to slide into a celebrity's DMs?"
+  "text": "Who's most likely to slide into a celebrity's DMs?",
+  "taste": true
  },
  {
   "game": "mostlikely",
