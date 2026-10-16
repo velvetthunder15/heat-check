@@ -257,7 +257,7 @@ const Premium = {
 /* ---------- Hot cards: Premium from memory, Lite one at a time from /api/hot ---------- */
 const Cards = {
   _toldUsedUp: {},
-  fromRow(c) { return { ...(c.extra || {}), game: c.game, heat: 3, text: c.text, ...(c.optional_dare ? { optionalDare: c.optional_dare } : {}) }; },
+  fromRow(c) { return { ...(c.extra || {}), game: c.game, heat: +c.heat === 2 ? 2 : 3, text: c.text, ...(c.optional_dare ? { optionalDare: c.optional_dare } : {}) }; },
   async hot(game) {
     const t = Ent.tier();
     if (t === 'premium') return Core.pick(game, 3);
@@ -324,7 +324,7 @@ const Limits = {
     if (t === 'premium') return '';
     if (t === 'lite') return `${HOT} ${this.hotUsed(game)}/${HC.LIMITS.lite.hot}`;
     const f = `Flirty ${Math.min(this.flirtyUsed(game), HC.LIMITS[t].flirty)}/${HC.LIMITS[t].flirty}`;
-    return t === 'base' ? `${f} · ${HOT} ${Taste.used(game) || Taste.showing === game ? 1 : 0}/1` : f;
+    return t === 'base' ? `${f} · ${HEAT[2].name} ${Taste.counted(game, 2) ? 1 : 0}/1 · ${HOT} ${Taste.counted(game, 3) ? 1 : 0}/1` : f;
   },
   // Sign-in: carry this device's guest counters up to the account (never down)
   async sync() {
@@ -338,25 +338,38 @@ const Limits = {
   },
 };
 
-/* ---------- One free Hot card per game (signed-in Base accounts only) ----------
-   The card lives on the server. POST /api/taste checks, marks and returns it in one
-   SQL call; a second call for the same game is refused. The card is held in memory
-   for exactly one draw, then heat is back to what the tier allows. Guests get no taste. */
+/* ---------- Free cards per game (signed-in Base accounts only) ----------
+   One free Hot card (v11) and, from v20.5, one free Spicy card per game. Both live on the server:
+   POST /api/taste { game, heat } checks, marks and returns the card in one SQL call; a second call for
+   the same game and heat is refused. The card is held in memory for exactly one draw, then heat is back
+   to what the tier allows. Guests get none. lv = 3 (Hot, the default) or 2 (Spicy). */
 const Taste = {
-  armed: false,     // "Use your free Hot card?" accepted on the home ring: spend it on the next game picked
+  armed: false,     // 2 or 3 (true = 3): a free card accepted on the home ring, spent on the next game picked
   _card: null, _game: null,
-  showing: null,    // game id while the taste card is on screen (Core.heat() reads 3 for it)
-  available() { return Auth.signedIn() && !!Auth.profile && Ent.tier() === 'base'; },
-  used(game) { return !!(Auth.profile && Auth.profile.taste_used && Auth.profile.taste_used[game]); },
-  usedCount() { return GAME_IDS.filter((g) => this.used(g)).length; },
-  unusedAny() { return this.available() && GAME_IDS.some((g) => !this.used(g)); },
-  canClaim(game) { return this.available() && !this.used(game); },
-  async claim(game) {
-    if (!this.canClaim(game)) throw new Error(this.available() ? `You’ve used this game’s free ${HOT} card.` : `Sign in for a free ${HOT} card.`);
-    const r = await Api.call('POST', '/api/taste', { game, origins: Core.origins() });
-    if (!r || !r.card) throw new Error(`No ${HOT} card came back. Try again.`);
-    if (Auth.profile) Auth.profile.taste_used = Object.assign({}, Auth.profile.taste_used, { [game]: r.used_at || new Date().toISOString() });
-    this._card = { ...Cards.fromRow(r.card), taste: true };
+  showing: null,    // game id while a free card is on screen (Core.heat() reads its level)
+  showingLv: 0,
+  lvOf(lv) { return lv === 2 ? 2 : 3; },
+  armedLv() { return this.armed === true ? 3 : this.armed === 2 || this.armed === 3 ? this.armed : 0; },
+  name(lv) { return lv === 2 ? HEAT[2].name : HOT; },
+  available(lv = 3) { return Auth.signedIn() && !!Auth.profile && Ent.tier() === 'base' && !!HC.LIMITS.base[this.lvOf(lv) === 2 ? 'spicyTaste' : 'taste']; },
+  usedMap(lv = 3) { const p = Auth.profile; return (p && (this.lvOf(lv) === 2 ? p.spicy_taste_used : p.taste_used)) || {}; },
+  used(game, lv = 3) { return !!this.usedMap(lv)[game]; },
+  usedCount(lv = 3) { return GAME_IDS.filter((g) => this.used(g, lv)).length; },
+  unusedAny(lv = 3) { return this.available(lv) && GAME_IDS.some((g) => !this.used(g, lv)); },
+  canClaim(game, lv = 3) { return this.available(lv) && !this.used(game, lv); },
+  // Shown on screen right now (or already used): the HUD counts it
+  counted(game, lv = 3) { return this.used(game, lv) || (this.showing === game && this.showingLv === this.lvOf(lv)); },
+  async claim(game, lv = 3) {
+    lv = this.lvOf(lv);
+    const n = this.name(lv);
+    if (!this.canClaim(game, lv)) throw new Error(this.available(lv) ? `You’ve used this game’s free ${n} card.` : `Sign in for a free ${n} card.`);
+    const r = await Api.call('POST', '/api/taste', { game, heat: lv, origins: Core.origins() });
+    if (!r || !r.card) throw new Error(`No ${n} card came back. Try again.`);
+    if (Auth.profile) {
+      const k = lv === 2 ? 'spicy_taste_used' : 'taste_used';
+      Auth.profile[k] = Object.assign({}, Auth.profile[k], { [game]: r.used_at || new Date().toISOString() });
+    }
+    this._card = { ...Cards.fromRow({ ...r.card, heat: lv }), taste: true };
     this._game = game;
     this.armed = false;
     Bus.emit('taste');
@@ -368,14 +381,15 @@ const Taste = {
     const c = this._card; this._card = null; this._game = null;
     return c;
   },
-  // Called on the draw after the taste card: heat goes back to what the tier allows
+  show(game, lv) { this.showing = game; this.showingLv = this.lvOf(lv); },
+  // Called on the draw after the free card: heat goes back to what the tier allows
   finish() {
-    this.showing = null;
+    this.showing = null; this.showingLv = 0;
     if (Core.S.heat > Core.heatCap()) { Core.S.heat = Core.heatCap(); Core.S.rampCount = 0; }
     Core.save(); Core.updateHud();
     Bus.emit('heat');
   },
-  drop() { this._card = null; this._game = null; this.showing = null; },
+  drop() { this._card = null; this._game = null; this.showing = null; this.showingLv = 0; },
 };
 
 /* ---------- Haptics switch (wraps navigator.vibrate) ---------- */
