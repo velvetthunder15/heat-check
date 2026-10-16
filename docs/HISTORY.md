@@ -68,3 +68,6 @@
 - Plan sheet: "Unlimited Flirty + Spicy (470 cards)", "Unlimited HOT (227 cards)", "Unlimited HOT, every game (227 cards)". Flirty from the bundle (build stamps HC.CARD_COUNTS), Spicy/HOT live from card_counts() via /api/config `cards` (10 min isolate cache).
 - DB: migration 20261016120000_v20_5_free_spicy.sql applied live (spicy_taste_used column, 8 Spicy cards flagged is_taste, policy, claim_spicy_taste, card_counts); needed `notify pgrst, 'reload schema'` after it.
 - Tests: t4 220, fn12 104, sql 86, pw/admin204 18, kb20 39, v201 ok, pw/v205 28, narrow205 3. Log: docs/BUILD_LOG_v20_5.md. Shots: shots205/. Deploy c421b8ca (CF Pages, success). Backup: repo_v49_backup_freespicy.
+
+## v20.6 hc-v51 (Oct 17 2026)
+- Chirag: "let the sign in pill stay sign in only. write sign in for free spicy/hot cards on game pills." Guest header tab back to plain "Sign in" (148px v15 pill, desktop slot 162px again); guest game tile tags now "Sign in for free Spicy/HOT cards" (HOT via HC.HOT, may wrap, one line at 320-412 and desktop). All other v20.5 copy unchanged. Tests: t4 220, fn12 104, sql 86, admin204 18, v205 32, narrow205 6. Log: docs/BUILD_LOG_v20_6.md. Shots: shots206/. Backup: repo_v50_backup_signinpill.
