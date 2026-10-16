@@ -280,6 +280,7 @@ const UI = {
   /* ---------- Paywall (streaming style): wherever a locked thing is tapped ---------- */
   paywall({ game = null, reason = null } = {}) {
     if (Ent.tier() === 'premium') { Core.toast('You already have Premium. Everything’s open.'); return null; }
+    window.Track && Track.ev('paywall_view', { g: game });
     const sub = reason === 'players' ? `Up to ${HC.FREE_PLAYERS} people on this plan. Premium brings the whole group.`
       : reason === 'look' ? 'Midnight and Neon are Premium looks. Ember stays free for everyone.'
         : game && TEASER[game] ? `${Games[game] ? Games[game].title + ': ' : ''}${TEASER[game]}` : 'Flirty stays free. Lite and Premium open up the rest.';
@@ -576,6 +577,7 @@ const UI = {
       </section>
       <section class="pf-card"><h3>Data and security</h3>
         <div class="col">
+          ${Admin.isAdminUser() ? '<a class="btn block ghost sm" href="/admin" id="pfStats">Stats (admin)</a>' : ''}
           <button class="btn block ghost sm" id="pfRestore">Restore purchase</button>
           <button class="btn block ghost sm" id="pfExport">Export my data</button>
           <button class="btn block ghost sm" id="pfOut">Sign out</button>
