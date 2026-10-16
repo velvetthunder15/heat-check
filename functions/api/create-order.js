@@ -42,6 +42,7 @@ export const onRequestPost = handle(async ({ request, env }) => {
       amount_inr: price.amount / 100,
       currency: price.currency,
       status: 'created',
+      mode: String(env.RAZORPAY_KEY_ID).startsWith('rzp_live_') ? 'live' : 'test',
     },
   });
 
