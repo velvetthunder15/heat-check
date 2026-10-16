@@ -162,7 +162,8 @@
  {
   "game": "twotruths",
   "heat": 2,
-  "text": "Two truths and a lie about your worst date"
+  "text": "Two truths and a lie about your worst date",
+  "taste": true
  },
  {
   "game": "twotruths",
