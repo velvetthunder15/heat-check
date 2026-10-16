@@ -47,7 +47,14 @@ const Intro = {
     const t = Ent.tier();
     if (t === 'premium') return '<span class="t-hot open">Fully unlocked 🔓</span>';
     if (t === 'lite') { const left = Limits.hotLeft(id); return left > 0 ? `<span class="t-hot open">${HOT} open · ${left} left</span>` : `<span class="t-hot">${HOT} used</span>`; }
-    if (t === 'base' && Taste.canClaim(id)) return `<span class="t-hot free">1 free ${HOT} card</span>`;
+    if (t === 'base') {
+      // v20.5: Base gets a free Spicy card and a free HOT card per game
+      const sp = Taste.canClaim(id, 2), ht = Taste.canClaim(id, 3);
+      if (sp && ht) return `<span class="t-hot free">1 free ${HEAT[2].name} + 1 free ${HOT}</span>`;
+      if (sp) return `<span class="t-hot free">1 free ${HEAT[2].name} card</span>`;
+      if (ht) return `<span class="t-hot free">1 free ${HOT} card</span>`;
+    }
+    if (t === 'guest' && window.Cfg && Cfg.accounts) return `<span class="t-hot free">Sign in for a free ${HEAT[2].name} card</span>`;   // v20.5
     return `<span class="t-hot">🔒 ${HOT} locked</span>`;
   },
   /* "How HOT is tonight?": HOT is an SVG word. Three per-level gradients sit stacked inside a
@@ -116,7 +123,7 @@ const Intro = {
         <button class="sb-chip sb-who" data-act="players" aria-label="Players">${ps.length >= need ? `👥 ${who}` : '👥 Add players'}</button>
         <span class="sb-chip">${mode}</span>
         ${App.nightActive() ? '<button class="btn sm end-night" id="endNight">End night</button>' : ''}
-        <button class="signin-tab" data-act="signin" aria-label="Sign in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.3-3.4 3.9-5.1 7-5.1s5.7 1.7 7 5.1"/></svg><span>Sign in</span></button></div>
+        <button class="signin-tab" data-act="signin" aria-label="Sign in for a free Spicy card"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.3-3.4 3.9-5.1 7-5.1s5.7 1.7 7 5.1"/></svg><span>Sign in <span class="st-free">for a free ${HEAT[2].name} card</span></span></button></div>
       <div id="passBanner" class="pass-banner-slot"></div>
 
       <div class="side-switch" role="tablist" aria-label="Who's playing">
@@ -249,7 +256,8 @@ const Intro = {
       }
     };
     // The ring is the heat selector: each level shows its penalty points
-    const label = (lv) => { word.textContent = lv ? HEAT[lv].name : 'Hold'; sub.textContent = !lv ? 'hold to heat check' : Taste.armed && !holding ? `free ${HOT} card armed` : `${ptsWord(pts(lv))} penalty`; };
+    const armedText = () => `free ${Taste.name(Taste.armedLv())} card armed`;
+    const label = (lv) => { word.textContent = lv ? HEAT[lv].name : 'Hold'; sub.textContent = !lv ? 'hold to heat check' : Taste.armed && !holding ? armedText() : `${ptsWord(pts(lv))} penalty`; };
     const lockMessage = (level) => {
       const info = UI.lockInfo(level, null);
       return info ? `<span class="lk" aria-hidden="true">${icon('lock')}</span> <span>${esc(info.text)}</span> ${UI.lockActions(info)}` : '';
@@ -361,7 +369,7 @@ const Intro = {
       const r = e.target.closest('[data-lock]'); if (!r) return;
       SFX.play('tap');
       UI.lockAct(r.dataset.lock, null, () => {
-        if (Taste.armed) { sub.textContent = `free ${HOT} card armed`; line.textContent = `Armed. Pick a game: its first card is ${HOT}.`; vibrate(20); }
+        if (Taste.armed) { sub.textContent = armedText(); line.textContent = `Armed. Pick a game: its first card is ${Taste.name(Taste.armedLv())}.`; vibrate(20); }
         else Intro.refresh();
       });
     });
