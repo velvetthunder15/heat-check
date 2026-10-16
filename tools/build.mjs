@@ -43,7 +43,16 @@ execFileSync(process.execPath, [join(root, 'tools/hot-lint.mjs')], { stdio: 'inh
 rmSync(out, { recursive: true, force: true });
 cpSync(src, out, { recursive: true });
 // Cards: lint content/ and write the Lv1-2 deck. A lint failure fails the build.
-execFileSync(process.execPath, [join(root, 'tools/cards.mjs'), '--out', join(out, 'cards.json')], { stdio: 'inherit' });
+const countsFile = join(out, '.card-counts.json');
+execFileSync(process.execPath, [join(root, 'tools/cards.mjs'), '--out', join(out, 'cards.json'), '--counts', countsFile], { stdio: 'inherit' });
+// v20.5: plan sheet card counts, stamped into dist/js/config.js (/api/config overrides Spicy/Hot with live counts)
+{
+  const counts = JSON.parse(readFileSync(countsFile, 'utf8')); rmSync(countsFile);
+  const cfgPath = join(out, 'js', 'config.js'), cfg = readFileSync(cfgPath, 'utf8');
+  const re = /CARD_COUNTS: \{[^}]*\}/;
+  if (!re.test(cfg)) throw new Error('config.js has no CARD_COUNTS block');
+  writeFileSync(cfgPath, cfg.replace(re, `CARD_COUNTS: { flirty: ${counts.flirty}, spicy: ${counts.spicy}, hot: ${counts.hot} }`));
+}
 
 const STAMP = new Set(['.html', '.webmanifest', '.txt', '.xml', '.json', '.js']);
 const contactHtml = CONTACT_EMAIL ? `<a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>` : 'our support email (being set up, check back soon)';
