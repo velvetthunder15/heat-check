@@ -46,7 +46,7 @@ async function deal(game, again) {
   // (Lite's 3 per game or Base's free one) waits for a tap on "Deal it".
   if (!Core.dealt[game]) { await hotGate(game); Core.dealt[game] = true; }
   const c = await Core.next(game, again);
-  if (c) Core.holdCard(game, c);
+  if (c) { Core.holdCard(game, c); window.Track && Track.ev('card_dealt', { g: game, h: c.heat }); }
   if (!$('#stage')) throw new Error('left-game');
   return c;
 }
