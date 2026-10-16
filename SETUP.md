@@ -20,11 +20,13 @@ Run in this order: `supabase/migrations/20261010000000_heat_check_accounts.sql`,
 | `bump_flirty`, `sync_flirty`, `claim_hot` | Service role only. Base Flirty counter (10 per game per day), guest counters on sign-in, Lite Hot cards (5 per game per pass). The limit is passed in as p_limit from lib/limits.js, so changing it needs no migration. Row-locked, atomic. |
 | `save_stats(stats)` | Signed-in users save their own stats; the `limits` block is always kept. |
 | `claim_taste(user, game, origins)` | Service role only. Locks the profile row, checks `taste_used`, marks it, returns one taste card. Returns nothing if already used. |
+| `claim_spicy_taste(user, game, origins)` | v20.5, service role only. Same as `claim_taste` for Base's free Spicy card: checks/marks `spicy_taste_used`, returns the game's Spicy taste card. |
+| `card_counts()` | v20.5, service role only. `{spicy, hot}` active cards each plan opens (all Spicy; Hot minus Hot taste cards), sent by `/api/config` as `cards` for the plan sheet brackets. |
 | `grant_purchase(...)` | Service role only. Locks the purchase row, grants once per order and once per payment id, checks the amount. Premium: `plan = 'premium'`, `premium_until` null. Lite: +60 minutes (a new pass resets its Hot counters), never on a Premium account. |
 | `admin_set_entitlement`, `admin_stats`, `anonymize_user_purchases` | Service role only. |
 
 RLS is on for every table. Users read only their own profile and purchases, can update only
-`preferences` (column grant) and their stats through `save_stats()`. They read Spicy rows only with `has_lite()` and Hot rows only with `has_premium()`.
+`preferences` (column grant) and their stats through `save_stats()`. They read Spicy rows only with `has_lite()` (v20.5: Spicy taste cards included) and Hot rows only with `has_premium()` (Hot taste cards never).
 `plan`, `premium_until`, `role`, `taste_used` and the limit counters can't be written by clients.
 
 ## 2. Pages Functions and environment
@@ -56,7 +58,7 @@ Set these in Cloudflare Pages, Settings, Variables and Secrets (Production and P
 ## 3. Tiers, payments, admin: how it behaves
 
 - **Guest** (not signed in): 10 Flirty cards per game per day, no Spicy, no Hot, up to 4 players. Counters in localStorage.
-- **Base** (signed in, free): 10 Flirty per game per day, then one free Hot card per game from `/api/taste`, then the game locks with a soft "Unlock more" sheet. Counters live on the server (`/api/flirty`).
+- **Base** (signed in, free): 10 Flirty per game per day, plus one free Spicy card (v20.5) and one free Hot card per game from `/api/taste` (`heat` 2 or 3), then the game locks with a soft "Unlock more" sheet. Counters live on the server (`/api/flirty`); free cards are tracked in `profiles.spicy_taste_used` / `taste_used`. Guests see "Sign in for a free Spicy card" (sign-in tab, Spicy lock, tiles, limit sheet, paywall, profile).
 - **Lite** (₹69, 1 hour): Flirty and Spicy unlimited, 5 Hot cards per game from `/api/hot` and the Velvet sounds. Lite uses the Ember look only (v15); Midnight and Neon are Premium. Up to 4 players. At expiry the current card finishes, then Lite locks.
 - **Premium** (₹99, one-time): everything, never expires. Unlimited players, saved names, every look.
 - **Counters**: a quiet line above the card ("Flirty 3/10 · Hot 0/1" or "Hot 2/5"), hidden for Premium. Limits only show when the next card is asked for, never mid-card.
