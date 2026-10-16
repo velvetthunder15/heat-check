@@ -31,3 +31,8 @@ t4.js 188 ok, fn12 65 ok, pw/v201.mjs 22 ok, pw/kb20.mjs 39 ok (ALL KEYBOARD CHE
 tools/build.mjs` (HOT lint ok, cards ok, 7 files stamped). Backup of v20.2 source: /workspace/work/heatcheck/repo_v47_backup_wyr.
 
 ## Deploy
+One push (tools/sync.py "v20.3 hc-v48: centred Would You Rather", 11 files, 0 fails) with CF production auto deploys off and Vercel
+commandForIgnoringBuildStep "exit 0", both restored (true / null), then one POST /pages/projects/heat-check/deployments branch=main.
+CF Pages production deployment cef3f2b6-5de9-45ca-8adc-52318b2fc0b5 (commit a4693614, branch main): success. Live /sw.js = hc-v48
+(browser UA), index loads motion2.css?v=48 (contains clashC), /api/config 200. No account or DB changes.
+(This deploy paragraph was written after the push, so it reaches GitHub with the next sync.)
