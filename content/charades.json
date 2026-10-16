@@ -319,7 +319,8 @@
   "heat": 2,
   "text": "Amélie",
   "category": "Movie",
-  "origin": "Global"
+  "origin": "Global",
+  "taste": true
  },
  {
   "game": "charades",
