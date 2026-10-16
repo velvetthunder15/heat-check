@@ -66,7 +66,7 @@ const App = {
   home() {
     window.Nav && Nav.leave();
     Core.game = null;
-    window.Taste && (Taste.showing = null);
+    window.Taste && (Taste.showing = null, Taste.showingLv = 0);
     this.set('home', Intro.html());
     Intro.bind();
     $('#cfg').onclick = () => this.setup();
@@ -88,7 +88,8 @@ const App = {
     if (!consented) return this.consent(() => this.choose(id));
     if (Core.players().length < this.minPlayers()) { this.pendingGame = id; return this.setup(); }
     if (window.Taste && Taste.armed) {
-      if (!Taste.canClaim(id)) { Taste.armed = false; Core.toast(Taste.used(id) ? `This game’s free ${HOT} card is used. Still at Spicy.` : `${HOT} stays locked`); }
+      const lv = Taste.armedLv(), n = Taste.name(lv), at = HEAT[Core.levelCap(id)].name;
+      if (!Taste.canClaim(id, lv)) { Taste.armed = false; Core.toast(Taste.used(id, lv) ? `This game’s free ${n} card is used. Still at ${at}.` : `${n} stays locked`); }
     }
     this.play(id);
   },
@@ -285,7 +286,7 @@ const App = {
       const a = act.dataset.act;
       if (a === 'mute') { const m = SFX.toggle(); act.textContent = m ? '🔇' : '🔊'; window.Prefs && Prefs.set({}); }
       if (a === 'profile') window.UI && UI.profile();
-      if (a === 'signin') { SFX.play('tap'); window.UI && UI.signIn({ then: () => window.Intro && Intro.refresh() }); }
+      if (a === 'signin') { SFX.play('tap'); window.UI && UI.signIn({ reason: typeof FREE_REASON === 'string' ? FREE_REASON : undefined, then: () => window.Intro && Intro.refresh() }); }
       if (a === 'account') window.UI && UI.account();
       if (a === 'paywall') window.UI && UI.paywall({ game: act.dataset.game || Core.game || null });
       if (a === 'standings') Core.standings();
