@@ -43,7 +43,7 @@ async function deal(game, again) {
   Core.restoreFor = null; restored = null;
   Core.dropHeld(game);
   // Nothing limited is spent just by opening a game: a first card that would use a Hot
-  // (Lite's 3 per game or Base's free one) waits for a tap on "Deal it".
+  // (Lite's 5 per game or Base's free one) or Base's free Spicy card waits for a tap on "Deal it".
   if (!Core.dealt[game]) { await hotGate(game); Core.dealt[game] = true; }
   const c = await Core.next(game, again);
   if (c) { Core.holdCard(game, c); window.Track && Track.ev('card_dealt', { g: game, h: c.heat }); }
@@ -53,19 +53,23 @@ async function deal(game, again) {
 let gateWait = null;
 function hotGate(game) {
   if (gateWait) return gateWait;
-  const taste = window.Taste && Taste.armed && Taste.canClaim(game);
+  // v20.5: an armed free card is Spicy (2) or HOT (3)
+  const tlv = window.Taste && Taste.armed ? Taste.armedLv() : 0;
+  const taste = !!tlv && Taste.canClaim(game, tlv);
   const lite = Core.tier() === 'lite' && Math.min(Core.S.heat, Core.levelCap(game)) === 3 && window.Limits && Limits.hotLeft(game) > 0;
   if (!taste && !lite) return Promise.resolve();
   const s = $('#stage'); if (!s) return Promise.reject(new Error('left-game'));
-  s.innerHTML = `<div class="deal-gate"><span class="dg-chip">🔥 ${HOT}</span>
-      <h2>First card is ${HOT}</h2>
-      <p class="muted">${taste ? `Your free ${HOT} card is only used once it’s dealt.` : `It counts as 1 of your ${HC.LIMITS.lite.hot} ${HOT} cards here once it’s dealt.`}</p>
+  const lv = taste ? tlv : 3, n = HEAT[lv].name;
+  const fallback = taste ? HEAT[Core.levelCap(game)].name : HEAT[2].name;
+  s.innerHTML = `<div class="deal-gate${lv === 2 ? ' dg-spicy' : ''}"><span class="dg-chip">${lv === 2 ? '🌶️' : '🔥'} ${n}</span>
+      <h2>First card is ${n}</h2>
+      <p class="muted">${taste ? `Your free ${n} card is only used once it’s dealt.` : `It counts as 1 of your ${HC.LIMITS.lite.hot} ${HOT} cards here once it’s dealt.`}</p>
       <button class="btn block" id="dgGo">Deal it</button>
-      <button class="btn block ghost sm" id="dgNo">${taste ? 'Save it, start at Spicy' : 'Start at Spicy'}</button></div>`;
+      <button class="btn block ghost sm" id="dgNo">${taste ? `Save it, start at ${fallback}` : `Start at ${fallback}`}</button></div>`;
   gateWait = new Promise((resolve) => {
     $('#dgGo').onclick = async () => {
       SFX.play('reveal');
-      if (taste) { try { await Taste.claim(game); } catch (e) { Core.toast(e.message); } }
+      if (taste) { try { await Taste.claim(game, lv); } catch (e) { Core.toast(e.message); } }
       gateWait = null; resolve();
     };
     $('#dgNo').onclick = () => {
