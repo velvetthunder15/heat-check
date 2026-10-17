@@ -212,3 +212,15 @@ select.input { appearance: none; -webkit-appearance: none; }
 .finger-row button.on { background: var(--accent); color: #140a10; }
 .playing .cap { display: block; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #8a6d1e; font-weight: 700; }
 .modal-wrap.full { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* v20.7: Sign in sheet. Google first (white button, colour G, per Google's brand rules), then email. */
+.si-step .btn.si-google { margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: #fff !important; background-image: none !important; color: #1f1f1f !important; border: 1px solid #dadce0 !important;
+  box-shadow: 0 10px 24px -16px rgba(0,0,0,.6) !important; font-weight: 700; }
+.si-google .btn-label { gap: 10px; }
+.si-google .g-mark { flex: none; width: 18px; height: 18px; }
+.si-google .btn-spin { color: #1f1f1f; }
+.si-or { display: flex; align-items: center; gap: 12px; margin: 18px 0 2px; font-size: 13px; font-weight: 600; opacity: .62; }
+.si-or::before, .si-or::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: .35; }
+.si-or span { white-space: nowrap; }
+.si-gwrap[hidden] { display: none; }
