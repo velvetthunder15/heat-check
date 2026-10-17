@@ -160,6 +160,7 @@ const Core = {
   levelCap(game = this.game) {
     const t = this.tier();
     if (t === 'premium') return 3;
+    if (t === 'lite' && !HC.LIMITS.lite.hot) return 2;   // v20.7: Lite = Flirty + Spicy, HOT is Premium only
     if (t === 'lite') return game && window.Limits && Limits.hotLeft(game) === 0 ? 2 : 3;
     return 1;
   },
@@ -220,7 +221,7 @@ const Core = {
       if (t) { Taste.show(game, t.heat); return this.show(t); }
     }
     let want = Math.min(this.S.heat, this.levelCap(game));
-    if (this.S.heat === 3 && want < 3 && this.tier() === 'lite' && window.Cards) Cards.usedUp(game);   // says so once per game
+    if (this.S.heat === 3 && want < 3 && this.tier() === 'lite' && HC.LIMITS.lite.hot && window.Cards) Cards.usedUp(game);   // says so once per game
     if (want === 3) {
       const c = window.Cards ? await Cards.hot(game) : null;
       // v20.1: a HOT card that arrives after the player left is kept for when they come back (it's already counted)
@@ -279,7 +280,7 @@ const Core = {
      the next card is asked for. Heat changed since (ring, chips, heat sheet, auto-ramp): a fresh card at
      the new level. Card no longer allowed (Lite ran out, origin switched off): dealt normally. */
   restoreFor: null,
-  tierMax() { const t = this.tier(); return t === 'premium' || t === 'lite' ? 3 : 1; },
+  tierMax() { const t = this.tier(); return t === 'premium' ? 3 : t === 'lite' ? (HC.LIMITS.lite.hot ? 3 : 2) : 1; },
   holdLvl() { return Math.max(1, Math.min(this.S.heat || 1, this.tierMax())); },
   holdCard(game, card) { if (!card || !game) return; this.S.held[game] = { card, lvl: this.holdLvl(), gen: this.S.heatGen || 0, st: {} }; this.save(); },
   holdSt(game, patch) { const h = this.S.held[game]; if (!h) return; h.st = patch === null ? {} : Object.assign({}, h.st, patch); this.save(); },
