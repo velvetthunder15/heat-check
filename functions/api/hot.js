@@ -11,8 +11,8 @@ import { HOT } from '../../lib/heat.js';
 import { cleanOrigins, cleanExclude } from '../../lib/cards.js';
 
 const MSG = {
-  locked: `${HOT} needs Lite or Premium.`,
-  used_up: `${LIMITS.lite.hot} ${HOT} cards used here. Premium has unlimited.`,
+  locked: LIMITS.lite.hot ? `${HOT} needs Lite or Premium.` : `${HOT} is in Premium.`,
+  used_up: LIMITS.lite.hot ? `${LIMITS.lite.hot} ${HOT} cards used here. Premium has unlimited.` : `${HOT} is in Premium.`,
   empty: `No ${HOT} cards match your Hollywood / Bollywood settings.`,
   no_profile: 'Your account is still being set up. Try again in a moment.',
 };
@@ -29,7 +29,8 @@ export const onRequestPost = handle(async ({ request, env }) => {
     p_origins: cleanOrigins(body.origins), p_exclude: cleanExclude(body.exclude),
   });
   if (!r || !r.ok) {
-    const reason = (r && r.reason) || 'locked';
+    let reason = (r && r.reason) || 'locked';
+    if (reason === 'used_up' && !LIMITS.lite.hot) reason = 'locked';   // v20.7: Lite has no HOT
     throw new HttpError(reason === 'empty' ? 404 : 403, reason, MSG[reason] || MSG.locked);
   }
   return json({ card: r.card, used: r.used, limit: LIMITS.lite.hot });
