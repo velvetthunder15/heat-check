@@ -34,7 +34,7 @@ const Cfg = {
       this.data = await r.json();
       this.offset = (Number(this.data.now) || Date.now()) - Date.now();
       this.accounts = !!(this.data.accounts && this.data.supabaseUrl && this.data.supabaseAnonKey);
-      this.payments = this.accounts && !!(this.data.payments && this.data.razorpayKeyId);
+      this.payments = this.accounts && !!(this.data.payments && (this.data.paymentProvider === 'payu' || this.data.razorpayKeyId));
     } catch (e) { this.data = null; this.accounts = false; this.payments = false; }
   },
   now() { return Date.now() + this.offset; },
@@ -519,12 +519,64 @@ const Sync = {
   },
 };
 
-/* ---------- Payments: Razorpay Checkout, verified server side ---------- */
+/* ---------- Payments: PayU Hosted Checkout (v21, default) or Razorpay Checkout, verified server side ---------- */
 const Pay = {
   async buy(productId) {
     if (!Cfg.payments) throw new Error('Payments are switching on soon.');
     const order = await Api.call('POST', '/api/create-order', { product: productId });
     window.Track && Track.ev('checkout_start', { p: productId });
+    if (order.provider === 'payu') return this.payu(order, productId);
+    return this.razorpay(order, productId);
+  },
+  // PayU: a top-level form POST to PayU's page. PayU posts back to /api/payu-return, which
+  // confirms with PayU and lands on /?pay=ok|failed|pending (handled by Pay.onReturn).
+  payu(order, productId) {
+    if (!/^https:\/\/(test|secure)\.payu\.in\//.test(order.action)) throw new Error('Couldn’t start the payment. Try again in a moment.');
+    Store.set('hc_pay_pending', { p: productId, t: order.orderId, at: Date.now() });
+    if (window.Track) Track.flush();
+    const f = document.createElement('form');
+    f.method = 'POST'; f.action = order.action; f.style.display = 'none';
+    for (const [k, v] of Object.entries(order.fields || {})) {
+      const i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = String(v); f.appendChild(i);
+    }
+    document.body.appendChild(f);
+    f.submit();
+    return new Promise(() => {});   // the page is leaving for PayU
+  },
+  // Back from PayU: ?pay=ok|failed|pending|error&p=lite|premium[&t=txnid]
+  async onReturn() {
+    let q; try { q = new URLSearchParams(location.search); } catch (e) { return; }
+    const st = q.get('pay');
+    if (!st) return;
+    const product = q.get('p') === 'premium' ? 'premium' : 'lite';
+    const pend = Store.get('hc_pay_pending', null);
+    const txnid = q.get('t') || (pend && pend.t) || '';
+    Store.del('hc_pay_pending');
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    const want = product === 'premium' ? ['premium'] : ['lite', 'premium'];
+    const ui = () => window.UI || null;
+    const toast = (m) => window.Core && Core.toast(m);
+    for (let i = 0; i < 40 && !Auth.ready; i++) await sleep(250);
+    if (st === 'failed') { toast('Payment didn’t go through. You weren’t charged.'); return; }
+    if (st === 'error') { toast('Couldn’t confirm that payment. If you were charged, it unlocks shortly.'); }
+    if (!Auth.signedIn()) return;
+    if (st === 'pending' && txnid) { try { await Api.call('POST', '/api/payu-check', { txnid }); } catch (e) {} }
+    for (let i = 0; i < 8; i++) {
+      await Auth.refresh();
+      if (want.includes(Ent.profileTier())) break;
+      if (st === 'ok') break;
+      await sleep(2500);
+      if (txnid && i % 2 === 1) { try { await Api.call('POST', '/api/payu-check', { txnid }); } catch (e) {} }
+    }
+    if (want.includes(Ent.profileTier())) {
+      await Premium.load();
+      if (window.Track) { Track.ev('purchase_paid', { p: product }); Track.flush(); }
+      Bus.emit('profile');
+      const U = ui(); if (U) { try { U.refreshScreens && U.refreshScreens(); U.success && U.success(product); } catch (e) {} }
+    } else if (st !== 'error') toast('Payment received. Unlocking can take a minute: check your profile shortly.');
+  },
+  razorpay(order, productId) {
+    return (async () => {
     await loadScript('https://checkout.razorpay.com/v1/checkout.js');
     return new Promise((resolve) => {
       let settled = false;
@@ -564,10 +616,11 @@ const Pay = {
       rz.on('payment.failed', () => { /* Checkout shows its own retry options */ });
       rz.open();
     });
+    })();
   },
   async receiptRows() {
     const c = await SB.get();
-    const { data, error } = await c.from('purchases').select('id,product,amount_inr,currency,status,created_at,paid_at,razorpay_payment_id,razorpay_order_id').order('created_at', { ascending: false }).limit(50);
+    const { data, error } = await c.from('purchases').select('id,product,amount_inr,currency,status,created_at,paid_at,razorpay_payment_id,razorpay_order_id,provider').order('created_at', { ascending: false }).limit(50);
     if (error) throw error;
     return data || [];
   },
@@ -636,6 +689,7 @@ const Account = {
     Ent._was = Ent.tier();
     setInterval(() => Ent.tick(), 1000);
     window.addEventListener('online', () => { if (Auth.signedIn()) Auth.refresh().then(() => Premium.load()); });
+    if (/[?&]pay=/.test(location.search)) Pay.onReturn().catch((e) => console.warn('pay return', e && e.message));
   },
 };
 
