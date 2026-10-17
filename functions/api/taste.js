@@ -20,6 +20,7 @@ export const onRequestPost = handle(async ({ request, env }) => {
   if (!isGame(game)) throw new HttpError(400, 'bad_game', 'Unknown game.');
   const heat = body.heat == null ? 3 : Number(body.heat);
   if (heat !== 2 && heat !== 3) throw new HttpError(400, 'bad_heat', 'Free cards are Spicy or HOT.');
+  if (heat === 3 && !LIMITS.base.taste) throw new HttpError(403, 'taste_used', `No free ${HOT} card on this plan.`);
   if (heat === 2 && !LIMITS.base.spicyTaste) throw new HttpError(403, 'taste_used', 'No free Spicy card on this plan.');
   const fn = heat === 2 ? 'claim_spicy_taste' : 'claim_taste';
   const r = await rpc(env, fn, { p_user: user.id, p_game: game, p_origins: cleanOrigins(body.origins) });
