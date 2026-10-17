@@ -71,3 +71,6 @@
 
 ## v20.6 hc-v51 (Oct 17 2026)
 - Chirag: "let the sign in pill stay sign in only. write sign in for free spicy/hot cards on game pills." Guest header tab back to plain "Sign in" (148px v15 pill, desktop slot 162px again); guest game tile tags now "Sign in for free Spicy/HOT cards" (HOT via HC.HOT, may wrap, one line at 320-412 and desktop). All other v20.5 copy unchanged. Tests: t4 220, fn12 104, sql 86, admin204 18, v205 32, narrow205 6. Log: docs/BUILD_LOG_v20_6.md. Shots: shots206/. Backup: repo_v50_backup_signinpill. Deploy fc071000 (CF Pages, success), live sw hc-v51, /api/config 200.
+
+## v20.7 hc-v52 (Oct 17 2026)
+- Chirag: hard paywall (guest 10 Flirty/day, signed-in unlimited Flirty, no free Spicy/HOT; Lite = Flirty + Spicy, no HOT; Premium all), Google sign-in on the sign-in sheet, home headline "hold to heat check". Log: docs/BUILD_LOG_v20_7.md. Backup: repo_v51_backup.
