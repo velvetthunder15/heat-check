@@ -301,7 +301,7 @@ const UI = {
         ${game && Taste.canClaim(game) && document.getElementById('stage') ? '<button class="btn block ghost sm" id="pwTaste" style="margin-top:12px">Or use your free ' + HOT + ' card</button>' : ''}
         <p class="form-err" id="pwErr" role="alert" hidden></p>
         <p class="note center pw-foot">${Auth.signedIn() ? '' : '<button class="linkish" id="pwRestore">Already bought? Restore purchase</button><br>'}
-          UPI, cards and more via Razorpay. <a href="/terms">Terms</a> · <a href="/refund">Refunds</a></p>
+          UPI, cards and more via PayU. <a href="/terms">Terms</a> · <a href="/refund">Refunds</a></p>
         <button class="btn block ghost sm" data-close>Not now</button>
       </div>`, { cls: 'pw-wrap' });
     const el = s.el, err = $('#pwErr', el);
@@ -725,7 +725,7 @@ const UI = {
         <tr><th>Payment ID</th><td>${esc(r.razorpay_payment_id || '')}</td></tr>
         <tr><th>Order ID</th><td>${esc(r.razorpay_order_id || '')}</td></tr>
       </table>
-      <p class="rc-note">Paid via Razorpay. This is a payment receipt, not a tax invoice.${SITE.contact ? ` Questions: ${esc(SITE.contact)}` : ''}</p>
+      <p class="rc-note">Paid via ${r.provider === 'payu' ? 'PayU' : 'Razorpay'}. This is a payment receipt, not a tax invoice.${SITE.contact ? ` Questions: ${esc(SITE.contact)}` : ''}</p>
       <div class="rc-actions"><button class="btn" data-print>Save as PDF / Print</button><button class="btn ghost" data-x>Close</button></div></div>`;
     document.getElementById('app').appendChild(o);
     o.querySelector('[data-x]').onclick = () => o.remove();
