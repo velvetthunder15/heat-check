@@ -126,7 +126,7 @@
     const purchases = card('Purchases', `<div class="adm-table-wrap"><table class="adm-table"><thead><tr><th>Mode</th><th>Product</th><th>Status</th><th>Orders</th><th>Amount</th></tr></thead><tbody>
       ${st.map((r) => `<tr><td><span class="adm-mode ${r.mode}">${r.mode.toUpperCase()}</span></td><td>${esc(PLAN[r.product] || r.product)}</td><td><span class="adm-st ${esc(r.status)}">${esc(r.status)}</span></td><td>${nf(r.n)}</td><td>${inr(r.inr)}</td></tr>`).join('') || '<tr><td colspan="5">No orders yet.</td></tr>'}
       </tbody></table></div>
-      <p class="note">TEST = made with Razorpay test keys, no real money. Revenue counts paid orders only. Created = checkout opened but never paid.</p>
+      <p class="note">TEST = made with PayU or Razorpay test keys, no real money. Revenue counts paid orders only. Created = checkout opened but never paid.</p>
       ${p.recent.length ? `<details class="adm-more"><summary>Last ${p.recent.length} orders</summary><div class="adm-table-wrap"><table class="adm-table adm-stack adm-orders"><thead><tr><th>When</th><th>Email</th><th>Product</th><th>Status</th><th>Amount</th></tr></thead><tbody>
         ${p.recent.map((r) => `<tr><td data-l="When">${esc(fmtDT(r.at))}</td><td class="adm-email">${esc(r.email || 'deleted account')}</td><td>${esc(PLAN[r.product] || r.product)} <span class="adm-mode ${r.mode}">${r.mode.toUpperCase()}</span></td><td><span class="adm-st ${esc(r.status)}">${esc(r.status)}</span></td><td>${inr(r.inr)}</td></tr>`).join('')}
       </tbody></table></div></details>` : ''}`, 'wide full');
