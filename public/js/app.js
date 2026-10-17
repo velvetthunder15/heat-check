@@ -209,7 +209,7 @@ const App = {
       return true;
     };
     const lockedNow = () => locked && window.Guest && Guest.is() && nudge();
-    $('#setSignIn') && ($('#setSignIn').onclick = () => { read(); SFX.play('tap'); window.UI && UI.signIn({ reason: 'Sign in free to change settings. No passwords, just a code.', then: () => { if (Nav.view() === 'setup') this._setup(); } }); });
+    $('#setSignIn') && ($('#setSignIn').onclick = () => { read(); SFX.play('tap'); window.UI && UI.signIn({ reason: 'Sign in free to change settings.', then: () => { if (Nav.view() === 'setup') this._setup(); } }); });
     $('#addc') && ($('#addc').onclick = () => {
       read();
       if (cappedCouples) return window.UI ? UI.paywall({ reason: 'players' }) : Core.toast(`Free plays up to ${HC.FREE_PLAYERS} people`);
