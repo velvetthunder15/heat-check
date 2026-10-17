@@ -11,3 +11,9 @@ COOKIE_SECRET=
 # Turnstile test keys (always pass): site 1x00000000000000000000AA, secret 1x0000000000000000000000000000000AA
 TURNSTILE_SITE_KEY=1x00000000000000000000AA
 TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+
+# v21 payments: PayU Hosted Checkout is the live gateway. Razorpay vars above stay for rollback.
+PAYMENT_PROVIDER=payu          # payu | razorpay  (empty = payu when PAYU_KEY + PAYU_SALT are set)
+PAYU_ENV=test                  # test -> test.payu.in, live -> secure.payu.in
+PAYU_KEY=                      # merchant key (Dashboard > Developers > API Keys)
+PAYU_SALT=                     # the salt shown next to that key (secret, server only)
