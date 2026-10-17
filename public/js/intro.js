@@ -46,6 +46,7 @@ const Intro = {
   hotBadge(id) {
     const t = Ent.tier();
     if (t === 'premium') return '<span class="t-hot open">Fully unlocked 🔓</span>';
+    if (t === 'lite' && !HC.LIMITS.lite.hot) return `<span class="t-hot">🔒 ${HOT} in Premium</span>`;   // v20.7
     if (t === 'lite') { const left = Limits.hotLeft(id); return left > 0 ? `<span class="t-hot open">${HOT} open · ${left} left</span>` : `<span class="t-hot">${HOT} used</span>`; }
     if (t === 'base') {
       // v20.5: Base gets a free Spicy card and a free HOT card per game
@@ -54,7 +55,8 @@ const Intro = {
       if (sp) return `<span class="t-hot free">1 free ${HEAT[2].name} card</span>`;
       if (ht) return `<span class="t-hot free">1 free ${HOT} card</span>`;
     }
-    if (t === 'guest' && window.Cfg && Cfg.accounts) return `<span class="t-hot free t-signin">Sign in for free ${HEAT[2].name}/${HOT} cards</span>`;   // v20.6
+    if (t === 'guest' && window.Cfg && Cfg.accounts) return `<span class="t-hot free t-signin">Sign in for unlimited Flirty</span>`;   // v20.7
+    if (t === 'base') return `<span class="t-hot">🔒 ${HEAT[2].name} + ${HOT} locked</span>`;   // v20.7
     return `<span class="t-hot">🔒 ${HOT} locked</span>`;
   },
   /* "How HOT is tonight?": HOT is an SVG word. Three per-level gradients sit stacked inside a
@@ -63,23 +65,9 @@ const Intro = {
      nothing animates background-position or the gradient itself. */
   _drawn: false,
   heading() {
+    // v20.7: plain lowercase line, one face and colour (the old "How" words), no highlighted word
     const once = this._drawn ? ' drawn' : ''; this._drawn = true;
-    const g = (id, a, b) => `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="260" y2="40" spreadMethod="repeat"><stop offset="0" stop-color="${a}"/><stop offset=".5" stop-color="${b}"/><stop offset="1" stop-color="${a}"/></linearGradient>`;
-    return `<h1 class="hero-title${once}" aria-label="How ${HOT} is tonight?">
-      <span class="ht-l1" aria-hidden="true"><span class="ht-soft">How</span>
-        <span class="ht-hot"><i class="ht-glow"></i>
-          <svg class="ht-svg" viewBox="0 0 260 124" aria-hidden="true" focusable="false">
-            <defs>${g('htg1', '#ffb3c6', '#ff2e63')}${g('htg2', '#ff2e63', '#ff7a3c')}${g('htg3', '#ff7a3c', '#fff4e0')}
-              <mask id="htm" maskUnits="userSpaceOnUse" x="0" y="0" width="260" height="124">
-                <text class="ht-t" x="12" y="86" textLength="232" lengthAdjust="spacingAndGlyphs" fill="#fff">${HOT}</text>
-                <path class="ht-wave" pathLength="100" d="M16 112 C38 102 58 120 82 111 S124 101 146 111 S190 120 212 109 S238 104 246 107" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
-              </mask></defs>
-            <g mask="url(#htm)"><g class="ht-flow">
-              <rect class="l1" x="0" y="0" width="520" height="124" fill="url(#htg1)"/>
-              <rect class="l2" x="0" y="0" width="520" height="124" fill="url(#htg2)"/>
-              <rect class="l3" x="0" y="0" width="520" height="124" fill="url(#htg3)"/></g></g>
-          </svg></span></span>
-      <span class="ht-l2 ht-soft" aria-hidden="true">is tonight<span class="ht-q">?</span></span></h1>`;
+    return `<h1 class="hero-title hero-plain${once}"><span class="ht-soft">hold to heat check</span></h1>`;
   },
   /* "Pick your poison": a stamped label, deliberately unlike the HOT heading */
   _pickDrawn: false,
