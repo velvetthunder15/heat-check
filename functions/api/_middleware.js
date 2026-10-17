@@ -3,6 +3,8 @@
 // plus the origin actually serving the request (so *.pages.dev previews keep working).
 import { json } from '../../lib/http.js';
 
+const SIGNED_CALLBACKS = new Set(['/api/payu-return', '/api/payu-webhook']);
+
 function allowedOrigins(request, env) {
   const set = new Set([new URL(request.url).origin]);
   if (env.SITE_URL) {
@@ -25,11 +27,15 @@ export async function onRequest(context) {
   const allowed = allowedOrigins(request, env);
 
   // Server-to-server calls (Razorpay webhooks) send no Origin and are signature-checked.
-  if (origin && !allowed.has(origin)) {
+  // PayU's return is a cross-site form POST from the PayU page (Origin secure.payu.in or "null"):
+  // those two paths are hash-checked and confirmed with PayU, so any Origin may post to them.
+  const path = new URL(request.url).pathname;
+  const signedCallback = SIGNED_CALLBACKS.has(path);
+  if (origin && !allowed.has(origin) && !signedCallback) {
     return json({ error: 'forbidden_origin', message: 'Not allowed.' }, 403);
   }
 
-  const cors = origin ? {
+  const cors = origin && !signedCallback ? {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
