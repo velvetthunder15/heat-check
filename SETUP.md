@@ -203,3 +203,20 @@ Smoothness only: no content, colour, copy, pricing or game-logic changes. New CS
 - **Stats page**: `https://playheatcheck.app/admin` (`public/admin.html`, `js/admin.js`, `css/admin.css`, noindex, not in the SW shell). Reads the app's own Supabase session on that device (storage key `hc_auth`) and calls `GET /api/admin/analytics?days=7|30|90`, which needs only `profiles.role = 'admin'`. The admin password (`ADMIN_PASSWORD_HASH`) is still required for grants, card edits and game switches. Admins also get a "Stats (admin)" button in the profile sheet.
 - **Make someone admin**: `update public.profiles set role = 'admin' where lower(email) = '...';`
 - **Cloudflare Web Analytics** (optional, cookieless): the CSP already allows `static.cloudflareinsights.com` / `cloudflareinsights.com`. Turn it on in the dashboard (Workers & Pages, heat-check, Metrics, Web Analytics, Enable).
+
+## v21: PayU (Oct 17 2026)
+
+PayU Hosted Checkout replaces Razorpay as the live gateway. Razorpay is still in the code and comes back with `PAYMENT_PROVIDER=razorpay`.
+
+| Variable | Value | Where |
+|---|---|---|
+| `PAYMENT_PROVIDER` | `payu` (or `razorpay` to roll back) | Pages env (plain) |
+| `PAYU_ENV` | `test` or `live` | Pages env (plain) |
+| `PAYU_KEY` | merchant key, Dashboard > Developers > API Keys | Pages env |
+| `PAYU_SALT` | the salt beside that key | Pages env, **Secret** |
+
+- Flow: `/api/create-order` returns a signed form, the browser POSTs it to PayU, PayU posts back to `/api/payu-return` (surl = furl). The reverse hash is checked, then PayU's `verify_payment` API decides; only then does `grant_purchase()` run. `/api/payu-check` re-asks for pending payments. `/api/payu-webhook` (optional, set it in PayU Dashboard > Webhooks) does the same server to server.
+- Database: migration `20261017000000_v21_payu.sql` adds `purchases.provider`. `razorpay_order_id` holds the PayU txnid and `razorpay_payment_id` holds `payu_<mihpayid>`.
+- To remove Razorpay later: delete `lib/razorpay.js`, `functions/api/verify-payment.js`, `functions/api/razorpay-webhook.js`, the razorpay branch in `lib/payments.js` and `functions/api/create-order.js`, and the Checkout.js path in `public/js/account.js`.
+- CSP `form-action` allows `https:` because PayU redirects the form to bank 3-D Secure pages on many hosts.
+- Tests: `test/payu1.mjs` (handlers, hashes, replay, amount mismatch, rollback switch).
