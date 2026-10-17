@@ -248,6 +248,8 @@ const Intro = {
     const label = (lv) => { word.textContent = lv ? HEAT[lv].name : 'Hold'; sub.textContent = !lv ? 'hold to heat check' : Taste.armed && !holding ? armedText() : `${ptsWord(pts(lv))} penalty`; };
     const lockMessage = (level) => {
       const info = UI.lockInfo(level, null);
+      // v20.7.2: the line under the hold button says it short
+      if (info && info.act !== 'taste' && info.act !== 'taste2') info.text = level === 2 ? `${HEAT[2].name} needs Lite.` : `${HOT} needs Premium.`;
       return info ? `<span class="lk" aria-hidden="true">${icon('lock')}</span> <span>${esc(info.text)}</span> ${UI.lockActions(info)}` : '';
     };
     // Level chips: show every level, lock the ones this account can't play yet
