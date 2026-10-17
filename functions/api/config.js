@@ -5,10 +5,12 @@ import { rest } from '../../lib/supabase.js';
 import { cardCounts } from '../../lib/cards.js';
 
 import { GAME_IDS } from '../../lib/games.js';
+import { provider, paymentsConfigured } from '../../lib/payments.js';
 
 export const onRequestGet = handle(async ({ request, env }) => {
   const accounts = !!(env.SUPABASE_URL && env.SUPABASE_ANON_KEY && env.SUPABASE_SERVICE_KEY);
-  const payments = accounts && !!(env.RAZORPAY_KEY_ID && env.RAZORPAY_KEY_SECRET);
+  const payments = accounts && paymentsConfigured(env);
+  const gateway = provider(env);
   const games = Object.fromEntries(GAME_IDS.map((g) => [g, true]));
   if (accounts) {
     try {
@@ -24,7 +26,8 @@ export const onRequestGet = handle(async ({ request, env }) => {
     supabaseUrl: accounts ? env.SUPABASE_URL : null,
     supabaseAnonKey: accounts ? env.SUPABASE_ANON_KEY : null,
     turnstileSiteKey: env.TURNSTILE_SITE_KEY || null,
-    razorpayKeyId: payments ? env.RAZORPAY_KEY_ID : null,
+    paymentProvider: payments ? gateway : null,
+    razorpayKeyId: payments && gateway === 'razorpay' ? env.RAZORPAY_KEY_ID : null,
     products: publicCatalog(country),
     games,
     cards,
