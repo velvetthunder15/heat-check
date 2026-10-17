@@ -34,7 +34,7 @@ const Cfg = {
       this.data = await r.json();
       this.offset = (Number(this.data.now) || Date.now()) - Date.now();
       this.accounts = !!(this.data.accounts && this.data.supabaseUrl && this.data.supabaseAnonKey);
-      this.payments = this.accounts && !!(this.data.payments && this.data.razorpayKeyId);
+      this.payments = this.accounts && !!(this.data.payments && (this.data.paymentProvider === 'payu' || this.data.razorpayKeyId));
     } catch (e) { this.data = null; this.accounts = false; this.payments = false; }
   },
   now() { return Date.now() + this.offset; },
@@ -51,7 +51,7 @@ const SB = {
     if (!this._p) {
       this._p = loadScript('/js/vendor/supabase-2.117.3.js').then(() => {
         this.client = window.supabase.createClient(Cfg.data.supabaseUrl, Cfg.data.supabaseAnonKey, {
-          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'hc_auth' },
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'hc_auth', flowType: 'pkce' },   // v20.7: pkce for Google
         });
         return this.client;
       }).catch((e) => { this._p = null; throw e; });
@@ -85,6 +85,41 @@ const Auth = {
         if (event === 'INITIAL_SESSION' && !session) { this.ready = true; Bus.emit('auth'); }
       }, 0);
     });
+    await this.oauthReturn(c);
+  },
+  /* v20.7: Sign in with Google. Supabase sends the player to Google and back to /?auth=google&code=...;
+     the code is swapped for a session here (pkce, the verifier sits in localStorage), then the URL is cleaned.
+     What the player was doing (open the paywall for a game) rides in sessionStorage across the redirect. */
+  // The Google button only shows once the provider is switched on in Supabase (public /auth/v1/settings)
+  _gOn: null,
+  googleOn() {
+    if (!this._gOn) this._gOn = fetch(`${Cfg.data.supabaseUrl}/auth/v1/settings`, { headers: { apikey: Cfg.data.supabaseAnonKey } })
+      .then((r) => r.json()).then((j) => !!(j && j.external && j.external.google)).catch(() => { this._gOn = null; return false; });
+    return this._gOn;
+  },
+  async google() {
+    const c = await SB.get();
+    if (!c) throw new Error('Sign-in isn’t available right now.');
+    const { error } = await c.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${location.origin}/?auth=google`, queryParams: { prompt: 'select_account' } } });
+    if (error) throw new Error('Couldn’t open Google. Try again.');
+  },
+  async oauthReturn(c) {
+    const q = new URLSearchParams(location.search);
+    if (q.get('auth') !== 'google') return;
+    const code = q.get('code'), err = q.get('error_description') || q.get('error');
+    try { history.replaceState(history.state, '', location.pathname + location.hash); } catch (e) {}
+    let after = null; try { after = JSON.parse(sessionStorage.getItem('hc_after_auth') || 'null'); sessionStorage.removeItem('hc_after_auth'); } catch (e) {}
+    if (!code) { if (err && !/access_denied|cancel/i.test(err)) setTimeout(() => window.Core && Core.toast('Google sign-in didn’t finish. Try again.'), 600); return; }
+    try {
+      const { data, error } = await c.auth.exchangeCodeForSession(code);
+      if (error || !data || !data.session) throw error || new Error('no session');
+      await this.onSession(data.session);
+      setTimeout(() => window.Core && Core.toast('You’re in'), 300);
+      try { const born = this.profile && Date.parse(this.profile.created_at); window.Track && Track.ev(born && Date.now() - born < 15 * 60e3 ? 'signup' : 'sign_in'); } catch (e) {}
+      if (after && after.do === 'paywall' && window.UI) setTimeout(() => UI.paywall({ game: after.game || null }), 700);
+    } catch (e) {
+      setTimeout(() => window.Core && Core.toast('Google sign-in didn’t finish. Try again.'), 600);
+    }
   },
   onSession(session) {
     if (this.user && this.user.id === session.user.id && this.profile) return Promise.resolve();
@@ -301,7 +336,7 @@ const Limits = {
   countFlirty(game) {
     const tier = Ent.tier();
     if (tier === 'guest') { const l = this.local(); l.flirty[game] = (+l.flirty[game] || 0) + 1; Store.set('hc_limits', l); return; }
-    if (tier !== 'base') return;
+    if (tier !== 'base' || HC.LIMITS.base.flirty == null) return;   // v20.7: Base Flirty is unlimited
     const p = Auth.profile; p.stats = p.stats || {};
     const l = p.stats.limits = p.stats.limits || {};
     if (l.window !== this.window()) { l.window = this.window(); l.flirty = {}; }
@@ -322,14 +357,15 @@ const Limits = {
   line(game) {
     const t = Ent.tier();
     if (t === 'premium') return '';
-    if (t === 'lite') return `${HOT} ${this.hotUsed(game)}/${HC.LIMITS.lite.hot}`;
+    if (t === 'lite') return HC.LIMITS.lite.hot ? `${HOT} ${this.hotUsed(game)}/${HC.LIMITS.lite.hot}` : '';
+    if (HC.LIMITS[t].flirty == null) return '';   // v20.7: signed-in Base has unlimited Flirty
     const f = `Flirty ${Math.min(this.flirtyUsed(game), HC.LIMITS[t].flirty)}/${HC.LIMITS[t].flirty}`;
     return t === 'base' ? `${f} · ${HEAT[2].name} ${Taste.counted(game, 2) ? 1 : 0}/1 · ${HOT} ${Taste.counted(game, 3) ? 1 : 0}/1` : f;
   },
   // Sign-in: carry this device's guest counters up to the account (never down)
   async sync() {
     const l = this.local(), counts = l.flirty;
-    if (!Object.keys(counts).length || Ent.paid()) return;
+    if (!Object.keys(counts).length || Ent.paid() || HC.LIMITS.base.flirty == null) return;
     try {
       const r = await Api.call('POST', '/api/flirty', { sync: counts });
       const p = Auth.profile; p.stats = p.stats || {};
@@ -519,12 +555,64 @@ const Sync = {
   },
 };
 
-/* ---------- Payments: Razorpay Checkout, verified server side ---------- */
+/* ---------- Payments: PayU Hosted Checkout (v21, default) or Razorpay Checkout, verified server side ---------- */
 const Pay = {
   async buy(productId) {
     if (!Cfg.payments) throw new Error('Payments are switching on soon.');
     const order = await Api.call('POST', '/api/create-order', { product: productId });
     window.Track && Track.ev('checkout_start', { p: productId });
+    if (order.provider === 'payu') return this.payu(order, productId);
+    return this.razorpay(order, productId);
+  },
+  // PayU: a top-level form POST to PayU's page. PayU posts back to /api/payu-return, which
+  // confirms with PayU and lands on /?pay=ok|failed|pending (handled by Pay.onReturn).
+  payu(order, productId) {
+    if (!/^https:\/\/(test|secure)\.payu\.in\//.test(order.action)) throw new Error('Couldn’t start the payment. Try again in a moment.');
+    Store.set('hc_pay_pending', { p: productId, t: order.orderId, at: Date.now() });
+    if (window.Track) Track.flush();
+    const f = document.createElement('form');
+    f.method = 'POST'; f.action = order.action; f.style.display = 'none';
+    for (const [k, v] of Object.entries(order.fields || {})) {
+      const i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = String(v); f.appendChild(i);
+    }
+    document.body.appendChild(f);
+    f.submit();
+    return new Promise(() => {});   // the page is leaving for PayU
+  },
+  // Back from PayU: ?pay=ok|failed|pending|error&p=lite|premium[&t=txnid]
+  async onReturn() {
+    let q; try { q = new URLSearchParams(location.search); } catch (e) { return; }
+    const st = q.get('pay');
+    if (!st) return;
+    const product = q.get('p') === 'premium' ? 'premium' : 'lite';
+    const pend = Store.get('hc_pay_pending', null);
+    const txnid = q.get('t') || (pend && pend.t) || '';
+    Store.del('hc_pay_pending');
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    const want = product === 'premium' ? ['premium'] : ['lite', 'premium'];
+    const ui = () => window.UI || null;
+    const toast = (m) => window.Core && Core.toast(m);
+    for (let i = 0; i < 40 && !Auth.ready; i++) await sleep(250);
+    if (st === 'failed') { toast('Payment didn’t go through. You weren’t charged.'); return; }
+    if (st === 'error') { toast('Couldn’t confirm that payment. If you were charged, it unlocks shortly.'); }
+    if (!Auth.signedIn()) return;
+    if (st === 'pending' && txnid) { try { await Api.call('POST', '/api/payu-check', { txnid }); } catch (e) {} }
+    for (let i = 0; i < 8; i++) {
+      await Auth.refresh();
+      if (want.includes(Ent.profileTier())) break;
+      if (st === 'ok') break;
+      await sleep(2500);
+      if (txnid && i % 2 === 1) { try { await Api.call('POST', '/api/payu-check', { txnid }); } catch (e) {} }
+    }
+    if (want.includes(Ent.profileTier())) {
+      await Premium.load();
+      if (window.Track) { Track.ev('purchase_paid', { p: product }); Track.flush(); }
+      Bus.emit('profile');
+      const U = ui(); if (U) { try { U.refreshScreens && U.refreshScreens(); U.success && U.success(product); } catch (e) {} }
+    } else if (st !== 'error') toast('Payment received. Unlocking can take a minute: check your profile shortly.');
+  },
+  razorpay(order, productId) {
+    return (async () => {
     await loadScript('https://checkout.razorpay.com/v1/checkout.js');
     return new Promise((resolve) => {
       let settled = false;
@@ -564,10 +652,11 @@ const Pay = {
       rz.on('payment.failed', () => { /* Checkout shows its own retry options */ });
       rz.open();
     });
+    })();
   },
   async receiptRows() {
     const c = await SB.get();
-    const { data, error } = await c.from('purchases').select('id,product,amount_inr,currency,status,created_at,paid_at,razorpay_payment_id,razorpay_order_id').order('created_at', { ascending: false }).limit(50);
+    const { data, error } = await c.from('purchases').select('id,product,amount_inr,currency,status,created_at,paid_at,razorpay_payment_id,razorpay_order_id,provider').order('created_at', { ascending: false }).limit(50);
     if (error) throw error;
     return data || [];
   },
@@ -629,13 +718,14 @@ const Account = {
     // v14: the account library (~55 KB gz) loads when the phone is idle, never during the first
     // paint, first tap or a transition. A saved session loads it sooner.
     if (Cfg.accounts) {
-      let saved = true; try { saved = !!localStorage.getItem('hc_auth'); } catch (e) {}
+      let saved = true; try { saved = !!localStorage.getItem('hc_auth') || /[?&]auth=google/.test(location.search); } catch (e) {}
       const go = () => Auth.init().catch((e) => { console.warn('auth init', e && e.message); Auth.ready = true; Guest.sync(); });
       if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: saved ? 1200 : 3500 }); else setTimeout(go, saved ? 0 : 1200);
     } else { Auth.ready = true; Guest.sync(); }
     Ent._was = Ent.tier();
     setInterval(() => Ent.tick(), 1000);
     window.addEventListener('online', () => { if (Auth.signedIn()) Auth.refresh().then(() => Premium.load()); });
+    if (/[?&]pay=/.test(location.search)) Pay.onReturn().catch((e) => console.warn('pay return', e && e.message));
   },
 };
 
