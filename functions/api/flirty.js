@@ -14,6 +14,8 @@ export const onRequestPost = handle(async ({ request, env }) => {
   await limit(env, 'flirty-user', user.id, 240, 600);
   const body = await readJson(request, 2048);
   const window = limitWindow();
+  // v20.7: Base Flirty is unlimited, nothing to count
+  if (LIMITS.base.flirty == null) return json(body.sync ? { window, flirty: {}, limit: null, unlimited: true } : { ok: true, used: null, unlimited: true, window, limit: null });
   if (body.sync && typeof body.sync === 'object' && !Array.isArray(body.sync)) {
     const counts = {};
     for (const g of GAME_IDS) if (Number.isFinite(+body.sync[g])) counts[g] = Math.max(0, Math.min(LIMITS.base.flirty, Math.floor(+body.sync[g])));
