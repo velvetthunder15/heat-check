@@ -33,16 +33,18 @@ const ICONS = {
 };
 const icon = (k) => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>`;
 const perkList = (items) => `<ul class="perk-list">${items.map(([k, t]) => `<li>${icon(k)}<span>${esc(t)}</span></li>`).join('')}</ul>`;
-const GUEST_PERKS = [['flame', `Free ${HEAT[2].name} card per game`], ['heat', `Free ${HOT} card per game`], ['sync', 'Sync your progress'], ['bag', 'Buy Lite or Premium']];
-// v20.5: the guest sign-in offer, one wording everywhere
-const FREE_SPICY_CTA = `Sign in for a free ${HEAT[2].name} card`;
-const FREE_REASON = `Sign in and every game gives you a free ${HEAT[2].name} card and a free ${HOT} card. No passwords, just a code.`;
+const GUEST_PERKS = [['infinity', 'Unlimited Flirty cards'], ['sync', 'Sync your progress'], ['bag', 'Buy Lite or Premium']];
+// v20.7: Google's four-colour G for "Continue with Google" (brand guidelines: white button, colour mark)
+const GOOGLE_G = '<svg class="g-mark" viewBox="0 0 18 18" width="18" height="18" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>';
+// v20.7: the guest sign-in offer (hard paywall), one wording everywhere
+const FREE_SPICY_CTA = 'Sign in for unlimited Flirty';
+const FREE_REASON = 'Sign in free and Flirty is unlimited in every game.';
 /* v20.5: card totals on the plan sheet. Flirty is stamped at build time (HC.CARD_COUNTS); Spicy and Hot come
    live from /api/config (premium_cards counts) when it has them. A count that isn't known is left off. */
 const cardCount = (k) => { const live = Cfg.data && Cfg.data.cards && Number(Cfg.data.cards[k]); const n = Number.isFinite(live) && live > 0 ? live : Number(HC.CARD_COUNTS && HC.CARD_COUNTS[k]); return Number.isFinite(n) && n > 0 ? n : 0; };
 // Paywall rows: [icon, text, included, card count]. Lite shows its first three, the fourth (Premium's) dimmed.
 // Premium shows all four of its own. A count of 0 (not known) shows no bracket.
-const liteRows = () => [['flame', `Unlimited Flirty + ${HEAT[2].name}`, true, cardCount('flirty') && cardCount('spicy') ? cardCount('flirty') + cardCount('spicy') : 0], ['heat', `${HC.LIMITS.lite.hot} ${HOT} cards per game`, true], ['music', 'Velvet sound pack', true], ['infinity', `Unlimited ${HOT}`, false, cardCount('hot')]];
+const liteRows = () => [['flame', `Unlimited Flirty + ${HEAT[2].name}`, true, cardCount('flirty') && cardCount('spicy') ? cardCount('flirty') + cardCount('spicy') : 0], ...(HC.LIMITS.lite.hot ? [['heat', `${HC.LIMITS.lite.hot} ${HOT} cards per game`, true]] : []), ['music', 'Velvet sound pack', true], ['infinity', `Unlimited ${HOT}`, false, cardCount('hot')]];
 const premiumRows = () => [['infinity', `Unlimited ${HOT}, every game`, true, cardCount('hot')], ['group', 'Unlimited players', true], ['bookmark', 'Saved player names', true], ['sparkle', 'Midnight and Neon looks', true]];
 
 const fmtDate = (iso, time = true) => {
@@ -136,8 +138,8 @@ const UI = {
     };
   },
 
-  /* ---------- Sign in: email, then a 6-digit code ---------- */
-  signIn({ then, reason } = {}) {
+  /* ---------- Sign in: Google (v20.7), or email then a 6-digit code ---------- */
+  signIn({ then, reason, after } = {}) {
     if (!Cfg.accounts) {
       return this.sheet(`<h2>Accounts are almost here</h2><p class="muted">Sign-in, Lite and Premium are switching on soon. Everything free still works, no account needed.</p>
         <button class="btn block ghost" data-close style="margin-top:12px">Got it</button>`);
@@ -145,8 +147,10 @@ const UI = {
     if (Auth.signedIn()) { then && then(); return null; }
     const s = this.sheet(`
       <div class="si-step" data-step="email">
-        <h2>Sign in with email</h2>
-        <p class="muted">${esc(reason || 'No passwords. We email you a 6-digit code.')}</p>
+        <h2>Sign in</h2>
+        <p class="muted">${esc(reason || 'Free, and Flirty is unlimited in every game.')}</p>
+        <div class="si-gwrap" id="siGwrap" hidden><button class="btn block si-google" id="siGoogle" type="button">${GOOGLE_G}<span>Continue with Google</span></button>
+        <div class="si-or" aria-hidden="true"><span>or use your email</span></div></div>
         <label class="sr-only" for="siEmail">Email</label>
         <input class="input" id="siEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com" enterkeyhint="send">
         <div class="ts-box" id="tsBox"></div>
@@ -163,6 +167,13 @@ const UI = {
         <div class="ts-box" id="tsBox2"></div>
       </div>`, { cls: 'si' });
     const el = s.el;
+    const gBtn = $('#siGoogle', el);
+    Auth.googleOn().then((on) => { if (on) $('#siGwrap', el).hidden = false; });
+    gBtn.onclick = async () => {
+      this.err($('#siErr', el), ''); this.busy(gBtn, true, 'Opening Google…');
+      try { sessionStorage.setItem('hc_after_auth', JSON.stringify(after || null)); } catch (e) {}
+      try { await Auth.google(); } catch (e) { this.busy(gBtn, false); this.err($('#siErr', el), e.message); }
+    };
     let token = null, email = '', tsId = null, tsId2 = null, token2 = null, timer = 0, left = 0, tries = 0, verifying = false;
     const emailIn = $('#siEmail', el), send = $('#siSend', el), err = $('#siErr', el), err2 = $('#siErr2', el), resend = $('#siResend', el);
     const valid = () => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailIn.value.trim());
@@ -264,7 +275,7 @@ const UI = {
       if (!Auth.signedIn()) {
         // Guests sign in with an email code first, then come straight back to the paywall
         $$('.acct-wrap.pw-wrap').forEach((w) => w.remove());
-        return this.signIn({ reason: 'Sign in first so your purchase stays with your account. No passwords, just a code.', then: () => this.paywall({ game, reason }) });
+        return this.signIn({ reason: 'Sign in first so your purchase stays with your account.', after: { do: 'paywall', game: game || null }, then: () => this.paywall({ game, reason }) });
       }
       this.err(err, '');
       $$('[data-buy]', host).forEach((x) => (x.disabled = true));
@@ -301,7 +312,7 @@ const UI = {
         ${game && Taste.canClaim(game) && document.getElementById('stage') ? '<button class="btn block ghost sm" id="pwTaste" style="margin-top:12px">Or use your free ' + HOT + ' card</button>' : ''}
         <p class="form-err" id="pwErr" role="alert" hidden></p>
         <p class="note center pw-foot">${Auth.signedIn() ? '' : '<button class="linkish" id="pwRestore">Already bought? Restore purchase</button><br>'}
-          UPI, cards and more via Razorpay. <a href="/terms">Terms</a> · <a href="/refund">Refunds</a></p>
+          UPI, cards and more via PayU. <a href="/terms">Terms</a> · <a href="/refund">Refunds</a></p>
         <button class="btn block ghost sm" data-close>Not now</button>
       </div>`, { cls: 'pw-wrap' });
     const el = s.el, err = $('#pwErr', el);
@@ -344,7 +355,7 @@ const UI = {
     const s = this.sheet(`
       <div class="pw lim">
         <h2>${spicyNow && hotNow ? 'Use a free card?' : tasteNow ? `Use your free ${spicyNow ? SPICY : HOT} card?` : 'Unlock more'}</h2>
-        <p class="muted">${tier === 'guest' ? `That’s ${cap} Flirty cards in ${esc(title)} today. Sign in for a free ${SPICY} card, or unlock everything.`
+        <p class="muted">${tier === 'guest' ? `That’s ${cap} Flirty cards in ${esc(title)} today. Sign in for unlimited Flirty, or unlock everything.`
           : tasteNow ? `That’s ${cap} Flirty cards in ${esc(title)} today. This game’s ${waiting} still waiting.`
             : tier === 'base' ? `That’s ${cap} Flirty cards and your free ${SPICY} and ${HOT} cards in ${esc(title)} today.`
               : `That’s ${cap} Flirty cards in ${esc(title)} today.`}</p>
@@ -374,17 +385,17 @@ const UI = {
   lockInfo(level, game = Core.game) {
     const tier = Ent.tier();
     if (level <= Core.levelCap(game)) return null;
-    // v20.5: guests are offered a free Spicy card for signing in; Base can spend a free Spicy card per game
-    if (tier === 'guest') return level === 2 ? { text: FREE_SPICY_CTA, act: 'signin' } : { text: `Sign in for a free ${HEAT[2].name} card and a free ${HOT} card`, act: 'signin' };
+    // v20.7 hard paywall: Spicy is Lite or Premium, HOT is Premium; guests see the plans (the paywall signs them in first)
     if (level === 2) {
       if (tier === 'base' && (game ? Taste.canClaim(game, 2) : Taste.unusedAny(2))) return { text: `Use your free ${HEAT[2].name} card?`, act: 'taste2' };
-      return { text: 'Spicy needs Lite or Premium.', act: 'plans' };
+      return { text: `${HEAT[2].name} needs Lite or Premium.`, act: 'plans' };
     }
     if (tier === 'base') {
       const unused = game ? Taste.canClaim(game) : Taste.unusedAny();
-      return unused ? { text: `Use your free ${HOT} card?`, act: 'taste' } : { text: `${HOT} is locked. Lite or Premium unlocks it.`, act: 'plans' };
+      return unused ? { text: `Use your free ${HOT} card?`, act: 'taste' } : { text: `${HOT} is in Premium.`, act: 'premium' };
     }
-    if (tier === 'lite') return { text: `${HC.LIMITS.lite.hot} ${HOT} cards used here. Premium has unlimited.`, act: 'premium' };
+    if (tier === 'lite') return HC.LIMITS.lite.hot ? { text: `${HC.LIMITS.lite.hot} ${HOT} cards used here. Premium has unlimited.`, act: 'premium' } : { text: `${HOT} is in Premium.`, act: 'premium' };
+    if (tier === 'guest') return { text: `${HOT} is in Premium.`, act: 'plans' };
     return null;
   },
   lockActions(info) {
@@ -574,7 +585,7 @@ const UI = {
         <div class="row" style="justify-content:center;gap:8px"><span class="plan-badge ${tier}">${tier === 'premium' ? 'Premium · Lifetime' : PLAN_LABEL[tier]}</span><span class="note">Member since ${esc(fmtDate(p.created_at, false))}</span></div>
       </section>
       <section class="pf-card"><h3>${tier === 'base' ? 'Plans' : 'Your plan'}</h3>${plan}</section>
-      ${['premium', 'lite'].includes(Ent.profileTier()) ? '' : `<section class="pf-card"><h3>Free cards</h3>${this.tasteTracker()}</section>`}
+      ${['premium', 'lite'].includes(Ent.profileTier()) || !(HC.LIMITS.base.taste || HC.LIMITS.base.spicyTaste) ? '' : `<section class="pf-card"><h3>Free cards</h3>${this.tasteTracker()}</section>`}
       <section class="pf-card"><h3>Purchase history</h3><div id="pfPurchases"><p class="note">Digging out your receipts…</p></div>
         <p class="note"><a href="/refund">Need a refund?</a></p></section>
       <section class="pf-card"><h3>Preferences</h3>
@@ -725,7 +736,7 @@ const UI = {
         <tr><th>Payment ID</th><td>${esc(r.razorpay_payment_id || '')}</td></tr>
         <tr><th>Order ID</th><td>${esc(r.razorpay_order_id || '')}</td></tr>
       </table>
-      <p class="rc-note">Paid via Razorpay. This is a payment receipt, not a tax invoice.${SITE.contact ? ` Questions: ${esc(SITE.contact)}` : ''}</p>
+      <p class="rc-note">Paid via ${r.provider === 'payu' ? 'PayU' : 'Razorpay'}. This is a payment receipt, not a tax invoice.${SITE.contact ? ` Questions: ${esc(SITE.contact)}` : ''}</p>
       <div class="rc-actions"><button class="btn" data-print>Save as PDF / Print</button><button class="btn ghost" data-x>Close</button></div></div>`;
     document.getElementById('app').appendChild(o);
     o.querySelector('[data-x]').onclick = () => o.remove();
